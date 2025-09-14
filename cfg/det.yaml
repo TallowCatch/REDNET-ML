@@ -1,0 +1,5 @@
+path: data/labels/detection
+train: images/train
+val: images/val
+test: images/test
+names: [bloom]
