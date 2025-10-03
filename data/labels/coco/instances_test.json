@@ -1,0 +1,146 @@
+{
+  "info": {
+    "description": "REDNET HAB detection (YOLO\u2192COCO)",
+    "version": "1.0",
+    "year": 2025
+  },
+  "licenses": [
+    {
+      "id": 1,
+      "name": "unknown",
+      "url": ""
+    }
+  ],
+  "images": [
+    {
+      "id": 1,
+      "file_name": "AQUA_MODIS.20230901_20230930.L3m.MO.CHL.x_chlor_a_r000_c000.png",
+      "width": 64,
+      "height": 64,
+      "license": 1
+    },
+    {
+      "id": 2,
+      "file_name": "AQUA_MODIS.20231101_20231130.L3m.MO.CHL.x_chlor_a_r000_c000.png",
+      "width": 64,
+      "height": 64,
+      "license": 1
+    },
+    {
+      "id": 3,
+      "file_name": "AQUA_MODIS.20231101_20231130.L3m.MO.CHL.x_chlor_a_r000_c002.png",
+      "width": 64,
+      "height": 64,
+      "license": 1
+    },
+    {
+      "id": 4,
+      "file_name": "AQUA_MODIS.20231101_20231130.L3m.MO.CHL.x_chlor_a_r002_c002.png",
+      "width": 64,
+      "height": 64,
+      "license": 1
+    },
+    {
+      "id": 5,
+      "file_name": "AQUA_MODIS.20240101_20240131.L3m.MO.CHL.x_chlor_a_r002_c002.png",
+      "width": 64,
+      "height": 64,
+      "license": 1
+    },
+    {
+      "id": 6,
+      "file_name": "AQUA_MODIS.20240201_20240229.L3m.MO.CHL.x_chlor_a_r000_c000.png",
+      "width": 64,
+      "height": 64,
+      "license": 1
+    },
+    {
+      "id": 7,
+      "file_name": "AQUA_MODIS.20240201_20240229.L3m.MO.CHL.x_chlor_a_r002_c002.png",
+      "width": 64,
+      "height": 64,
+      "license": 1
+    },
+    {
+      "id": 8,
+      "file_name": "AQUA_MODIS.20241201_20241231.L3m.MO.CHL.x_chlor_a_r002_c002.png",
+      "width": 64,
+      "height": 64,
+      "license": 1
+    },
+    {
+      "id": 9,
+      "file_name": "AQUA_MODIS.20250301_20250331.L3m.MO.CHL.x_chlor_a_r000_c000.png",
+      "width": 64,
+      "height": 64,
+      "license": 1
+    },
+    {
+      "id": 10,
+      "file_name": "AQUA_MODIS.20250501_20250531.L3m.MO.CHL.x_chlor_a_r000_c000.png",
+      "width": 64,
+      "height": 64,
+      "license": 1
+    }
+  ],
+  "annotations": [
+    {
+      "category_id": 1,
+      "bbox": [
+        6.999967999999999,
+        12.0,
+        19.0,
+        40.0
+      ],
+      "area": 760.0,
+      "iscrowd": 0,
+      "image_id": 4,
+      "id": 1
+    },
+    {
+      "category_id": 1,
+      "bbox": [
+        7.0,
+        12.000032000000001,
+        16.0,
+        31.0
+      ],
+      "area": 496.0,
+      "iscrowd": 0,
+      "image_id": 5,
+      "id": 2
+    },
+    {
+      "category_id": 1,
+      "bbox": [
+        7.000032000000001,
+        12.0,
+        21.0,
+        32.0
+      ],
+      "area": 672.0,
+      "iscrowd": 0,
+      "image_id": 7,
+      "id": 3
+    },
+    {
+      "category_id": 1,
+      "bbox": [
+        5.999968000000001,
+        12.0,
+        17.0,
+        42.0
+      ],
+      "area": 714.0,
+      "iscrowd": 0,
+      "image_id": 8,
+      "id": 4
+    }
+  ],
+  "categories": [
+    {
+      "id": 1,
+      "name": "HAB"
+    }
+  ]
+}

@@ -1,0 +1,158 @@
+{
+  "info": {
+    "description": "REDNET HAB detection (YOLO\u2192COCO)",
+    "version": "1.0",
+    "year": 2025
+  },
+  "licenses": [
+    {
+      "id": 1,
+      "name": "unknown",
+      "url": ""
+    }
+  ],
+  "images": [
+    {
+      "id": 1,
+      "file_name": "AQUA_MODIS.20230901_20230930.L3m.MO.CHL.x_chlor_a_r002_c002.png",
+      "width": 64,
+      "height": 64,
+      "license": 1
+    },
+    {
+      "id": 2,
+      "file_name": "AQUA_MODIS.20231001_20231031.L3m.MO.CHL.x_chlor_a_r002_c002.png",
+      "width": 64,
+      "height": 64,
+      "license": 1
+    },
+    {
+      "id": 3,
+      "file_name": "AQUA_MODIS.20240601_20240630.L3m.MO.CHL.x_chlor_a_r000_c000.png",
+      "width": 64,
+      "height": 64,
+      "license": 1
+    },
+    {
+      "id": 4,
+      "file_name": "AQUA_MODIS.20241001_20241031.L3m.MO.CHL.x_chlor_a_r002_c002.png",
+      "width": 64,
+      "height": 64,
+      "license": 1
+    },
+    {
+      "id": 5,
+      "file_name": "AQUA_MODIS.20241101_20241130.L3m.MO.CHL.x_chlor_a_r002_c002.png",
+      "width": 64,
+      "height": 64,
+      "license": 1
+    },
+    {
+      "id": 6,
+      "file_name": "AQUA_MODIS.20250101_20250131.L3m.MO.CHL.x_chlor_a_r002_c002.png",
+      "width": 64,
+      "height": 64,
+      "license": 1
+    },
+    {
+      "id": 7,
+      "file_name": "AQUA_MODIS.20250201_20250228.L3m.MO.CHL.x_chlor_a_r000_c000.png",
+      "width": 64,
+      "height": 64,
+      "license": 1
+    },
+    {
+      "id": 8,
+      "file_name": "AQUA_MODIS.20250501_20250531.L3m.MO.CHL.x_chlor_a_r000_c002.png",
+      "width": 64,
+      "height": 64,
+      "license": 1
+    }
+  ],
+  "annotations": [
+    {
+      "category_id": 1,
+      "bbox": [
+        0,
+        0,
+        45.0,
+        60.0
+      ],
+      "area": 2700.0,
+      "iscrowd": 0,
+      "image_id": 1,
+      "id": 1
+    },
+    {
+      "category_id": 1,
+      "bbox": [
+        3.1999999999143824e-05,
+        47.0,
+        23.0,
+        12.0
+      ],
+      "area": 276.0,
+      "iscrowd": 0,
+      "image_id": 2,
+      "id": 2
+    },
+    {
+      "category_id": 1,
+      "bbox": [
+        6.999967999999999,
+        0,
+        39.0,
+        44.0
+      ],
+      "area": 1716.0,
+      "iscrowd": 0,
+      "image_id": 2,
+      "id": 3
+    },
+    {
+      "category_id": 1,
+      "bbox": [
+        0,
+        0,
+        46.0,
+        56.0
+      ],
+      "area": 2576.0,
+      "iscrowd": 0,
+      "image_id": 4,
+      "id": 4
+    },
+    {
+      "category_id": 1,
+      "bbox": [
+        6.0,
+        0,
+        32.0,
+        53.0
+      ],
+      "area": 1696.0,
+      "iscrowd": 0,
+      "image_id": 5,
+      "id": 5
+    },
+    {
+      "category_id": 1,
+      "bbox": [
+        6.999968000000001,
+        11.999967999999999,
+        15.0,
+        37.0
+      ],
+      "area": 555.0,
+      "iscrowd": 0,
+      "image_id": 6,
+      "id": 6
+    }
+  ],
+  "categories": [
+    {
+      "id": 1,
+      "name": "HAB"
+    }
+  ]
+}
