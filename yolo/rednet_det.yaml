@@ -1,0 +1,8 @@
+# yolo/rednet_det.yaml
+path: data/labels/detection
+train: /Users/ameerfiras/REDNET-ML/data/labels/detection/images/train
+val:   /Users/ameerfiras/REDNET-ML/data/labels/detection/images/val
+test:  /Users/ameerfiras/REDNET-ML/data/labels/detection/images/test
+
+names:
+  0: HAB
