@@ -1,16 +1,15 @@
-# src/torchvision_det/eval_ap.py
+from src.torchvision_det.mps_patch import *  # sets MPS fallback + CPU NMS
 import os
-os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
+os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")  # must be before torchvision import
 
 import json, torch, torchvision
 from pathlib import Path
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
 from torch.utils.data import DataLoader
-import torchvision.transforms as T
 from .ds_torchvision import HABDetDataset, collate_fn
 
-def load_model(weights, num_classes=2, device='cpu'):
+def load_frcnn_resnet50(weights, num_classes=2, device='cpu'):
     m = torchvision.models.detection.fasterrcnn_resnet50_fpn(weights=None)
     in_feats = m.roi_heads.box_predictor.cls_score.in_features
     m.roi_heads.box_predictor = torchvision.models.detection.faster_rcnn.FastRCNNPredictor(in_feats, num_classes)
@@ -19,52 +18,50 @@ def load_model(weights, num_classes=2, device='cpu'):
     return m
 
 @torch.no_grad()
-def infer_to_coco(model, coco_gt, split='val', img_size=640, device='cpu'):
-    # NOTE: square resize will distort aspect ratio; we correct by scaling back
+def infer_to_coco(model, split='val', device='cpu', img_size=640):
+    import torchvision.transforms as T
     tfm = T.Compose([T.Resize((img_size, img_size)), T.ToTensor()])
-    ds = HABDetDataset(split, transforms=tfm)
-    dl = DataLoader(ds, batch_size=1, shuffle=False, collate_fn=collate_fn, num_workers=0)
+    from .ds_torchvision import HABDetDataset, collate_fn
+    ds = HABDetDataset(split, transforms=tfm)   # <- same resize as training
+    from torch.utils.data import DataLoader
+    dl = DataLoader(ds, batch_size=1, shuffle=False, num_workers=0, collate_fn=collate_fn)
 
     results = []
     for imgs, targets in dl:
         img = imgs[0].to(device)
-        image_id = int(targets[0]["image_id"])
+        image_id = int(targets[0]["image_id"].item())
         pred = model([img])[0]
-
-        # original size from COCO
-        im_info = coco_gt.imgs[image_id]
-        W0, H0 = float(im_info["width"]), float(im_info["height"])
-        sx, sy = W0 / float(img_size), H0 / float(img_size)
-
-        boxes = pred['boxes'].cpu().tolist()
-        scores = pred['scores'].cpu().tolist()
-        labels = pred['labels'].cpu().tolist()
-        for (x1, y1, x2, y2), s, c in zip(boxes, scores, labels):
-            # scale back to original size and convert to [x, y, w, h]
-            x1o, y1o, x2o, y2o = x1 * sx, y1 * sy, x2 * sx, y2 * sy
+        # do NOT filter by score; COCOeval uses them
+        for (x1, y1, x2, y2), s, c in zip(pred['boxes'].cpu(), pred['scores'].cpu(), pred['labels'].cpu()):
             results.append({
                 "image_id": image_id,
-                "category_id": int(c),
-                "bbox": [float(x1o), float(y1o), float(x2o - x1o), float(y2o - y1o)],
-                "score": float(s),
+                "category_id": int(c),                          # 1 = HAB
+                "bbox": [float(x1), float(y1), float(x2-x1), float(y2-y1)],  # xywh
+                "score": float(s)
             })
     return results
-
-def eval_split(weights='runs/detect/frcnn/best.pt', split='val', img_size=640, device=None):
+# the path to change
+def eval_split(weights='runs/detect/frcnn/best.pt', split='val', device=None, cache_dir='runs/detect/coco_cache'):
     device = device or ('cuda' if torch.cuda.is_available()
                         else 'mps' if torch.backends.mps.is_available()
                         else 'cpu')
-    model = load_model(weights, device=device)
+
+    Path(cache_dir).mkdir(parents=True, exist_ok=True)
+    cache_path = Path(cache_dir) / f"pred_{Path(weights).parent.name}_{split}.json"
+
+    if cache_path.exists():
+        results = json.loads(cache_path.read_text())
+    else:
+        model = load_frcnn_resnet50(weights, device=device)
+        results = infer_to_coco(model, split, device)
+        cache_path.write_text(json.dumps(results))
 
     ann_path = Path('data/labels/coco') / f'instances_{split}.json'
     coco_gt = COCO(str(ann_path))
-
-    results = infer_to_coco(model, coco_gt, split, img_size, device)
     coco_dt = coco_gt.loadRes(results) if results else coco_gt.loadRes([])
-
-    coco_eval = COCOeval(coco_gt, coco_dt, iouType='bbox')
-    coco_eval.evaluate(); coco_eval.accumulate(); coco_eval.summarize()
-    return {"mAP50-95": float(coco_eval.stats[0]), "mAP50": float(coco_eval.stats[1])}
+    E = COCOeval(coco_gt, coco_dt, iouType='bbox')
+    E.evaluate(); E.accumulate(); E.summarize()
+    return {"mAP50-95": E.stats[0], "mAP50": E.stats[1]}
 
 if __name__ == "__main__":
     print(eval_split())
