@@ -1,9 +1,5 @@
 # src/train/train_regression.py
-import os, csv
-import math
-import time
-import argparse
-import random
+import os, csv, json, math, time, argparse, random
 import numpy as np
 import pandas as pd
 from PIL import Image
@@ -11,7 +7,6 @@ from PIL import Image
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
-
 from torchvision import models, transforms
 from torchvision.models import MobileNet_V3_Small_Weights
 
@@ -35,13 +30,11 @@ class ChlTiles(Dataset):
         if pretrained:
             # ImageNet normalization + resize from the weights object
             weights = MobileNet_V3_Small_Weights.DEFAULT
-            base_tx = weights.transforms()  # includes ToTensor + Normalize(mean,std) + resize/crop
-            # Convert grayscale->RGB before base transforms
+            base_tx = weights.transforms()  # ToTensor + Normalize + resize/crop
             self.tx = transforms.Compose([
                 transforms.Grayscale(num_output_channels=3),
                 base_tx
             ])
-            # Light geo augments + official normalization
             aug_geo = transforms.RandomChoice([
                 transforms.RandomHorizontalFlip(p=1.0),
                 transforms.RandomVerticalFlip(p=1.0),
@@ -74,13 +67,12 @@ class ChlTiles(Dataset):
 
     def __getitem__(self, i: int):
         r = self.df.iloc[i]
-        img = Image.open(r.filepath)  # do not .convert() here; handled in transforms
+        img = Image.open(r.filepath)  # transforms handle conversion
         x = (self.tx_aug if self.aug else self.tx)(img)
 
         y = float(r.chl)
         if self.log_target:
             y = np.log1p(y)  # stable for small values
-
         y = torch.tensor([y], dtype=torch.float32)
         return x, y
 
@@ -139,13 +131,34 @@ def train(args):
     tl = DataLoader(tr, batch_size=args.bs, shuffle=True,  num_workers=0, pin_memory=False)
     vl = DataLoader(va, batch_size=args.bs, shuffle=False, num_workers=0, pin_memory=False)
 
+    # ---- compute target stats (in log space if requested) from TRAIN split ----
+    y_train = tr.df["chl"].astype(float).values
+    if bool(args.log_target):
+        y_train = np.log1p(y_train)
+    mu, sigma = float(np.mean(y_train)), float(np.std(y_train) + 1e-8)
+
+    # save stats for evaluation
+    with open(os.path.join(args.out, "target_stats.json"), "w") as f:
+        json.dump({"mu": mu, "sigma": sigma, "log_target": int(args.log_target)}, f)
+
+    def _standardize(t: torch.Tensor) -> torch.Tensor:
+        return (t - mu) / sigma
+
+    def _destandardize(t: torch.Tensor) -> torch.Tensor:
+        return t * sigma + mu
+
     model = build_model(pretrained=bool(args.pretrained)).to(device)
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-4)
-    crit = nn.SmoothL1Loss(beta=0.1)
+    crit = nn.MSELoss()  # standardized target
+    sched = torch.optim.lr_scheduler.ReduceLROnPlateau(
+        opt, mode="min", factor=0.5, patience=3
+    )
+
+    
 
     best_rmse = math.inf
 
-    # ---- CSV log files ----
+    # ---- CSV logs ----
     tr_csv_path = os.path.join(args.out, "train_log.csv")
     va_csv_path = os.path.join(args.out, "val_log.csv")
     tr_csv = open(tr_csv_path, "w", newline=""); trw = csv.writer(tr_csv); trw.writerow(["epoch","train_loss"])
@@ -158,33 +171,47 @@ def train(args):
 
         for x, y in tl:
             x, y = x.to(device), y.to(device)
+            y_std = _standardize(y)
             opt.zero_grad(set_to_none=True)
-            pred = model(x)
-            loss = crit(pred, y)
+            pred_std = model(x)
+            loss = crit(pred_std, y_std)
             loss.backward()
             opt.step()
             loss_sum += loss.item() * x.size(0)
 
         tr_loss = loss_sum / len(tr)
 
-        # validation (RMSE computed in training target space, i.e., log if log_target=1)
+        # ---- validation RMSE in original physical space (mg/m^3) ----
         model.eval()
         se, n = 0.0, 0
         with torch.no_grad():
             for x, y in vl:
                 x, y = x.to(device), y.to(device)
-                p = model(x)
-                se += ((p - y) ** 2).sum().item()
-                n += y.numel()
+                pred_std = model(x)
+                pred_t   = _destandardize(pred_std)   # back to raw/log space
+                if bool(args.log_target):
+                    pred_phys = torch.expm1(pred_t)
+                    y_phys    = torch.expm1(y)
+                else:
+                    pred_phys = pred_t
+                    y_phys    = y
+                se += ((pred_phys - y_phys) ** 2).sum().item()
+                n  += y_phys.numel()
+
         rmse = math.sqrt(se / n)
+        sched.step(rmse)
 
-        print(f"epoch {epoch:03d} | train {tr_loss:.4f} | val RMSE {rmse:.3f} | {time.time() - t0:.1f}s")
+        old_lr = opt.param_groups[0]['lr']
+        new_lr = opt.param_groups[0]['lr']
+        if new_lr != old_lr:
+            print(f"⚠️ LR reduced: {old_lr:.2e} → {new_lr:.2e}")
 
-        # write CSV rows and flush
+        print(f"epoch {epoch:03d} | train {tr_loss:.4f} | val RMSE {rmse:.3f} | "
+              f"lr {opt.param_groups[0]['lr']:.2e} | {time.time()-t0:.1f}s")
+
         trw.writerow([epoch, tr_loss]); tr_csv.flush()
         vaw.writerow([epoch, rmse]);    va_csv.flush()
 
-        # checkpoints
         torch.save(model.state_dict(), os.path.join(args.out, "last.pt"))
         if rmse < best_rmse:
             best_rmse = rmse
@@ -199,11 +226,11 @@ def train(args):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--csv", default="data/labels/regression.csv")
-    ap.add_argument("--out", default="runs/regression_baseline")
+    ap.add_argument("--out", default="runs/reg_log_mobilenet_imagenet")
     ap.add_argument("--bs", type=int, default=64)
-    ap.add_argument("--lr", type=float, default=3e-4)
-    ap.add_argument("--epochs", type=int, default=20)
+    ap.add_argument("--lr", type=float, default=1e-4)
+    ap.add_argument("--epochs", type=int, default=40)
     ap.add_argument("--pretrained", type=int, default=1)   # 1=use ImageNet weights
-    ap.add_argument("--log_target", type=int, default=0)   # 1=train on log1p(chl)
+    ap.add_argument("--log_target", type=int, default=1)   # 1=train on log1p(chl)
     args = ap.parse_args()
     train(args)

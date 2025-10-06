@@ -1,6 +1,7 @@
 # src/torchvision_det/train_frcnn_resnet50.py
 from __future__ import annotations
 import os, time, torch, torchvision
+from src.torchvision_det.mps_patch import *  # sets MPS fallback + CPU NMS
 os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")  # MPS -> CPU for unsupported ops
 from pathlib import Path
 from torch.utils.data import DataLoader
