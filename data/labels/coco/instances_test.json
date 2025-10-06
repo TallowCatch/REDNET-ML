@@ -1,16 +1,4 @@
 {
-  "info": {
-    "description": "REDNET HAB detection (YOLO\u2192COCO)",
-    "version": "1.0",
-    "year": 2025
-  },
-  "licenses": [
-    {
-      "id": 1,
-      "name": "unknown",
-      "url": ""
-    }
-  ],
   "images": [
     {
       "id": 1,

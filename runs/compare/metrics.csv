@@ -1,0 +1,4 @@
+model,arch,img_size,params_M,FPS,mAP50-95,mAP50,weights,error
+Faster R-CNN ResNet50-FPN,frcnn_resnet50,640,41.08,2.0,0.0,0.0,runs/detect/frcnn_resnet50/best.pt,
+Faster R-CNN MobileNetV3-320,frcnn_mobilenet,320,18.87,30.7,0.0,0.0,runs/detect/frcnn_mobilenet/best.pt,
+SSD-Lite MobileNetV3-320,ssd_mobilenet,320,3.71,39.3,0.0,0.0001,runs/detect/ssd_mobilenet/best.pt,
