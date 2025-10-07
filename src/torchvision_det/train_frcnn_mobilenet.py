@@ -1,7 +1,10 @@
 # src/torchvision_det/train_frcnn_mobilenet.py
 from __future__ import annotations
-import os, time, torch, torchvision
-os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")
+import os
+os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")  # MPS -> CPU for unsupported ops
+os.environ.setdefault("OMP_NUM_THREADS", "1")
+import time, torch, torchvision
+from src.torchvision_det.mps_patch import *  # sets MPS fallback + CPU NMS
 from pathlib import Path
 from torch.utils.data import DataLoader
 import torchvision.transforms as T
