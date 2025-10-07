@@ -1,82 +1,111 @@
 # src/torchvision_det/yolo2coco.py
-import json
+from __future__ import annotations
+import json, re
 from pathlib import Path
 from PIL import Image
 
-# ---- PATHS (run from repo root: REDNET-ML/) ----
-BASE     = Path(".")                                  # <— repo root
-IMG_DIR  = BASE / "data" / "chl_tiles" / "tiles_png"  # images
-YOLO_DIR = BASE / "data" / "labels" / "detection"     # yolo .txts
-OUT_DIR  = BASE / "data" / "labels" / "coco"          # coco output
+# --- paths (run from repo root) ---
+BASE = Path(".")
+IMG_DIR = BASE / "data" / "chl_tiles" / "tiles_png"        # where your PNG tiles live
+LBL_ROOT = BASE / "data" / "labels" / "detection"          # will be searched recursively
+OUT_DIR = BASE / "data" / "labels" / "coco"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-# Single class (HAB). COCO category ids start at 1.
 CATEGORIES = [{"id": 1, "name": "HAB"}]
-EXTS = {".png", ".jpg", ".jpeg"}
+IMG_EXTS = {".png", ".jpg", ".jpeg"}
 
-def _ensure_layout():
-    missing = [p for p in [IMG_DIR, YOLO_DIR] if not p.exists()]
-    if missing:
-        msg = "Missing required path(s):\n" + "\n".join(f"  - {p}" for p in missing)
-        msg += "\nRun this from the REDNET-ML repo root."
-        raise SystemExit(msg)
+def all_label_files(root: Path):
+    return sorted(p for p in root.rglob("*.txt") if p.is_file())
 
-def list_images():
-    return sorted([p for p in IMG_DIR.iterdir() if p.suffix.lower() in EXTS])
+def find_image_for_stem(stem: str):
+    for ext in IMG_EXTS:
+        p = IMG_DIR / f"{stem}{ext}"
+        if p.exists():
+            return p
+    return None
 
-def yolo_txt_to_boxes(txt_path, w, h):
-    boxes = []
-    if not txt_path.exists():
-        return boxes
-    for line in txt_path.read_text().strip().splitlines():
-        if not line.strip():
-            continue
-        parts = line.split()
+def parse_yolo_file(txt_path: Path, w: int, h: int):
+    anns = []
+    lines = [ln.strip() for ln in txt_path.read_text().splitlines() if ln.strip()]
+    for ln in lines:
+        parts = ln.split()
         if len(parts) < 5:
             continue
-        cls, cx, cy, bw, bh = map(float, parts[:5])
-        x  = (cx - bw/2.0) * w
-        y  = (cy - bh/2.0) * h
-        ww = bw * w
-        hh = bh * h
-        boxes.append({
-            "category_id": int(cls) + 1,        # YOLO 0 -> COCO 1
-            "bbox": [max(0.0, x), max(0.0, y), max(1.0, ww), max(1.0, hh)],
+        # YOLO: cls cx cy bw bh (normalized)
+        try:
+            cls, cx, cy, bw, bh = map(float, parts[:5])
+        except Exception:
+            continue
+        x = (cx - bw/2.0) * w
+        y = (cy - bh/2.0) * h
+        ww = max(1.0, bw * w)
+        hh = max(1.0, bh * h)
+        anns.append({
+            "category_id": int(cls) + 1,  # YOLO 0 -> COCO 1
+            "bbox": [max(0.0, x), max(0.0, y), ww, hh],
             "area": float(ww * hh),
             "iscrowd": 0,
             "segmentation": [],
         })
-    return boxes
+    return anns
 
-def build_coco(img_paths):
+def build_coco():
     images, annotations = [], []
     ann_id = 1
-    for img_id, img_path in enumerate(img_paths, start=1):
+    img_id = 1
+
+    label_files = all_label_files(LBL_ROOT)
+    stems_with_labels = set()
+    for lf in label_files:
+        stems_with_labels.add(lf.stem)
+
+    used = 0
+    for stem in sorted(stems_with_labels):
+        img_path = find_image_for_stem(stem)
+        if img_path is None:
+            continue
         with Image.open(img_path) as im:
             w, h = im.size
+        # find the *best* matching label file for this stem (prefer same-name in any subdir)
+        # if multiple exist, we merge their boxes.
+        anns = []
+        for lf in [p for p in label_files if p.stem == stem]:
+            anns += parse_yolo_file(lf, w, h)
+        if not anns:
+            continue
+
         images.append({
             "id": img_id,
-            "file_name": img_path.name,
-            "width": w,
-            "height": h,
+            "file_name": img_path.name,  # ds_torchvision loads from IMG_DIR + this name
+            "width": w, "height": h,
         })
-        txt = YOLO_DIR / f"{img_path.stem}.txt"
-        for b in yolo_txt_to_boxes(txt, w, h):
-            b["image_id"] = img_id
-            b["id"] = ann_id
-            annotations.append(b)
+        for a in anns:
+            a["image_id"] = img_id
+            a["id"] = ann_id
+            annotations.append(a)
             ann_id += 1
-    return {"images": images, "annotations": annotations, "categories": CATEGORIES}
 
-def main():
-    _ensure_layout()
-    imgs = list_images()
-    if not imgs:
-        raise SystemExit(f"No images found in {IMG_DIR}")
-    coco = build_coco(imgs)
-    out = OUT_DIR / "instances_all.json"
-    out.write_text(json.dumps(coco, indent=2))
-    print(f"Wrote {out} | images={len(coco['images'])}, anns={len(coco['annotations'])}")
+        img_id += 1
+        used += 1
+
+    coco = {
+        "images": images,
+        "annotations": annotations,
+        "categories": CATEGORIES,
+        "info": {"description": "HAB (YOLO→COCO, recursive)", "version": "1.0"},
+        "licenses": []
+    }
+    return coco
 
 if __name__ == "__main__":
-    main()
+    if not IMG_DIR.exists():
+        raise SystemExit(f"Missing images dir: {IMG_DIR.resolve()}")
+    if not LBL_ROOT.exists():
+        raise SystemExit(f"Missing labels root: {LBL_ROOT.resolve()}")
+
+    coco = build_coco()
+    out = OUT_DIR / "instances_all.json"
+    out.write_text(json.dumps(coco, indent=2))
+    print(f"Wrote {out}")
+    print(f"  images with labels: {len(coco['images'])}")
+    print(f"  annotations:       {len(coco['annotations'])}")
