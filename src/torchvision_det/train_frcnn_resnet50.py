@@ -9,7 +9,7 @@ os.environ.setdefault("OMP_NUM_THREADS", "1")
 # --- import our patch BEFORE torchvision so the monkey-patch is in place ---
 from src.torchvision_det.mps_patch import *  # noqa: F401,F403
 
-import time, math, argparse
+import time, math, argparse, csv
 from pathlib import Path
 import torch, torchvision
 from torch.utils.data import DataLoader
@@ -19,6 +19,19 @@ from src.torchvision_det.ds_torchvision import HABDetDataset, collate_fn, Resize
 OUT_DIR = Path("runs/detect/frcnn_resnet50")
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
+# ---- CSV logging helpers -----------------------------------------------------
+LOG_CSV = OUT_DIR / "val_log.csv"
+
+def _init_csv():
+    """Create CSV header if it doesn't exist."""
+    if not LOG_CSV.exists():
+        with open(LOG_CSV, "w", newline="") as f:
+            csv.writer(f).writerow(["phase", "epoch", "val_loss", "seconds", "ts"])
+
+def _log_row(phase: str, epoch: int, val_loss: float, seconds: float):
+    with open(LOG_CSV, "a", newline="") as f:
+        csv.writer(f).writerow([phase, int(epoch), float(val_loss), float(seconds), int(time.time())])
+# -----------------------------------------------------------------------------
 
 def get_device():
     if torch.cuda.is_available():
@@ -26,7 +39,6 @@ def get_device():
     if torch.backends.mps.is_available():
         return torch.device("mps")
     return torch.device("cpu")
-
 
 def build_model(backbone: str = "resnet", num_classes: int = 2):
     backbone = backbone.lower()
@@ -37,7 +49,6 @@ def build_model(backbone: str = "resnet", num_classes: int = 2):
     in_feats = m.roi_heads.box_predictor.cls_score.in_features
     m.roi_heads.box_predictor = torchvision.models.detection.faster_rcnn.FastRCNNPredictor(in_feats, num_classes)
     return m
-
 
 def get_loaders(bs=4, img_size=640, workers=0, filter_empty_train=True):
     tfm = ResizeWithBoxes((img_size, img_size))
@@ -55,7 +66,6 @@ def get_loaders(bs=4, img_size=640, workers=0, filter_empty_train=True):
     )
     return train_dl, val_dl
 
-
 def _coerce_target_dtypes(t, dev):
     """Make detection targets dtype-safe for TorchVision losses."""
     out = {}
@@ -70,7 +80,6 @@ def _coerce_target_dtypes(t, dev):
     if "area" in t:
         out["area"] = t["area"].to(dev, dtype=torch.float32)
     return out
-
 
 @torch.no_grad()
 def eval_loss(model, loader, dev, amp=False):
@@ -92,18 +101,15 @@ def eval_loss(model, loader, dev, amp=False):
         n += 1
     return total / max(1, n)
 
-
 def freeze_backbone(m):
     for p in m.backbone.parameters():
         p.requires_grad = False
-
 
 def unfreeze_rpn_and_head(m):
     for p in m.rpn.parameters():
         p.requires_grad = True
     for p in m.roi_heads.parameters():
         p.requires_grad = True
-
 
 def train(
     epochs_head=10,
@@ -152,6 +158,9 @@ def train(
                 opt.step()
                 opt.zero_grad(set_to_none=True)
 
+    # prepare CSV
+    _init_csv()
+
     # -------- Phase A: train ROI head only (fast warmup) --------
     best = float("inf")
     if epochs_head > 0:
@@ -165,10 +174,13 @@ def train(
             do_epoch(opt)
             v = eval_loss(m, val_dl, dev, amp=use_autocast) if (ep % eval_every == 0 or ep == epochs_head) else math.nan
             sched.step()
-            print(f"[FRCNN-{backbone.upper()}:head] ep {ep:02d}  val_loss={v:.4f}  {time.time()-t0:.1f}s")
-            if not math.isnan(v) and v < best:
-                best = v
-                torch.save(m.state_dict(), OUT_DIR / f"best_head_{backbone}.pt")
+            secs = time.time() - t0
+            print(f"[FRCNN-{backbone.upper()}:head] ep {ep:02d}  val_loss={v:.4f}  {secs:.1f}s")
+            if not math.isnan(v):
+                _log_row("head", ep, v, secs)
+                if v < best:
+                    best = v
+                    torch.save(m.state_dict(), OUT_DIR / f"best_head_{backbone}.pt")
 
     # -------- Phase B: fine-tune RPN + ROI head (backbone still frozen) --------
     unfreeze_rpn_and_head(m)
@@ -180,10 +192,13 @@ def train(
         do_epoch(opt)
         v = eval_loss(m, val_dl, dev, amp=use_autocast) if (ep % eval_every == 0 or ep == epochs_rpn) else math.nan
         sched.step()
-        print(f"[FRCNN-{backbone.upper()}:rpn+head] ep {ep:02d}  val_loss={v:.4f}  {time.time()-t0:.1f}s")
-        if not math.isnan(v) and v < best:
-            best = v
-            torch.save(m.state_dict(), OUT_DIR / f"best_{backbone}.pt")
+        secs = time.time() - t0
+        print(f"[FRCNN-{backbone.upper()}:rpn+head] ep {ep:02d}  val_loss={v:.4f}  {secs:.1f}s")
+        if not math.isnan(v):
+            _log_row("rpn+head", ep, v, secs)
+            if v < best:
+                best = v
+                torch.save(m.state_dict(), OUT_DIR / f"best_{backbone}.pt")
 
     # quick latency check
     m.eval()
@@ -195,7 +210,6 @@ def train(
     for _ in range(50):
         m(x)
     print(f"Inference ~{50/(time.time()-t0):.1f} FPS on {dev}")
-
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
