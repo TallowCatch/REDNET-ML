@@ -1,14 +1,17 @@
 # src/plots/vis_preds.py
 from __future__ import annotations
-import os, argparse, numpy as np, torch, torchvision
+import os
+os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")  # allow CPU fallback on Mac
+
+# --- import our patch FIRST so NMS is monkey-patched to CPU on MPS
+from src.torchvision_det.mps_patch import *  # noqa: F401,F403
+
+import argparse, numpy as np, torch, torchvision, time
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
-from torchvision.ops import nms
+from torchvision.ops import nms  # will be safe because of the patch above
 
-# Mac MPS safety (lets unsupported ops fall back to CPU)
-os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")
-
-from src.torchvision_det.ds_torchvision import HABDetDataset, ResizeWithBoxes, collate_fn
+from src.torchvision_det.ds_torchvision import HABDetDataset, ResizeWithBoxes
 
 def get_device():
     if torch.cuda.is_available(): return torch.device("cuda")
@@ -39,10 +42,8 @@ def infer_arch_from_path(p: Path) -> str:
     return "resnet50"
 
 def to_pil(img_t: torch.Tensor) -> Image.Image:
-    # img_t: CxHxW in [0,1]
     arr = (img_t.detach().cpu().numpy().transpose(1,2,0)*255).clip(0,255).astype(np.uint8)
-    if arr.shape[2] == 1:
-        arr = np.repeat(arr, 3, axis=2)
+    if arr.shape[2] == 1: arr = np.repeat(arr, 3, axis=2)
     return Image.fromarray(arr)
 
 def draw_boxes(draw: ImageDraw.ImageDraw, boxes, color, width=2, labels=None, font=None):
@@ -59,18 +60,24 @@ def main():
     ap.add_argument("--weights", required=True, type=str)
     ap.add_argument("--arch", default="", choices=["", "resnet50", "mobilenet", "ssd"])
     ap.add_argument("--split", default="val", choices=["train","val","test"])
-    ap.add_argument("--img_size", type=int, default=640)  # use 320 for SSD, 640 for FRCNN-R50
-    ap.add_argument("--score_thr", type=float, default=0.3)
-    ap.add_argument("--nms_iou", type=float, default=0.5)
-    ap.add_argument("--topk", type=int, default=20)
-    ap.add_argument("--outdir", type=str, default="runs/plots/vis")
+    ap.add_argument("--img_size", type=int, default=-1, help="-1 = auto by arch")
+    ap.add_argument("--score_thr", type=float, default=0.30)
+    ap.add_argument("--nms_iou",   type=float, default=0.50)
+    ap.add_argument("--topk",      type=int,   default=20)
+    ap.add_argument("--outdir",    type=str,   default="runs/plots/vis")
     args = ap.parse_args()
 
     wpath = Path(args.weights)
     arch = args.arch or infer_arch_from_path(wpath)
 
+    # auto pick a good image size
+    if args.img_size == -1:
+        img_size = 320 if arch in ("mobilenet","ssd") else 640
+    else:
+        img_size = args.img_size
+
     dev = get_device()
-    print(f"device: {dev} | arch: {arch} | weights: {wpath}")
+    print(f"device: {dev} | arch: {arch} | weights: {wpath} | img_size: {img_size}")
 
     # model + weights
     model = build_model(arch, num_classes=2).to(dev).eval()
@@ -78,55 +85,51 @@ def main():
     model.load_state_dict(state, strict=True)
 
     # dataset (resize + keep boxes consistent)
-    tfm = ResizeWithBoxes((args.img_size, args.img_size))
+    tfm = ResizeWithBoxes((img_size, img_size))
     ds = HABDetDataset(args.split, transforms=tfm, filter_empty=False)
 
     outdir = Path(args.outdir); outdir.mkdir(parents=True, exist_ok=True)
     try:
         font = ImageFont.truetype("Arial.ttf", 14)
-    except:
+    except Exception:
         font = None
 
-    # make side-by-side canvases
     for i in range(min(12, len(ds))):
         img_t, tgt = ds[i]
         pred = model([img_t.to(dev)])[0]
 
-        # Get boxes/scores and apply score-threshold + NMS + topK on CPU (safe on MPS)
-        boxes  = pred["boxes"].detach().cpu()
-        scores = pred["scores"].detach().cpu()
+        # pull to CPU before NMS (safe on MPS due to our patch)
+        boxes  = pred.get("boxes", torch.empty(0,4)).detach().to("cpu")
+        scores = pred.get("scores", torch.empty(0)).detach().to("cpu")
+
+        # threshold + NMS + topK
         keep = scores >= args.score_thr
         boxes, scores = boxes[keep], scores[keep]
         if len(boxes) > 0:
-            keep_nms = nms(boxes, scores, args.nms_iou)
+            keep_nms = nms(boxes, scores, args.nms_iou)  # patched to CPU on MPS
             boxes, scores = boxes[keep_nms], scores[keep_nms]
         if len(boxes) > args.topk:
             topk_idx = torch.topk(scores, args.topk).indices
             boxes, scores = boxes[topk_idx], scores[topk_idx]
 
-        # Compose side-by-side image
+        # compose side-by-side
         left  = to_pil(img_t)        # GT
         right = left.copy()          # Pred
         draw_gt   = ImageDraw.Draw(left)
         draw_pred = ImageDraw.Draw(right)
 
-        # draw ground truth in green
         if len(tgt["boxes"]) > 0:
             draw_boxes(draw_gt, tgt["boxes"].numpy(), color=(0,255,0), width=2, labels=None, font=font)
-
-        # draw predictions in red with scores
         if len(boxes) > 0:
             draw_boxes(draw_pred, boxes.numpy(), color=(255,0,0), width=2, labels=scores.tolist(), font=font)
 
-        # assemble side-by-side
-        W = left.width; H = left.height
+        W, H = left.width, left.height
         canvas = Image.new("RGB", (2*W + 40, H + 60), (12,38,41))
         canvas.paste(left,  (20, 40))
         canvas.paste(right, (W+40, 40))
-        # headings
         d = ImageDraw.Draw(canvas)
         d.text((W//2 - 80, 10), "Ground truth (green)", fill=(220,220,220), font=font)
-        d.text((W + W//2 - 80, 10), f"Predictions (red)  k≤{args.topk}", fill=(220,220,220), font=font)
+        d.text((W + W//2 - 120, 10), f"Predictions (red)  k≤{args.topk}", fill=(220,220,220), font=font)
 
         canvas.save(outdir / f"{arch}_{args.split}_{i:02d}.png")
 
