@@ -1,28 +1,28 @@
-# scripts/stac_fetch.py
+#!/usr/bin/env python3
 from __future__ import annotations
-import argparse, csv, json, os, warnings
+import argparse, csv, json, warnings
 from pathlib import Path
-
 import numpy as np
 import rasterio
 from rasterio.windows import Window
-from rasterio.transform import xy
-from shapely.geometry import shape, box, Polygon, mapping
+from rasterio.transform import xy, Affine
+from shapely.geometry import shape, box, mapping, Polygon
 from shapely.ops import unary_union, transform as shp_transform
 from pystac_client import Client
 import planetary_computer as pc
 from pyproj import CRS, Transformer
-import imageio
+import imageio.v2 as iio
 
 warnings.filterwarnings("ignore", category=UserWarning)
 WGS84 = CRS.from_epsg(4326)
 
+# ---------- helpers ----------
 def load_aoi(path: str):
     gj = json.loads(Path(path).read_text())
     feats = gj["features"] if gj.get("type") == "FeatureCollection" else [gj]
     return unary_union([shape(f["geometry"]) for f in feats])
 
-def search_items(aoi_geom, start, end, max_cloud, collection="sentinel-2-l2a", limit=200):
+def search_items(aoi_geom, start, end, max_cloud, collection="sentinel-2-l2a", limit=20):
     stac = Client.open("https://planetarycomputer.microsoft.com/api/stac/v1", ignore_conformance=True)
     q = stac.search(
         collections=[collection],
@@ -38,155 +38,146 @@ def raster_poly(transform, width, height) -> Polygon:
     x1, y1 = xy(transform, height - 1, width - 1, offset="lr")
     return box(min(x0, x1), min(y0, y1), max(x0, x1), max(y0, y1))
 
-def read_band(item, key):
-    if key not in item.assets:
-        return None, None, None
-    with rasterio.open(item.assets[key].href) as r:
-        arr = r.read(1).astype(np.float32)
-        return arr, r.transform, r.crs
-
-def read_visual_rgb(item):
-    if "visual" in item.assets:
-        with rasterio.open(item.assets["visual"].href) as src:
-            img = src.read(out_dtype=np.uint8)
-            return img, src.transform, src.crs
-    need = ["B04", "B03", "B02"]
-    stacks = []
-    transform = crs = None
-    for k in need:
-        arr, transform, crs = read_band(item, k)
-        if arr is None:
-            raise RuntimeError("Missing RGB bands")
-        stacks.append(arr)
-    stack = np.stack(stacks, 0)  # R,G,B
-    p2, p98 = np.percentile(stack, (2, 98))
-    stack = np.clip((stack - p2) / (p98 - p2 + 1e-6), 0, 1) * 255
-    return stack.astype(np.uint8), transform, crs
-
 def window_poly(transform, win: Window) -> Polygon:
-    left, top = win.col_off, win.row_off
-    right, bottom = left + win.width, top + win.height
-    xs = [left, right, right, left]; ys = [top, top, bottom, bottom]
+    xs = [win.col_off, win.col_off + win.width, win.col_off + win.width, win.col_off]
+    ys = [win.row_off, win.row_off, win.row_off + win.height, win.row_off + win.height]
     pts = [~transform * (x, y) for x, y in zip(xs, ys)]
-    xs = [p[0] for p in pts]; ys = [p[1] for p in pts]
-    return box(min(xs), min(ys), max(xs), max(ys))
+    return box(min(p[0] for p in pts), min(p[1] for p in pts), max(p[0] for p in pts), max(p[1] for p in pts))
 
-def chip_and_save(
-    img, transform, crs, aoi_clip, out_dir: Path, meta_row: dict,
-    size=640, stride=320, water_only=False, water_min_frac=0.02,
-    item=None, save_format="jpg", jpeg_quality=90,
-    max_bytes: int | None = None, debug=False
+def scaled_transform(base: Affine, in_w: int, in_h: int, out_w: int, out_h: int) -> Affine:
+    sx = in_w / float(out_w); sy = in_h / float(out_h)
+    return Affine(base.a * sx, base.b, base.c, base.d, base.e * sy, base.f)
+
+# ---------- RGB + SCL readers ----------
+def read_rgb_window(item, win: Window, out_size: int):
+    """Read RGB window as 3xHxW array"""
+    bands = []
+    transform_out = None; crs = None
+    for key in ("B04", "B03", "B02"):
+        with rasterio.open(item.assets[key].href) as r:
+            arr = r.read(1, window=win, out_shape=(out_size, out_size)).astype(np.float32)
+            t_win = rasterio.windows.transform(win, r.transform)
+            transform_out = scaled_transform(t_win, win.width, win.height, out_size, out_size)
+            crs = r.crs
+        bands.append(arr)
+    stack = np.stack(bands, 0)
+    v = stack.reshape(3, -1)
+    p2, p98 = np.percentile(v, (2, 98))
+    stack = np.clip((stack - p2) / (p98 - p2 + 1e-6), 0, 1) * 255
+    return stack.astype(np.uint8), transform_out, crs
+
+def read_scl(item):
+    if "SCL" not in item.assets:
+        return None
+    with rasterio.open(item.assets["SCL"].href) as r:
+        return r.read(1)
+
+# ---------- chipping ----------
+def chip_stream(
+    item, aoi_item, size=640, stride=256,
+    scl_water_min_frac=0.01, debug=False,
+    jitter_px=64,            # <— NEW: up to ±64 px random shift
+    extra_scales=(1.0, 0.8)  # <— NEW: also crop at 80% size
 ):
-    import imageio.v2 as iio
+    with rasterio.open(item.assets["B03"].href) as r:
+        H, W = r.height, r.width
+        T = r.transform
+        img_poly = raster_poly(T, W, H)
+
+    clip = aoi_item.intersection(img_poly)
+    if clip.is_empty:
+        if debug: print("  debug: AOI∩image empty")
+        return
+
+    scl = read_scl(item)
+
     from rasterio.transform import rowcol
+    xmin, ymin, xmax, ymax = clip.bounds
+    r0, c0 = rowcol(T, xmin, ymax)
+    r1, c1 = rowcol(T, xmax, ymin)
+    rmin, rmax = sorted([max(0, min(H-1, r0)), max(0, min(H-1, r1))])
+    cmin, cmax = sorted([max(0, min(W-1, c0)), max(0, min(W-1, c1))])
 
-    def over_quota():
-        if not max_bytes: return False
-        try:
-            total = sum((p.stat().st_size for p in out_dir.glob("*") if p.is_file()), 0)
-            return total >= max_bytes
-        except Exception:
-            return False
-
-    out_dir.mkdir(parents=True, exist_ok=True)
-    C, H, W = img.shape
-
-    # map→pixel bounds of AOI∩image
-    xmin, ymin, xmax, ymax = aoi_clip.bounds
-    r0, c0 = rowcol(transform, xmin, ymax)  # UL
-    r1, c1 = rowcol(transform, xmax, ymin)  # LR
-    r0 = max(0, min(H-1, r0)); r1 = max(0, min(H-1, r1))
-    c0 = max(0, min(W-1, c0)); c1 = max(0, min(W-1, c1))
-    rmin, rmax = sorted([r0, r1]); cmin, cmax = sorted([c0, c1])
-
-    # small pad
+    # pad to be safe, then make a stride grid
     pad = size
     rmin = max(0, rmin - pad); rmax = min(H, rmax + pad)
     cmin = max(0, cmin - pad); cmax = min(W, cmax + pad)
+    start_r = (rmin // stride) * stride
+    start_c = (cmin // stride) * stride
 
-    # stride-aligned starts
-    starts_r = list(range((rmin // stride) * stride, max(0, rmax - size + 1) + 1, stride))
-    starts_c = list(range((cmin // stride) * stride, max(0, cmax - size + 1) + 1, stride))
+    rng = np.random.default_rng()
 
-    # if overlap thinner than size, we’ll force one later
-    forced_center = None
-    if not starts_r or not starts_c:
-        rr = max(0, min(H - size, int((rmin + rmax - size) / 2)))
-        cc = max(0, min(W - size, int((cmin + cmax - size) / 2)))
-        forced_center = (rr, cc)
+    def passes_water(r, c, s):
+        if scl is None: 
+            return True
+        sub = scl[r:r+s, c:c+s]
+        return (sub.size > 0) and (float((sub == 6).mean()) >= scl_water_min_frac)
 
-    # optional NDWI mask
-    ndwi = None
-    if water_only and item is not None:
-        G, _, _   = read_band(item, "B03")
-        NIR, _, _ = read_band(item, "B08")
-        if G is not None and NIR is not None:
-            ndwi = (G - NIR) / (G + NIR + 1e-6)
+    wrote_local = 0
+    for r_base in range(start_r, max(0, rmax - size + 1) + 1, stride):
+        for c_base in range(start_c, max(0, cmax - size + 1) + 1, stride):
+            for scale in extra_scales:
+                s = int(round(size * scale))
+                # jitter around the base anchor
+                dr = int(rng.integers(-jitter_px, jitter_px+1))
+                dc = int(rng.integers(-jitter_px, jitter_px+1))
+                r = max(0, min(H - s, r_base + dr))
+                c = max(0, min(W - s, c_base + dc))
+                win = Window(c, r, s, s)
+                wpoly = window_poly(T, win)
+                if not wpoly.intersects(clip):
+                    continue
+                if not passes_water(r, c, s):
+                    continue
+                rgb, _, _ = read_rgb_window(item, win, out_size=size)  # upscale smaller crops to `size`
+                if rgb.max() == 0:
+                    continue
+                wrote_local += 1
+                yield np.transpose(rgb, (1, 2, 0)), wpoly.bounds
 
-    def write_chip(r, c):
-        from rasterio.windows import Window
-        wpoly = window_poly(transform, Window(c, r, size, size))
-        if not wpoly.intersects(aoi_clip): 
-            return None
-        chip = img[:, r:r+size, c:c+size]
-        if chip.max() == 0:
-            return None
-        if ndwi is not None:
-            nd = ndwi[r:r+size, c:c+size]
-            if float((nd > 0.0).mean()) < water_min_frac:
-                return None
-        fname = f"{meta_row['scene_id']}_{r:05d}_{c:05d}.jpg"
-        arr = np.transpose(chip, (1, 2, 0))
-        imageio.v2.imwrite(out_dir / fname, arr, quality=jpeg_quality)
-        xmin, ymin, xmax, ymax = wpoly.bounds
-        return {**meta_row, "tile": fname, "xmin": xmin, "ymin": ymin, "xmax": xmax, "ymax": ymax}
-
-    rows = []
-    for r in starts_r or []:
-        for c in starts_c or []:
-            if r + size > H or c + size > W or over_quota():
+    # fallback: centered chip (also try scales)
+    if wrote_local == 0:
+        cx = (xmin + xmax) * 0.5; cy = (ymin + ymax) * 0.5
+        rr, cc = rowcol(T, cx, cy)
+        for scale in extra_scales:
+            s = int(round(size * scale))
+            r = max(0, min(H - s, rr - s // 2))
+            c = max(0, min(W - s, cc - s // 2))
+            if not passes_water(r, c, s): 
                 continue
-            rec = write_chip(r, c)
-            if rec: rows.append(rec)
-
-    # Force one chip if sliding window produced none
-    if not rows and forced_center and not over_quota():
-        rr, cc = forced_center
-        rec = write_chip(rr, cc)
-        if rec: rows.append(rec)
+            win = Window(c, r, s, s)
+            rgb, _, _ = read_rgb_window(item, win, out_size=size)
+            if rgb.max() > 0:
+                if debug: print("  debug: forced center chip")
+                yield np.transpose(rgb, (1, 2, 0)), window_poly(T, win).bounds
 
     if debug:
-        print(f"  debug: HxW={H}x{W}, clip_px=({rmin}:{rmax},{cmin}:{cmax}), wrote={len(rows)}")
+        print(f"  debug chip: wrote_local={wrote_local}")
 
-    return rows
-
+# ---------- main ----------
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--aoi", required=True, help="GeoJSON EPSG:4326")
+    ap.add_argument("--aoi", required=True)
     ap.add_argument("--start", default="2023-01-01")
     ap.add_argument("--end",   default="2023-12-31")
-    ap.add_argument("--cloud", type=float, default=20.0)
-    ap.add_argument("--limit", type=int, default=20)
+    ap.add_argument("--cloud", type=float, default=40)
+    ap.add_argument("--limit", type=int, default=8)
     ap.add_argument("--out",   default="data/aerial")
     ap.add_argument("--size",  type=int, default=640)
-    ap.add_argument("--stride",type=int, default=320)
-    ap.add_argument("--water_only", action="store_true")
-    ap.add_argument("--water_min_frac", type=float, default=0.02)
+    ap.add_argument("--stride",type=int, default=256)
+    ap.add_argument("--scl_water_min_frac", type=float, default=0.01)
+    ap.add_argument("--save_previews", action="store_true")
     ap.add_argument("--debug", action="store_true")
-    ap.add_argument("--save_previews", action="store_true",
-                    help="write center preview if 0 chips")
-    ap.add_argument("--max_bytes", type=int, default=0,
-                    help="cap bytes written to tiles folder (0 = unlimited)")
     args = ap.parse_args()
 
     aoi_ll = load_aoi(args.aoi)
-    out_root  = Path(args.out)
+    out_root = Path(args.out)
     tiles_dir = out_root / "tiles_png"
-    index_csv = out_root / "index.csv"
     tiles_dir.mkdir(parents=True, exist_ok=True)
+    index_csv = out_root / "index.csv"
 
     items = search_items(aoi_ll, args.start, args.end, args.cloud, "sentinel-2-l2a", args.limit)
-    print(f"Found {len(items)} candidate items (capped by --limit).")
+    print(f"Found {len(items)} candidate items.")
 
     all_rows = []
     for it in items:
@@ -196,53 +187,57 @@ def main():
         except Exception:
             pass
 
-        try:
-            img, transform, crs = read_visual_rgb(it)
-        except Exception as e:
-            print(f"skip {it.id}: {e}"); continue
-
-        try:
-            item_crs = CRS.from_user_input(crs)
-            tfm = Transformer.from_crs(WGS84, item_crs, always_xy=True)
-            aoi_item = shp_transform(lambda x, y: tfm.transform(x, y), aoi_ll)
-        except Exception as e:
-            print(f"skip {it.id}: reprojection error: {e}"); continue
-
-        H, W = img.shape[1], img.shape[2]
-        clip = aoi_item.intersection(raster_poly(transform, W, H))
-        if clip.is_empty:
-            continue
+        # AOI reprojection
+        with rasterio.open(it.assets["B03"].href) as src:
+            crs_item = src.crs
+        tfm = Transformer.from_crs(WGS84, crs_item, always_xy=True)
+        aoi_item = shp_transform(lambda x, y: tfm.transform(x, y), aoi_ll)
 
         meta = {
-            "scene_id": it.id, "datetime": str(it.datetime),
+            "scene_id": it.id,
+            "datetime": str(it.datetime),
             "collection": it.collection_id,
-            "cloudcov": it.properties.get("eo:cloud_cover", it.properties.get("s2:cloud_cover", -1)),
+            "cloudcov": it.properties.get("eo:cloud_cover", -1),
         }
 
-        rows = chip_and_save(
-            img, transform, crs, clip, tiles_dir, meta,
-            size=args.size, stride=args.stride,
-            water_only=args.water_only, water_min_frac=args.water_min_frac,
-            item=it, save_format="jpg", jpeg_quality=90,
-            max_bytes=(args.max_bytes if args.max_bytes > 0 else None),
-        )
-        print(f"{it.id}: wrote {len(rows)} tiles")
-        all_rows.extend(rows)
+        wrote = 0
+        for chip, (xmin, ymin, xmax, ymax) in chip_stream(
+            it, aoi_item,
+            size=args.size,
+            stride=args.stride,
+            scl_water_min_frac=args.scl_water_min_frac,
+            debug=args.debug,
+        ):
+            fname = f"{it.id}_{wrote:04d}.jpg"
+            iio.imwrite(tiles_dir / fname, chip, quality=90)
+            all_rows.append({**meta, "tile": fname,
+                             "xmin": xmin, "ymin": ymin, "xmax": xmax, "ymax": ymax})
+            wrote += 1
 
-        if len(rows) == 0 and args.save_previews:
-            import imageio.v2 as iio
-            h0 = max(0, H // 2 - args.size // 2)
-            w0 = max(0, W // 2 - args.size // 2)
-            preview = np.transpose(img[:, h0:h0 + args.size, w0:w0 + args.size], (1, 2, 0))
-            iio.imwrite(tiles_dir / f"{it.id}_preview.jpg", preview, quality=85)
-            print(f"{it.id}: wrote 0 chips → saved preview for debugging.")
+        if wrote == 0 and args.save_previews:
+            try:
+                with rasterio.open(it.assets["visual"].href) as src:
+                    H, W = src.height, src.width
+                    r0 = max(0, H // 2 - args.size // 2)
+                    c0 = max(0, W // 2 - args.size // 2)
+                    arr = src.read(window=Window(c0, r0, args.size, args.size),
+                                   out_shape=(3, args.size, args.size))
+                    arr = np.transpose(arr, (1, 2, 0))
+                    iio.imwrite(tiles_dir / f"{it.id}_preview.jpg", arr, quality=85)
+                    print(f"{it.id}: wrote 0 chips → saved preview")
+            except Exception:
+                pass
+        print(f"✅ {it.id}: wrote {wrote} tiles to {tiles_dir}")
 
+    # write CSV
     with open(index_csv, "w", newline="") as f:
         fields = ["scene_id","datetime","collection","cloudcov","tile","xmin","ymin","xmax","ymax"]
-        w = csv.DictWriter(f, fieldnames=fields); w.writeheader()
-        for r in all_rows: w.writerow(r)
+        w = csv.DictWriter(f, fieldnames=fields)
+        w.writeheader()
+        for r in all_rows:
+            w.writerow(r)
 
-    print("Done. Tiles:", len(all_rows), "| CSV:", index_csv)
+    print(f"\nDone. Total tiles: {len(all_rows)} → {index_csv}")
 
 if __name__ == "__main__":
     main()
