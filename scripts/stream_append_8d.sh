@@ -16,9 +16,9 @@ MAX_DAYS=30
 # ---- mappers (Bash 3 compatible) ----
 filelist_for() {
   case "$1" in
-    chlor_a) echo "$LISTDIR/filelist_8d_chlor_a.txt" ;;
-    Kd_490)  echo "$LISTDIR/filelist_8d_Kd_490.txt"  ;;
-    nflh)    echo "$LISTDIR/filelist_8d_nflh.txt"    ;;  # lowercase 'nflh' for script
+    chlor_a) echo "$LISTDIR/filelist_8d_chlor_a_filtered.txt" ;; # remove filtered for smaller set
+    Kd_490)  echo "$LISTDIR/filelist_8d_Kd_490_filtered.txt"  ;;
+    nflh)    echo "$LISTDIR/filelist_8d_nflh_filtered.txt"    ;;  # lowercase 'nflh' for script
     *) echo "Unknown product: $1" >&2; exit 2 ;;
   esac
 }
