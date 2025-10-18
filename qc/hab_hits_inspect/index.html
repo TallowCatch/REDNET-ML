@@ -1,0 +1,128 @@
+<!doctype html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>HAB Findings — Oman Coastline</title><style>
+:root{
+  --bg:#0b1a1a; --card:#132; --ink:#e8f5f5; --soft:#a8d0d0;
+  --pill:#284; --pill-ink:#efe; --accent:#4b8; --accent2:#2a4;
+  --shadow:0 1px 0 #1c2e2e inset;
+}
+*{box-sizing:border-box}
+html,body{margin:0; padding:0}
+body{
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif;
+  background:var(--bg); color:var(--ink);
+  padding:28px 20px 40px;
+}
+.header{max-width:1200px;margin:0 auto 18px auto;text-align:center}
+h1{margin:0 0 6px 0;font-size:2.1rem}
+.subtitle{color:var(--soft);margin:0 0 18px 0}
+
+/* ── QC TABS ───────────────────────────────────────────── */
+.qc-wrap{max-width:1200px;margin:0 auto 28px auto}
+.qc-tabs{
+  display:flex; flex-wrap:wrap; gap:10px; justify-content:center;
+  margin-bottom:12px;
+}
+.qc-tab{
+  background:rgba(255,255,255,.06); color:var(--ink); border:1px solid rgba(255,255,255,.15);
+  padding:6px 12px; border-radius:999px; cursor:pointer; font-size:13px;
+  transition:all .15s ease-in-out;
+}
+.qc-tab.active{background:var(--accent); color:#063; border-color:transparent}
+
+/* Stage with “liquid glass” morph */
+.qc-stage{
+  position:relative; width:100%; aspect-ratio:16/9;
+  background:#0d1e1e; border-radius:14px; box-shadow:0 0 4px #041;
+  overflow:hidden;
+  transition:transform .36s cubic-bezier(.22,1,.36,1), box-shadow .36s ease;
+}
+.qc-stage.morph{
+  transform:scale(.975);
+  box-shadow:
+    0 0 0 1px rgba(120,255,200,.25) inset,
+    0 14px 42px rgba(0,0,0,.45),
+    0 0 24px rgba(60,200,140,.15);
+}
+.qc-stage .qc-glass{
+  position:absolute; inset:0; pointer-events:none; border-radius:14px;
+  background:
+    radial-gradient(120% 120% at 10% 0%, rgba(200,255,240,.12), transparent 35%),
+    radial-gradient(100% 100% at 90% 100%, rgba(120,220,180,.10), transparent 40%);
+  backdrop-filter: blur(6px) saturate(1.05);
+  -webkit-backdrop-filter: blur(6px) saturate(1.05);
+  opacity:0; transition:opacity .36s ease;
+}
+.qc-stage.morph .qc-glass{ opacity:.25; }
+
+.qc-stage img{
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:contain; background:#0d1e1e; display:block;
+  opacity:0; transform:scale(1);
+  transition:opacity .22s ease, transform .36s cubic-bezier(.22,1,.36,1);
+}
+.qc-stage img.active{ opacity:1; }
+.qc-stage.morph img.active{ transform:scale(1.02); }
+
+/* ── HAB cards (unchanged) ───────────────────────────── */
+.gallery{max-width:1600px;margin:0 auto}
+.grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(380px,1fr)); gap:16px}
+.card{background:var(--card); border-radius:16px; padding:12px; box-shadow:var(--shadow); display:flex; flex-direction:column}
+.figure{position:relative; border-radius:12px; overflow:hidden; background:#0d1e1e}
+.viewport{position:relative; width:100%; aspect-ratio:4/3}
+.figure img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; opacity:0; transition:opacity .2s}
+.figure img.active{opacity:1}
+.controls{position:absolute; inset:0; display:flex; align-items:center; justify-content:space-between; pointer-events:none}
+.btn{pointer-events:auto; background:rgba(0,0,0,.45); border:1px solid rgba(255,255,255,.25); color:#fff; width:40px; height:40px; border-radius:999px; display:flex; align-items:center; justify-content:center; margin:10px; user-select:none; font-size:22px; line-height:1}
+.nav{position:absolute; left:0; right:0; bottom:10px; display:flex; justify-content:center; gap:8px; pointer-events:auto}
+.dot{width:10px; height:10px; border-radius:50%; background:var(--accent2); opacity:.55; cursor:pointer}
+.dot.active{opacity:1; background:var(--accent)}
+.dtbar{position:absolute; left:0; bottom:48px; right:0; display:flex; justify-content:center}
+.dtpill{background:rgba(0,0,0,.45); color:#fff; font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.2)}
+.meta{font-size:14px; line-height:1.45; margin-top:10px; color:#cfe; word-break:break-word; overflow-wrap:anywhere}
+.pills{margin-bottom:6px}
+.pill{background:var(--pill); color:var(--pill-ink); padding:4px 10px; border-radius:999px; font-size:12px; margin-right:8px; display:inline-block}
+.kv{margin:2px 0}
+</style></head><body><div class='header'><h1>HAB Detection Summary</h1><div class='subtitle'>Oman coastline — satellite-derived chlorophyll, FLH and turbidity anomalies (2017–2025)</div></div><div class='qc-wrap'><div class='qc-tabs'><button class='qc-tab active' type='button'>01 scatter chlor_a vs flh</button><button class='qc-tab' type='button'>02 hist chlor_a by label</button><button class='qc-tab' type='button'>03 scatter chlor_a vs kd490</button><button class='qc-tab' type='button'>04 timeseries chlor_a</button></div><div class='qc-stage'><img class='active' src='../qc_all/01_scatter_chla_vs_flh.png' loading='lazy'/><img class='' src='../qc_all/02_hist_chla_by_label.png' loading='lazy'/><img class='' src='../qc_all/03_scatter_chla_vs_kd490.png' loading='lazy'/><img class='' src='../qc_all/04_timeseries_chla.png' loading='lazy'/></div></div><div class='gallery'><div class='grid'><div class='card'><div class='figure'><div class='viewport'><img class='active' data-dt='2018-09-09T06:56:21.024000+00:00' src='S2A_MSIL2A_20180909T065621_R063_T39QXG_20201008T231028_0000.jpg' loading='lazy'/><img class='' data-dt='2018-09-09T06:56:21.024000+00:00' src='S2A_MSIL2A_20180909T065621_R063_T39QXG_20201008T231028_0001.jpg' loading='lazy'/></div><div class='dtbar'><span class='dtpill'></span></div><div class='controls'><div class='btn prev'>&lsaquo;</div><div class='btn next'>&rsaquo;</div></div><div class='nav'><div class='dot'></div><div class='dot'></div></div></div><div class='meta'><div class='pills'><span class='pill'>aerial_summer_2018</span><span class='pill'>2018-W36</span></div><div class='kv'>scene: S2A_MSIL2A_20180909T065621_R063_T39QXG_20201008T231028</div><div class='kv'>chlor_a: 1.52 mg m⁻³</div><div class='kv'>FLH/nFLH: 0.456</div><div class='kv'>Kd490: 0.13 m⁻¹</div></div></div><div class='card'><div class='figure'><div class='viewport'><img class='active' data-dt='2019-09-04T06:56:21.024000+00:00' src='S2A_MSIL2A_20190904T065621_R063_T39QXG_20201004T090539_0000.jpg' loading='lazy'/></div></div><div class='meta'><div class='pills'><span class='pill'>aerial_summer_2019</span><span class='pill'>2019-W36</span></div><div class='kv'>scene: S2A_MSIL2A_20190904T065621_R063_T39QXG_20201004T090539</div><div class='kv'>chlor_a: 1.37 mg m⁻³</div><div class='kv'>FLH/nFLH: -</div><div class='kv'>Kd490: 0.122 m⁻¹</div></div></div><div class='card'><div class='figure'><div class='viewport'><img class='active' data-dt='2019-09-04T06:56:21.024000+00:00' src='S2A_MSIL2A_20190904T065621_R063_T39QXG_20201004T090539_0001.jpg' loading='lazy'/></div></div><div class='meta'><div class='pills'><span class='pill'>aerial_summer_2019</span><span class='pill'>2019-W36</span></div><div class='kv'>scene: S2A_MSIL2A_20190904T065621_R063_T39QXG_20201004T090539</div><div class='kv'>chlor_a: 1.37 mg m⁻³</div><div class='kv'>FLH/nFLH: -</div><div class='kv'>Kd490: 0.122 m⁻¹</div></div></div><div class='card'><div class='figure'><div class='viewport'><img class='active' data-dt='2018-03-03T06:58:01.026000+00:00' src='S2A_MSIL2A_20180303T065801_R063_T39QXG_20201013T055226_0000.jpg' loading='lazy'/><img class='' data-dt='2018-03-03T06:58:01.026000+00:00' src='S2A_MSIL2A_20180303T065801_R063_T39QXG_20201013T055226_0001.jpg' loading='lazy'/></div><div class='dtbar'><span class='dtpill'></span></div><div class='controls'><div class='btn prev'>&lsaquo;</div><div class='btn next'>&rsaquo;</div></div><div class='nav'><div class='dot'></div><div class='dot'></div></div></div><div class='meta'><div class='pills'><span class='pill'>aerial_winter_2017</span><span class='pill'>2018-W9</span></div><div class='kv'>scene: S2A_MSIL2A_20180303T065801_R063_T39QXG_20201013T055226</div><div class='kv'>chlor_a: 9.97 mg m⁻³</div><div class='kv'>FLH/nFLH: 0.671</div><div class='kv'>Kd490: 2.24 m⁻¹</div></div></div><div class='card'><div class='figure'><div class='viewport'><img class='active' data-dt='2018-02-26T06:58:29.027000+00:00' src='S2B_MSIL2A_20180226T065829_R063_T39QXG_20201104T154320_0000.jpg' loading='lazy'/><img class='' data-dt='2018-02-26T06:58:29.027000+00:00' src='S2B_MSIL2A_20180226T065829_R063_T39QXG_20201104T154320_0001.jpg' loading='lazy'/></div><div class='dtbar'><span class='dtpill'></span></div><div class='controls'><div class='btn prev'>&lsaquo;</div><div class='btn next'>&rsaquo;</div></div><div class='nav'><div class='dot'></div><div class='dot'></div></div></div><div class='meta'><div class='pills'><span class='pill'>aerial_winter_2017</span><span class='pill'>2018-W9</span></div><div class='kv'>scene: S2B_MSIL2A_20180226T065829_R063_T39QXG_20201104T154320</div><div class='kv'>chlor_a: 9.97 mg m⁻³</div><div class='kv'>FLH/nFLH: 0.671</div><div class='kv'>Kd490: 2.24 m⁻¹</div></div></div><div class='card'><div class='figure'><div class='viewport'><img class='active' data-dt='2021-01-31T07:01:19.024000+00:00' src='S2B_MSIL2A_20210131T070119_R063_T39QXG_20210201T152028_0000.jpg' loading='lazy'/><img class='' data-dt='2021-01-31T07:01:19.024000+00:00' src='S2B_MSIL2A_20210131T070119_R063_T39QXG_20210201T152028_0001.jpg' loading='lazy'/></div><div class='dtbar'><span class='dtpill'></span></div><div class='controls'><div class='btn prev'>&lsaquo;</div><div class='btn next'>&rsaquo;</div></div><div class='nav'><div class='dot'></div><div class='dot'></div></div></div><div class='meta'><div class='pills'><span class='pill'>aerial_winter_2020</span><span class='pill'>2021-W4</span></div><div class='kv'>scene: S2B_MSIL2A_20210131T070119_R063_T39QXG_20210201T152028</div><div class='kv'>chlor_a: 1.77 mg m⁻³</div><div class='kv'>FLH/nFLH: 0.614</div><div class='kv'>Kd490: 0.145 m⁻¹</div></div></div><div class='card'><div class='figure'><div class='viewport'><img class='active' data-dt='2021-01-26T07:01:51.024000+00:00' src='S2A_MSIL2A_20210126T070151_R063_T39QXG_20210201T045017_0000.jpg' loading='lazy'/><img class='' data-dt='2021-01-26T07:01:51.024000+00:00' src='S2A_MSIL2A_20210126T070151_R063_T39QXG_20210201T045017_0001.jpg' loading='lazy'/></div><div class='dtbar'><span class='dtpill'></span></div><div class='controls'><div class='btn prev'>&lsaquo;</div><div class='btn next'>&rsaquo;</div></div><div class='nav'><div class='dot'></div><div class='dot'></div></div></div><div class='meta'><div class='pills'><span class='pill'>aerial_winter_2020</span><span class='pill'>2021-W4</span></div><div class='kv'>scene: S2A_MSIL2A_20210126T070151_R063_T39QXG_20210201T045017</div><div class='kv'>chlor_a: 1.77 mg m⁻³</div><div class='kv'>FLH/nFLH: 0.614</div><div class='kv'>Kd490: 0.145 m⁻¹</div></div></div><div class='card'><div class='figure'><div class='viewport'><img class='active' data-dt='2023-02-05T07:01:01.024000+00:00' src='S2A_MSIL2A_20230205T070101_R063_T39QXG_20240817T062535_0000.jpg' loading='lazy'/><img class='' data-dt='2023-02-05T07:01:01.024000+00:00' src='S2A_MSIL2A_20230205T070101_R063_T39QXG_20240817T062535_0001.jpg' loading='lazy'/></div><div class='dtbar'><span class='dtpill'></span></div><div class='controls'><div class='btn prev'>&lsaquo;</div><div class='btn next'>&rsaquo;</div></div><div class='nav'><div class='dot'></div><div class='dot'></div></div></div><div class='meta'><div class='pills'><span class='pill'>aerial_winter_2022</span><span class='pill'>2023-W5</span></div><div class='kv'>scene: S2A_MSIL2A_20230205T070101_R063_T39QXG_20240817T062535</div><div class='kv'>chlor_a: 6.57 mg m⁻³</div><div class='kv'>FLH/nFLH: 0.421</div><div class='kv'>Kd490: 0.496 m⁻¹</div></div></div><div class='card'><div class='figure'><div class='viewport'><img class='active' data-dt='2023-02-05T07:01:01.024000+00:00' src='S2A_MSIL2A_20230205T070101_R063_T39QXG_20230206T042309_0000.jpg' loading='lazy'/><img class='' data-dt='2023-02-05T07:01:01.024000+00:00' src='S2A_MSIL2A_20230205T070101_R063_T39QXG_20230206T042309_0001.jpg' loading='lazy'/></div><div class='dtbar'><span class='dtpill'></span></div><div class='controls'><div class='btn prev'>&lsaquo;</div><div class='btn next'>&rsaquo;</div></div><div class='nav'><div class='dot'></div><div class='dot'></div></div></div><div class='meta'><div class='pills'><span class='pill'>aerial_winter_2022</span><span class='pill'>2023-W5</span></div><div class='kv'>scene: S2A_MSIL2A_20230205T070101_R063_T39QXG_20230206T042309</div><div class='kv'>chlor_a: 6.57 mg m⁻³</div><div class='kv'>FLH/nFLH: 0.421</div><div class='kv'>Kd490: 0.496 m⁻¹</div></div></div></div></div><script>
+// ── HAB card carousels
+document.querySelectorAll('.figure').forEach(fig=>{
+  const imgs=[...fig.querySelectorAll('img')];
+  const dots=[...fig.querySelectorAll('.dot')];
+  const dateEl=fig.querySelector('.dtpill');
+  let i=0;
+  function show(k){
+    i=((k%imgs.length)+imgs.length)%imgs.length;
+    imgs.forEach((im,j)=>im.classList.toggle('active', j===i));
+    dots.forEach((d,j)=>d.classList.toggle('active', j===i));
+    if(dateEl){ dateEl.textContent = imgs[i].dataset.dt || ''; }
+  }
+  show(0);
+  fig.querySelector('.prev')?.addEventListener('click', ()=>show(i-1));
+  fig.querySelector('.next')?.addEventListener('click', ()=>show(i+1));
+  dots.forEach((d,idx)=>d.addEventListener('click', ()=>show(idx)));
+});
+
+// ── QC tabs with “liquid glass” morph
+(function(){
+  const stage = document.querySelector('.qc-stage');
+  const tabs  = [...document.querySelectorAll('.qc-tab')];
+  if(!stage || !tabs.length) return;
+  const imgs  = [...stage.querySelectorAll('img')];
+  // add glass overlay once
+  const glass = document.createElement('div');
+  glass.className = 'qc-glass';
+  stage.appendChild(glass);
+
+  let i=0, timer=null;
+  function show(k){
+    i=((k%imgs.length)+imgs.length)%imgs.length;
+    imgs.forEach((im,j)=>im.classList.toggle('active', j===i));
+    tabs.forEach((t,j)=>t.classList.toggle('active', j===i));
+
+    // trigger morph animation
+    stage.classList.add('morph');
+    clearTimeout(timer);
+    timer = setTimeout(()=>stage.classList.remove('morph'), 360);
+  }
+  show(0);
+  tabs.forEach((t,idx)=>t.addEventListener('click', ()=>show(idx)));
+})();
+</script></body></html>
