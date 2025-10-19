@@ -1,0 +1,51 @@
+{
+  "auprc": 0.22549019607843135,
+  "auroc": 0.853448275862069,
+  "threshold": 0.7759637326472658,
+  "confusion_matrix": [
+    [
+      112,
+      4
+    ],
+    [
+      2,
+      2
+    ]
+  ],
+  "test_pos": 4,
+  "test_neg": 116,
+  "prevalence": 0.03382663847780127,
+  "cv": [
+    {
+      "auprc": 0.0,
+      "auroc": NaN
+    },
+    {
+      "auprc": 0.5,
+      "auroc": 0.9710144927536231
+    },
+    {
+      "auprc": 0.5666666666666667,
+      "auroc": 0.803030303030303
+    },
+    {
+      "auprc": 0.09090909090909091,
+      "auroc": 0.7058823529411764
+    },
+    {
+      "auprc": 0.08333333333333334,
+      "auroc": 0.4393939393939394
+    }
+  ],
+  "cv_tuning": [],
+  "features": [
+    "fai_mean",
+    "rednir_mean",
+    "ndwi_mean",
+    "month_sin",
+    "month_cos"
+  ],
+  "group_by": "scene_id",
+  "split_seed": 42,
+  "tries_to_meet_min_pos": 1
+}
