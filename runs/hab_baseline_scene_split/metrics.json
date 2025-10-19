@@ -1,0 +1,60 @@
+{
+  "auprc": 1.0,
+  "auroc": 1.0,
+  "threshold_f1": 0.9612784666056525,
+  "best_f1": 0.9999999995,
+  "confusion_matrix": [
+    [
+      84,
+      2
+    ],
+    [
+      0,
+      4
+    ]
+  ],
+  "split_summary": {
+    "train": {
+      "rows": 269,
+      "groups": 135,
+      "groups_pos": 5,
+      "groups_neg": 130,
+      "rows_pos": 10,
+      "rows_neg": 259
+    },
+    "test": {
+      "rows": 90,
+      "groups": 45,
+      "groups_pos": 2,
+      "groups_neg": 43,
+      "rows_pos": 4,
+      "rows_neg": 86
+    }
+  },
+  "features_sorted": [
+    {
+      "name": "chlor_a",
+      "weight": 1.6929307031554033
+    },
+    {
+      "name": "flh",
+      "weight": 1.6553822699295544
+    },
+    {
+      "name": "ndwi_mean",
+      "weight": -0.9379630965621821
+    },
+    {
+      "name": "kd490",
+      "weight": 0.4242932936537186
+    },
+    {
+      "name": "rednir_mean",
+      "weight": 0.15497467860447153
+    },
+    {
+      "name": "fai_mean",
+      "weight": 0.10103080340062949
+    }
+  ]
+}

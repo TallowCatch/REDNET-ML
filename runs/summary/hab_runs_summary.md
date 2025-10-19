@@ -1,0 +1,5 @@
+| run                   |   AUPRC |   AUROC |   precision |   recall |    f1 |   test_pos |   test_neg |   baseline_prevalence |   thr | features                                                                            |
+|:----------------------|--------:|--------:|------------:|---------:|------:|-----------:|-----------:|----------------------:|------:|:------------------------------------------------------------------------------------|
+| hab_no_leak_C_spatial |   0.833 |   0.99  |       0.667 |      1   | 0.8   |          4 |         98 |                 0.039 | 0.629 | fai_mean, rednir_mean, ndwi_mean, kd490, month_sin, month_cos, ndwi_std, rednir_std |
+| hab_no_leak_B_kd      |   0.75  |   0.98  |       0.5   |      1   | 0.667 |          4 |         98 |                 0.039 | 0.535 | fai_mean, rednir_mean, ndwi_mean, kd490, month_sin, month_cos                       |
+| hab_no_leak_A         |   0.225 |   0.853 |       0.333 |      0.5 | 0.4   |          4 |        116 |                 0.033 | 0.776 | fai_mean, rednir_mean, ndwi_mean, month_sin, month_cos                              |

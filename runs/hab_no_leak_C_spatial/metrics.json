@@ -1,0 +1,54 @@
+{
+  "auprc": 0.8333333333333333,
+  "auroc": 0.9897959183673469,
+  "threshold": 0.6294823175195776,
+  "confusion_matrix": [
+    [
+      96,
+      2
+    ],
+    [
+      0,
+      4
+    ]
+  ],
+  "test_pos": 4,
+  "test_neg": 98,
+  "prevalence": 0.03970223325062035,
+  "cv": [
+    {
+      "auprc": 1.0,
+      "auroc": 1.0
+    },
+    {
+      "auprc": 0.625,
+      "auroc": 0.8928571428571428
+    },
+    {
+      "auprc": 0.0625,
+      "auroc": 0.48275862068965514
+    },
+    {
+      "auprc": 0.41666666666666663,
+      "auroc": 0.9285714285714286
+    },
+    {
+      "auprc": 0.0,
+      "auroc": NaN
+    }
+  ],
+  "cv_tuning": [],
+  "features": [
+    "fai_mean",
+    "rednir_mean",
+    "ndwi_mean",
+    "kd490",
+    "month_sin",
+    "month_cos",
+    "ndwi_std",
+    "rednir_std"
+  ],
+  "group_by": "scene_id",
+  "split_seed": 45,
+  "tries_to_meet_min_pos": 4
+}
