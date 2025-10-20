@@ -1,0 +1,2 @@
+model,feats,auprc,auroc,thr_star,test_pos,test_total
+fusion(logreg),p_tab+frcnn_r50+frcnn_mb+frcnn_ssd,0.8333333333333333,0.9897959183673469,0.5578355476969177,4,102
