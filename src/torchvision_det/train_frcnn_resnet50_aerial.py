@@ -1,3 +1,4 @@
+# IGNORE THIS FILE FOR NOW, ILL CLEAN IT UP LATER
 from __future__ import annotations
 import os, time, math, argparse
 os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")
