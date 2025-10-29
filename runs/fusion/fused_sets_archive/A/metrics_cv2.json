@@ -1,0 +1,27 @@
+{
+  "feats": [
+    "p_tab",
+    "frcnn_r50",
+    "frcnn_mb",
+    "frcnn_ssd",
+    "p_tab_delta",
+    "p_tab_increasing"
+  ],
+  "auprc": 0.292063492063492,
+  "auroc": 0.8991228070175439,
+  "thr_star": 0.8688771118337767,
+  "base_rate": 0.0379746835443038,
+  "cm": [
+    [
+      146,
+      6
+    ],
+    [
+      2,
+      4
+    ]
+  ],
+  "n": 158,
+  "pos": 6,
+  "unique_scores": 79
+}
