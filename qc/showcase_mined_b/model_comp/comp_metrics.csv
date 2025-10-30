@@ -1,0 +1,2 @@
+model,acc_at_f1,auprc,auroc
+Fusion B,0.5776,0.5832,0.5402
