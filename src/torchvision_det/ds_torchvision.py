@@ -11,7 +11,7 @@ import torchvision.transforms as T
 from PIL import Image
 
 # -----------------------------------------------------------------------------
-# Project paths (matches your repo layout)
+# Project paths
 # -----------------------------------------------------------------------------
 DATA_DIR = Path("data")
 COCO_DIR = DATA_DIR / "labels" / "coco"
@@ -165,6 +165,8 @@ class HABDetDataset(Dataset):
             "labels": labels_t,
             # IMPORTANT: use the true COCO image id (int), not the dataset index
             "image_id": torch.tensor(int(info["id"])),
+            "image_id_str": Path(file_name).stem,
+            "file_name": file_name,
             "area": area_t,
             "iscrowd": iscrowd_t,
             "orig_size": torch.tensor([h, w], dtype=torch.int64),

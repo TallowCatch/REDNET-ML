@@ -483,14 +483,20 @@ def main():
     base = _coerce_id(base, args.id_col, args.tabular_csv)
     base[args.id_col] = _normalize_ids(base[args.id_col])
 
-    need = {args.id_col, args.group_by, "hab_label", "p_tab"}
+    need = {args.id_col, args.group_by, "hab_label"}
+    if not args.drop_p_tab:
+        need.add("p_tab")
     missing = need - set(base.columns)
     if missing:
         raise SystemExit(f"{args.tabular_csv} missing columns: {sorted(missing)}")
 
-    keep_cols = [args.id_col, args.group_by, "hab_label", "p_tab"]
-    if "datetime" in base.columns: keep_cols.append("datetime")
-    base = base[keep_cols].copy()
+    keep_cols = [args.id_col, args.group_by, "hab_label"]
+    if not args.drop_p_tab and "p_tab" in base.columns:
+        keep_cols.append("p_tab")
+    if "datetime" in base.columns:
+        keep_cols.append("datetime")
+
+    base = base[[c for c in keep_cols if c in base.columns]].copy()
     base[args.group_by] = base[args.group_by].astype(str).map(_canonical_scene_key)
     base = _attach_month_region_keys_for_base(base, args.id_col, args.group_by)
 
