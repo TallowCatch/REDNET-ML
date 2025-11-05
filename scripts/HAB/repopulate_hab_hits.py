@@ -7,22 +7,29 @@ import numpy as np
 
 SCENE_RE = re.compile(r'(S2[AB]_MSIL2A_[0-9T_]+)')
 
-def to_scene_base(s:str) -> str|None:
-    if not isinstance(s, str): return None
+def to_scene_base(s: str) -> str | None:
+    if not isinstance(s, str):
+        return None
     m = SCENE_RE.search(s)
-    if m: return m.group(1)
+    if m:
+        return m.group(1)
     b = Path(str(s)).name
-    b = re.sub(r'(_\d{4})?\.(jpg|png)$','', b, flags=re.I)
-    if b.startswith("S2") and "_MSIL2A_" in b: return b
+    b = re.sub(r'(_\d{4})?\.(jpg|png)$', '', b, flags=re.I)
+    if b.startswith("S2") and "_MSIL2A_" in b:
+        return b
     return None
 
-POSS_SCENE_COLS = ("scene_id","filename","file","image","img","coco_file","coco_path","img_path","tile")
+POSS_SCENE_COLS = (
+    "scene_id", "filename", "file", "image", "img",
+    "coco_file", "coco_path", "img_path", "tile"
+)
 
-def best_scene(row) -> str|None:
+def best_scene(row) -> str | None:
     for c in POSS_SCENE_COLS:
         if c in row and pd.notna(row[c]):
             base = to_scene_base(str(row[c]))
-            if base: return base
+            if base:
+                return base
     return None
 
 def index_jpgs(roots):
@@ -40,20 +47,51 @@ def index_jpgs(roots):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--fusion_dir", default="runs/fusion/fused_sets/B_mined_timecv_norm_f1")
-    # recursive roots: include data + qc in case you’ve already copied some
-    ap.add_argument("--jpg_roots", nargs="+",
-        default=["data", "qc", "runs"])
-    ap.add_argument("--out_dir", default="qc/hab_hits_inspect")
-    ap.add_argument("--k", type=int, default=120)
-    ap.add_argument("--link_mode", choices=["copy","symlink"], default="copy")
-    ap.add_argument("--score_col", default=None)
-    ap.add_argument("--section", choices=["pred_pos","tp","fp"], default="pred_pos")
+    ap.add_argument(
+        "--fusion_dir",
+        default="runs/fusion/fused_sets/B_mined_timecv_norm_f1",
+        help="Fusion run directory (with predictions_cv2.csv or merged_features_debug.csv)",
+    )
+    ap.add_argument(
+        "--jpg_roots",
+        nargs="+",
+        default=["qc", "data", "runs"],
+        help="Where to recursively search for Sentinel-2 JPEGs",
+    )
+    ap.add_argument(
+        "--out_dir",
+        default="qc/hab_hits_inspect",
+        help="Folder where JPEGs + manifest.csv will be written",
+    )
+    ap.add_argument(
+        "--k",
+        type=int,
+        default=120,
+        help="Number of predicted scenes to include",
+    )
+    ap.add_argument(
+        "--link_mode",
+        choices=["copy", "symlink"],
+        default="copy",
+        help="Copy or symlink images into out_dir",
+    )
+    ap.add_argument(
+        "--score_col",
+        default=None,
+        help="Optional explicit score col; otherwise auto-detect (p_fused, p_tab, frcnn_*)",
+    )
+    ap.add_argument(
+        "--section",
+        choices=["pred_pos", "tp", "fp"],
+        default="pred_pos",
+        help="Which subset to export: predicted positives, TPs only, or FPs only",
+    )
     args = ap.parse_args()
 
     fdir = Path(args.fusion_dir)
     merged = fdir / "merged_features_debug.csv"
-    preds  = fdir / "predictions_cv2.csv"
+    preds = fdir / "predictions_cv2.csv"
+
     if merged.exists():
         df = pd.read_csv(merged)
     elif preds.exists():
@@ -65,49 +103,57 @@ def main():
     if args.score_col and args.score_col in df.columns:
         sc = args.score_col
     else:
-        prefer = ["p_fused","score","y_pred_score","p_tab"]
+        prefer = ["p_fused", "score", "y_pred_score", "p_tab"]
         sc = next((c for c in prefer if c in df.columns), None)
         if sc is None:
-            dets = [c for c in df.columns if c.startswith("frcnn_")]
+            dets = [c for c in df.columns if c.startswith("p_frcnn_") or c.startswith("p_ssd_")]
             sc = dets[0] if dets else None
         if sc is None:
-            raise SystemExit("No score column found (tried p_fused/score/y_pred_score/p_tab or frcnn_*).")
+            raise SystemExit("No score column found (tried p_fused/score/y_pred_score/p_tab or detector scores).")
 
     # threshold + preds
     thr_file = fdir / "threshold.txt"
     thr = float(thr_file.read_text().strip()) if thr_file.exists() else float(np.nanmedian(df[sc]))
+
     ycol = "hab_label" if "hab_label" in df.columns else ("y_true" if "y_true" in df.columns else None)
     if ycol is None:
         raise SystemExit("Need a label column (hab_label or y_true).")
+
     df["pred"] = (df[sc] >= thr).astype(int)
 
     # subset
     if args.section == "tp":
-        sub = df[(df[ycol]==1) & (df["pred"]==1)].sort_values(sc, ascending=False)
+        sub = df[(df[ycol] == 1) & (df["pred"] == 1)].sort_values(sc, ascending=False)
     elif args.section == "fp":
-        sub = df[(df[ycol]==0) & (df["pred"]==1)].sort_values(sc, ascending=False)
+        sub = df[(df[ycol] == 0) & (df["pred"] == 1)].sort_values(sc, ascending=False)
     else:
-        sub = df[df["pred"]==1].sort_values(sc, ascending=False)  # predicted positives
+        sub = df[df["pred"] == 1].sort_values(sc, ascending=False)  # predicted positives
 
-    out = Path(args.out_dir); out.mkdir(parents=True, exist_ok=True)
-    # keep qc_all; clean only jpgs at top level
+    out = Path(args.out_dir)
+    out.mkdir(parents=True, exist_ok=True)
+
+    # clean only jpgs at top level (keep qc_all etc)
     for p in out.glob("*.jpg"):
-        try: p.unlink()
-        except: pass
+        try:
+            p.unlink()
+        except Exception:
+            pass
 
     by_base = index_jpgs(args.jpg_roots)
 
     rows, taken = [], 0
-    for _,r in sub.iterrows():
+    for _, r in sub.iterrows():
         scene = best_scene(r)
-        if not scene: continue
+        if not scene:
+            continue
         imgs = sorted(by_base.get(scene, []))
         if not imgs:
             # fuzzy startswith
             for base, plist in by_base.items():
                 if base.startswith(scene):
-                    imgs = sorted(plist); break
-        if not imgs: 
+                    imgs = sorted(plist)
+                    break
+        if not imgs:
             continue
 
         used = []
@@ -116,28 +162,33 @@ def main():
             if not dst.exists():
                 try:
                     if args.link_mode == "symlink":
-                        try: dst.symlink_to(Path(j).resolve())
-                        except FileExistsError: pass
+                        try:
+                            dst.symlink_to(Path(j).resolve())
+                        except FileExistsError:
+                            pass
                     else:
                         shutil.copy2(j, dst)
                 except Exception:
                     continue
             used.append(dst.name)
 
-        rows.append({
-            "scene_id": r.get("scene_id", scene),
-            "tile": r.get("tile",""),
-            "score": float(r.get(sc, np.nan)),
-            "thr": float(thr),
-            "pred": int(r.get("pred",0)),
-            "ytrue": int(r.get(ycol, -1)) if ycol else -1,
-            "jpg_0": used[0] if len(used)>0 else "",
-            "jpg_1": used[1] if len(used)>1 else "",
-        })
+        rows.append(
+            {
+                "scene_id": r.get("scene_id", scene),
+                "tile": r.get("tile", ""),
+                "score": float(r.get(sc, np.nan)),
+                "thr": float(thr),
+                "pred": int(r.get("pred", 0)),
+                "ytrue": int(r.get(ycol, -1)) if ycol else -1,
+                "jpg_0": used[0] if len(used) > 0 else "",
+                "jpg_1": used[1] if len(used) > 1 else "",
+            }
+        )
         taken += 1
-        if taken >= args.k: break
+        if taken >= args.k:
+            break
 
-    pd.DataFrame(rows).to_csv(out/"manifest.csv", index=False)
+    pd.DataFrame(rows).to_csv(out / "manifest.csv", index=False)
     print(f"✓ repopulated {out} | subset={args.section} | k={len(rows)}")
     print(f"  score={sc} thr={thr:.3f}")
     print(f"  searched recursively under: {args.jpg_roots}")

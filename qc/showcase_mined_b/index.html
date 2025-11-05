@@ -1,5 +1,6 @@
 <!doctype html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'>
 <title>HAB Showcase — Fusion</title>
+<link rel='stylesheet' href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css' integrity='sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=' crossorigin=''/>
 <style>
 :root{
   --bg:#0b1a1a; --card:#112a29; --ink:#e8f5f5; --soft:#a8d0d0;
@@ -9,85 +10,151 @@
 }
 *{box-sizing:border-box}
 html,body{margin:0; padding:0}
-body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif;background:var(--bg);color:var(--ink);padding:28px 20px 80px;}
+body{
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif;
+  background:var(--bg);color:var(--ink);padding:28px 20px 80px;
+}
 .header{max-width:1100px;margin:0 auto 22px auto;text-align:center}
 h1{margin:0 0 6px 0;font-size:2.2rem;letter-spacing:.2px}
 .subtitle{color:var(--soft);margin:0 0 16px 0}
-.lead{max-width:900px;margin:12px auto 24px auto;color:#d7f0ee;line-height:1.6;font-size:17px;opacity:.95}
-.hr{max-width:1100px;margin:26px auto;border:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent)}
+.lead{
+  max-width:900px;margin:12px auto 24px auto;color:#d7f0ee;
+  line-height:1.6;font-size:17px;opacity:.95
+}
+.hr{
+  max-width:1100px;margin:26px auto;border:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent)
+}
 .section{max-width:1600px;margin:34px auto 14px auto;padding:0 2px}
 .section h2{margin:0 0 10px 0}
 .section .hint{color:var(--soft);font-size:13px;margin:2px 0 14px 0}
 .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(380px,1fr)); gap:16px}
-.card{background:var(--card); border-radius:16px; padding:12px; box-shadow:var(--shadow); display:flex; flex-direction:column; transform:translateX(0); opacity:0; transition:transform .6s cubic-bezier(.22,1,.36,1), opacity .5s}
+.card{
+  background:var(--card); border-radius:16px; padding:12px; box-shadow:var(--shadow);
+  display:flex; flex-direction:column; transform:translateX(0); opacity:0;
+  transition:transform .6s cubic-bezier(.22,1,.36,1), opacity .5s
+}
 .card.reveal-left{transform:translateX(-34px); opacity:0}
 .card.reveal-right{transform:translateX(34px); opacity:0}
 .card.visible{transform:translateX(0); opacity:1}
 .figure{position:relative; border-radius:12px; overflow:hidden; background:#0d1e1e}
 .viewport{position:relative; width:100%; aspect-ratio:4/3}
-.figure img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; opacity:0; transition:opacity .2s}
+.figure img{
+  position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+  display:block; opacity:0; transition:opacity .2s
+}
 .figure img.active{opacity:1}
-.controls{position:absolute; inset:0; display:flex; align-items:center; justify-content:space-between; pointer-events:none}
-.btn{pointer-events:auto; background:rgba(0,0,0,.45); border:1px solid rgba(255,255,255,.25); color:#fff; width:40px; height:40px; border-radius:999px; display:flex; align-items:center; justify-content:center; margin:10px; user-select:none; font-size:22px; line-height:1}
-.nav{position:absolute; left:0; right:0; bottom:10px; display:flex; justify-content:center; gap:8px; pointer-events:auto}
+.controls{
+  position:absolute; inset:0; display:flex; align-items:center;
+  justify-content:space-between; pointer-events:none
+}
+.btn{
+  pointer-events:auto; background:rgba(0,0,0,.45);
+  border:1px solid rgba(255,255,255,.25); color:#fff;
+  width:40px; height:40px; border-radius:999px;
+  display:flex; align-items:center; justify-content:center;
+  margin:10px; user-select:none; font-size:22px; line-height:1
+}
+.nav{
+  position:absolute; left:0; right:0; bottom:10px;
+  display:flex; justify-content:center; gap:8px; pointer-events:auto
+}
 .dot{width:10px; height:10px; border-radius:50%; background:var(--accent2); opacity:.55; cursor:pointer}
 .dot.active{opacity:1; background:var(--accent)}
-.dtbar{position:absolute; left:0; bottom:48px; right:0; display:flex; justify-content:center}
-.dtpill{background:rgba(0,0,0,.45); color:#fff; font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.2)}
-.meta{font-size:14px; line-height:1.45; margin-top:10px; color:#cfe; word-break:break-word; overflow-wrap:anywhere}
+.dtbar{
+  position:absolute; left:0; bottom:48px; right:0;
+  display:flex; justify-content:center
+}
+.dtpill{
+  background:rgba(0,0,0,.45); color:#fff; font-size:12px;
+  padding:4px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.2)
+}
+.meta{font-size:14px; line-height:1.45; margin-top:10px; color:#cfe;
+      word-break:break-word; overflow-wrap:anywhere}
 .pills{margin-bottom:6px}
-.pill{background:var(--pill); color:var(--pill-ink); padding:4px 10px; border-radius:999px; font-size:12px; margin-right:8px; display:inline-block}
+.pill{
+  background:var(--pill); color:var(--pill-ink);
+  padding:4px 10px; border-radius:999px; font-size:12px;
+  margin-right:8px; display:inline-block
+}
 .kv{margin:2px 0}
 small.soft{color:var(--soft)}
 .badges{position:absolute;top:6px;left:6px;display:flex;flex-wrap:wrap;gap:6px;z-index:2}
-.badge{background:rgba(0,0,0,.55);border-radius:8px;padding:2px 6px;font-size:12px;line-height:1.3;color:#fff}
+.badge{
+  background:rgba(0,0,0,.55);border-radius:8px;
+  padding:2px 6px;font-size:12px;line-height:1.3;color:#fff
+}
 .badge.tp{background:var(--tp)}
 .badge.fp{background:var(--fp)}
 .badge.fn{background:var(--fn)}
 .badge.score{background:var(--score)}
+
+.navbar{
+  max-width:1100px;
+  margin:0 auto 20px auto;
+  display:flex;justify-content:center;gap:10px;flex-wrap:wrap
+}
+.navbtn{
+  border-radius:999px;padding:6px 14px;
+  border:1px solid rgba(255,255,255,.2);
+  background:rgba(0,0,0,.25);color:var(--soft);
+  font-size:13px;cursor:pointer
+}
+.navbtn:hover{border-color:var(--accent);color:#fff}
+
+.metrics-strip{
+  max-width:1100px;margin:10px auto 0 auto;
+  padding:8px 10px;border-radius:12px;
+  background:linear-gradient(90deg,rgba(30,80,80,.8),rgba(8,35,35,.9));
+  box-shadow:0 0 0 1px rgba(255,255,255,.05);
+  font-size:13px;overflow-x:auto;white-space:nowrap;
+}
+.metric-pill{
+  display:inline-block;padding:6px 10px;margin:4px 6px 4px 0;
+  border-radius:10px;border:1px solid rgba(255,255,255,.15);
+  background:rgba(0,0,0,.25);
+}
+.metric-pill span.label{font-weight:600;margin-right:6px}
+.metric-pill.good{border-color:#32cd8a;color:#bdfad8}
+.metric-pill.meh{border-color:#e6c15a;color:#ffeaa6}
+.metric-pill.bad{border-color:#e06666;color:#ffc1c1}
+
+.charts-grid{
+  max-width:1100px;margin:10px auto 0 auto;
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:16px;
+}
+.chart-card{
+  background:var(--card);border-radius:14px;
+  padding:10px;box-shadow:var(--shadow);
+}
+.chart-card img{
+  width:100%;border-radius:10px;display:block;
+}
+.chart-card h3{margin:0 0 6px 0;font-size:15px}
+.chart-card p{margin:0;font-size:13px;color:var(--soft)}
+
+#aoi-map{
+  width:100%;height:330px;border-radius:18px;overflow:hidden;
+  box-shadow:0 18px 40px rgba(0,0,0,.4);
+}
 </style></head><body>
-<div class='header'><h1>HAB Detection Summary</h1>
-<div class='subtitle'>Oman coastline — Fusion (Tabular + Detectors)</div></div>
-<div class='lead'>Visual audit of <b>fused predictions</b> showing tabular and detector contributions with chlor_a, Kd490, and nFLH context.</div>
-<div class='section'><h2>Top scored scenes</h2><div class='hint'>Scroll to reveal.</div><div class='grid'>
+<div class='header'><h1>HAB Detection Summary</h1><div class='subtitle'>Oman coastline — Fusion (Tabular + Detectors)</div></div>
+<div class='lead'>Visual audit of <b>fused HAB predictions</b> along the Oman coastline. Tabular Sentinel-3 water-quality features are fused with deep detectors over Sentinel-2 tiles to improve recall while controlling false alarms.</div>
+<div class='navbar'><button class='navbtn' onclick="document.getElementById('section-overview').scrollIntoView({behavior:'smooth'})">Overview</button><button class='navbtn' onclick="document.getElementById('section-models').scrollIntoView({behavior:'smooth'})">Model performance</button><button class='navbtn' onclick="document.getElementById('section-gallery').scrollIntoView({behavior:'smooth'})">Top scenes</button></div>
+<hr class='hr'>
+<div id='section-overview' class='section'><h2>Study area</h2><div class='hint'>Oman coastal region monitored for potentially harmful algal blooms (HABs).</div><div id='aoi-map'></div></div>
+<hr class='hr'>
+<div id='section-models' class='section'><h2>Model performance snapshot</h2><div class='hint'>Each pill shows test F1 and AUROC for a detector or fusion run. Green ≈ strong, yellow ≈ moderate, red ≈ weaker.</div>
+<div class='metrics-strip'><span class='soft' style='margin-right:8px;'>Model snapshot:</span><span class='metric-pill bad'><span class='label'>P_TAB</span>F1 0.53 · AUROC 0.56</span><span class='metric-pill bad'><span class='label'>FRCNN_R50_MED</span>F1 0.49 · AUROC 0.45</span><span class='metric-pill bad'><span class='label'>FRCNN_MB_MED</span>F1 0.45 · AUROC 0.43</span><span class='metric-pill bad'><span class='label'>SSD_MB_MED</span>F1 0.46 · AUROC 0.46</span><span class='metric-pill good'><span class='label'>FUSION_DET+ENV+TAB</span>F1 0.78 · AUROC 0.84</span><span class='metric-pill good'><span class='label'>FUSION_DET+ENV+TAB_TRAIN</span>F1 0.78 · AUROC 0.89</span></div>
+</div>
+<div class='section'><div class='charts-grid'><div class='chart-card'><h3>Detector vs fusion — bar metrics</h3><p>Accuracy, precision, recall, F1 and AUROC across models.</p><img src='../../runs/fusion/qc_model_comparison/all_model_bar.png' alt='Bar chart of model metrics'></div><div class='chart-card'><h3>Detector vs fusion — radar</h3><p>Radar view of the same metrics to highlight trade-offs.</p><img src='../../runs/fusion/qc_model_comparison/all_model_radar.png' alt='Radar chart of model metrics'></div><div class='chart-card'><h3>Fusion PR curve</h3><p>Precision–recall curve for fusion vs baselines.</p><img src='model_comp/comp_pr.png' alt='PR curves'></div><div class='chart-card'><h3>Fusion ROC curve</h3><p>ROC curve for fusion vs baselines.</p><img src='model_comp/comp_roc.png' alt='ROC curves'></div></div></div>
+<hr class='hr'>
+<div id='section-gallery' class='section'><h2>Top scored scenes</h2><div class='hint'>Scroll to reveal fused high-confidence HAB candidates (TPs & FPs annotated).</div><div class='grid'>
 
 <div class='card'>
   <div class='figure'>
-    <div class='badges'><span class='badge tp'>TP</span><span class='badge score'>p_fused 0.656</span></div>
-    <div class='viewport'><img class='active' data-dt='' src='S2B_MSIL2A_20240714T065619_R063_T39QXG_20240714T115201_0000.jpg' loading='lazy'/>
-<img class='' data-dt='' src='S2B_MSIL2A_20240714T065619_R063_T39QXG_20240714T115201_0001.jpg' loading='lazy'/></div>
-    <div class='dtbar'><span class='dtpill'></span></div>
-    <div class='controls'><div class='btn prev'>&lsaquo;</div><div class='btn next'>&rsaquo;</div></div>
-    <div class='nav'><div class='dot'></div><div class='dot'></div></div>
-  </div>
-  <div class='meta'>
-    <div class='pills'><span class='pill'>2024-07</span><span class='pill'></span></div>
-    <div class='kv'>scene: S2B_MSIL2A_20240714T065619_R063_T39QXG_20240714T115201</div>
-    <div class='kv'>chlor_a: 0.904828</div>
-    <div class='kv'>Kd490: 0.095</div>
-    <div class='kv'>nFLH: 0.217735</div>
-  </div>
-</div>
-<div class='card'>
-  <div class='figure'>
-    <div class='badges'><span class='badge tp'>TP</span><span class='badge score'>p_fused 0.617</span></div>
-    <div class='viewport'><img class='active' data-dt='' src='S2A_MSIL2A_20240719T065621_R063_T39QXG_20240719T132007_0000.jpg' loading='lazy'/>
-<img class='' data-dt='' src='S2A_MSIL2A_20240719T065621_R063_T39QXG_20240719T132007_0001.jpg' loading='lazy'/></div>
-    <div class='dtbar'><span class='dtpill'></span></div>
-    <div class='controls'><div class='btn prev'>&lsaquo;</div><div class='btn next'>&rsaquo;</div></div>
-    <div class='nav'><div class='dot'></div><div class='dot'></div></div>
-  </div>
-  <div class='meta'>
-    <div class='pills'><span class='pill'>2024-07</span><span class='pill'></span></div>
-    <div class='kv'>scene: S2A_MSIL2A_20240719T065621_R063_T39QXG_20240719T132007</div>
-    <div class='kv'>chlor_a: 0.569551</div>
-    <div class='kv'>Kd490: 0.0767</div>
-    <div class='kv'>nFLH: 0.231377</div>
-  </div>
-</div>
-<div class='card'>
-  <div class='figure'>
-    <div class='badges'><span class='badge tp'>TP</span><span class='badge score'>p_fused 0.609</span></div>
+    <div class='badges'><span class='badge tp'>TP</span><span class='badge score'>p_fused 0.988</span></div>
     <div class='viewport'><img class='active' data-dt='' src='S2A_MSIL2A_20230205T070101_R063_T39QWG_20230206T045240_preview.jpg' loading='lazy'/></div>
     <div class='dtbar'><span class='dtpill'></span></div>
     <div class='controls'><div class='btn prev'>&lsaquo;</div><div class='btn next'>&rsaquo;</div></div>
@@ -103,23 +170,7 @@ small.soft{color:var(--soft)}
 </div>
 <div class='card'>
   <div class='figure'>
-    <div class='badges'><span class='badge tp'>TP</span><span class='badge score'>p_fused 0.604</span></div>
-    <div class='viewport'><img class='active' data-dt='' src='S2A_MSIL2A_20240808T065621_R063_T39QWG_20240808T130850_preview.jpg' loading='lazy'/></div>
-    <div class='dtbar'><span class='dtpill'></span></div>
-    <div class='controls'><div class='btn prev'>&lsaquo;</div><div class='btn next'>&rsaquo;</div></div>
-    <div class='nav'><div class='dot'></div></div>
-  </div>
-  <div class='meta'>
-    <div class='pills'><span class='pill'>2024-08</span><span class='pill'></span></div>
-    <div class='kv'>scene: S2A_MSIL2A_20240808T065621_R063_T39QXG_20240808T130850</div>
-    <div class='kv'>chlor_a: 1.12372</div>
-    <div class='kv'>Kd490: 0.1082</div>
-    <div class='kv'>nFLH: 0.520335</div>
-  </div>
-</div>
-<div class='card'>
-  <div class='figure'>
-    <div class='badges'><span class='badge tp'>TP</span><span class='badge score'>p_fused 0.591</span></div>
+    <div class='badges'><span class='badge tp'>TP</span><span class='badge score'>p_fused 0.985</span></div>
     <div class='viewport'><img class='active' data-dt='' src='S2A_MSIL2A_20230205T070101_R063_T39QWG_20230206T045240_preview.jpg' loading='lazy'/></div>
     <div class='dtbar'><span class='dtpill'></span></div>
     <div class='controls'><div class='btn prev'>&lsaquo;</div><div class='btn next'>&rsaquo;</div></div>
@@ -135,73 +186,7 @@ small.soft{color:var(--soft)}
 </div>
 <div class='card'>
   <div class='figure'>
-    <div class='badges'><span class='badge fp'>FP</span><span class='badge score'>p_fused 0.589</span></div>
-    <div class='viewport'><img class='active' data-dt='' src='S2B_MSIL2A_20240704T065629_R063_T39QXG_20240705T224349_0000.jpg' loading='lazy'/>
-<img class='' data-dt='' src='S2B_MSIL2A_20240704T065629_R063_T39QXG_20240705T224349_0001.jpg' loading='lazy'/></div>
-    <div class='dtbar'><span class='dtpill'></span></div>
-    <div class='controls'><div class='btn prev'>&lsaquo;</div><div class='btn next'>&rsaquo;</div></div>
-    <div class='nav'><div class='dot'></div><div class='dot'></div></div>
-  </div>
-  <div class='meta'>
-    <div class='pills'><span class='pill'>2024-07</span><span class='pill'></span></div>
-    <div class='kv'>scene: S2B_MSIL2A_20240704T065629_R063_T39QXG_20240705T224349</div>
-    <div class='kv'>chlor_a: nan</div>
-    <div class='kv'>Kd490: nan</div>
-    <div class='kv'>nFLH: nan</div>
-  </div>
-</div>
-<div class='card'>
-  <div class='figure'>
-    <div class='badges'><span class='badge tp'>TP</span><span class='badge score'>p_fused 0.588</span></div>
-    <div class='viewport'><img class='active' data-dt='' src='S2B_MSIL2A_20240823T065619_R063_T39QWG_20240823T113539_preview.jpg' loading='lazy'/></div>
-    <div class='dtbar'><span class='dtpill'></span></div>
-    <div class='controls'><div class='btn prev'>&lsaquo;</div><div class='btn next'>&rsaquo;</div></div>
-    <div class='nav'><div class='dot'></div></div>
-  </div>
-  <div class='meta'>
-    <div class='pills'><span class='pill'>2024-08</span><span class='pill'></span></div>
-    <div class='kv'>scene: S2B_MSIL2A_20240823T065619_R063_T39QXG_20240823T113539</div>
-    <div class='kv'>chlor_a: 1.30953</div>
-    <div class='kv'>Kd490: 0.1188</div>
-    <div class='kv'>nFLH: nan</div>
-  </div>
-</div>
-<div class='card'>
-  <div class='figure'>
-    <div class='badges'><span class='badge fp'>FP</span><span class='badge score'>p_fused 0.583</span></div>
-    <div class='viewport'><img class='active' data-dt='' src='S2B_MSIL2A_20210720T065629_R063_T39QWG_20210720T165521_preview.jpg' loading='lazy'/></div>
-    <div class='dtbar'><span class='dtpill'></span></div>
-    <div class='controls'><div class='btn prev'>&lsaquo;</div><div class='btn next'>&rsaquo;</div></div>
-    <div class='nav'><div class='dot'></div></div>
-  </div>
-  <div class='meta'>
-    <div class='pills'><span class='pill'>2021-07</span><span class='pill'></span></div>
-    <div class='kv'>scene: S2B_MSIL2A_20210720T065629_R063_T39QXG_20210720T171952</div>
-    <div class='kv'>chlor_a: nan</div>
-    <div class='kv'>Kd490: nan</div>
-    <div class='kv'>nFLH: nan</div>
-  </div>
-</div>
-<div class='card'>
-  <div class='figure'>
-    <div class='badges'><span class='badge tp'>TP</span><span class='badge score'>p_fused 0.573</span></div>
-    <div class='viewport'><img class='active' data-dt='' src='S2A_MSIL2A_20240927T065641_R063_T39QXG_20240927T112652_0000.jpg' loading='lazy'/>
-<img class='' data-dt='' src='S2A_MSIL2A_20240927T065641_R063_T39QXG_20240927T112652_0001.jpg' loading='lazy'/></div>
-    <div class='dtbar'><span class='dtpill'></span></div>
-    <div class='controls'><div class='btn prev'>&lsaquo;</div><div class='btn next'>&rsaquo;</div></div>
-    <div class='nav'><div class='dot'></div><div class='dot'></div></div>
-  </div>
-  <div class='meta'>
-    <div class='pills'><span class='pill'>2024-09</span><span class='pill'></span></div>
-    <div class='kv'>scene: S2A_MSIL2A_20240927T065641_R063_T39QXG_20240927T112652</div>
-    <div class='kv'>chlor_a: 0.988476</div>
-    <div class='kv'>Kd490: 0.0998667</div>
-    <div class='kv'>nFLH: 0.395725</div>
-  </div>
-</div>
-<div class='card'>
-  <div class='figure'>
-    <div class='badges'><span class='badge tp'>TP</span><span class='badge score'>p_fused 0.572</span></div>
+    <div class='badges'><span class='badge tp'>TP</span><span class='badge score'>p_fused 0.871</span></div>
     <div class='viewport'><img class='active' data-dt='' src='S2B_MSIL2A_20240922T065619_R063_T39QXG_20240922T102739_0000.jpg' loading='lazy'/>
 <img class='' data-dt='' src='S2B_MSIL2A_20240922T065619_R063_T39QXG_20240922T102739_0001.jpg' loading='lazy'/></div>
     <div class='dtbar'><span class='dtpill'></span></div>
@@ -218,257 +203,26 @@ small.soft{color:var(--soft)}
 </div>
 <div class='card'>
   <div class='figure'>
-    <div class='badges'><span class='badge fp'>FP</span><span class='badge score'>p_fused 0.567</span></div>
-    <div class='viewport'><img class='active' data-dt='' src='S2B_MSIL2A_20240813T065629_R063_T39QXG_20240813T121221_0000.jpg' loading='lazy'/>
-<img class='' data-dt='' src='S2B_MSIL2A_20240813T065629_R063_T39QXG_20240813T121221_0001.jpg' loading='lazy'/></div>
-    <div class='dtbar'><span class='dtpill'></span></div>
-    <div class='controls'><div class='btn prev'>&lsaquo;</div><div class='btn next'>&rsaquo;</div></div>
-    <div class='nav'><div class='dot'></div><div class='dot'></div></div>
-  </div>
-  <div class='meta'>
-    <div class='pills'><span class='pill'>2024-08</span><span class='pill'></span></div>
-    <div class='kv'>scene: S2B_MSIL2A_20240813T065629_R063_T39QXG_20240813T121221</div>
-    <div class='kv'>chlor_a: nan</div>
-    <div class='kv'>Kd490: nan</div>
-    <div class='kv'>nFLH: nan</div>
-  </div>
-</div>
-<div class='card'>
-  <div class='figure'>
-    <div class='badges'><span class='badge fp'>FP</span><span class='badge score'>p_fused 0.549</span></div>
-    <div class='viewport'><img class='active' data-dt='' src='S2A_MSIL2A_20210725T065631_R063_T39QWG_20210726T065621_preview.jpg' loading='lazy'/></div>
-    <div class='dtbar'><span class='dtpill'></span></div>
-    <div class='controls'><div class='btn prev'>&lsaquo;</div><div class='btn next'>&rsaquo;</div></div>
-    <div class='nav'><div class='dot'></div></div>
-  </div>
-  <div class='meta'>
-    <div class='pills'><span class='pill'>2021-07</span><span class='pill'></span></div>
-    <div class='kv'>scene: S2A_MSIL2A_20210725T065631_R063_T39QXG_20210726T051413</div>
-    <div class='kv'>chlor_a: nan</div>
-    <div class='kv'>Kd490: nan</div>
-    <div class='kv'>nFLH: nan</div>
-  </div>
-</div>
-<div class='card'>
-  <div class='figure'>
-    <div class='badges'><span class='badge fp'>FP</span><span class='badge score'>p_fused 0.537</span></div>
-    <div class='viewport'><img class='active' data-dt='' src='S2B_MSIL2A_20240902T065629_R063_T39QXG_20240902T111143_0000.jpg' loading='lazy'/>
-<img class='' data-dt='' src='S2B_MSIL2A_20240902T065629_R063_T39QXG_20240902T111143_0001.jpg' loading='lazy'/></div>
+    <div class='badges'><span class='badge tp'>TP</span><span class='badge score'>p_fused 0.871</span></div>
+    <div class='viewport'><img class='active' data-dt='' src='S2B_MSIL2A_20240922T065619_R063_T39QXG_20240922T102739_0000.jpg' loading='lazy'/>
+<img class='' data-dt='' src='S2B_MSIL2A_20240922T065619_R063_T39QXG_20240922T102739_0001.jpg' loading='lazy'/></div>
     <div class='dtbar'><span class='dtpill'></span></div>
     <div class='controls'><div class='btn prev'>&lsaquo;</div><div class='btn next'>&rsaquo;</div></div>
     <div class='nav'><div class='dot'></div><div class='dot'></div></div>
   </div>
   <div class='meta'>
     <div class='pills'><span class='pill'>2024-09</span><span class='pill'></span></div>
-    <div class='kv'>scene: S2B_MSIL2A_20240902T065629_R063_T39QXG_20240902T111143</div>
-    <div class='kv'>chlor_a: nan</div>
-    <div class='kv'>Kd490: nan</div>
-    <div class='kv'>nFLH: nan</div>
-  </div>
-</div>
-<div class='card'>
-  <div class='figure'>
-    <div class='badges'><span class='badge fp'>FP</span><span class='badge score'>p_fused 0.523</span></div>
-    <div class='viewport'><img class='active' data-dt='' src='S2A_MSIL2A_20240828T065621_R063_T39QXG_20240828T121854_0000.jpg' loading='lazy'/>
-<img class='' data-dt='' src='S2A_MSIL2A_20240828T065621_R063_T39QXG_20240828T121854_0001.jpg' loading='lazy'/></div>
-    <div class='dtbar'><span class='dtpill'></span></div>
-    <div class='controls'><div class='btn prev'>&lsaquo;</div><div class='btn next'>&rsaquo;</div></div>
-    <div class='nav'><div class='dot'></div><div class='dot'></div></div>
-  </div>
-  <div class='meta'>
-    <div class='pills'><span class='pill'>2024-08</span><span class='pill'></span></div>
-    <div class='kv'>scene: S2A_MSIL2A_20240828T065621_R063_T39QXG_20240828T121854</div>
-    <div class='kv'>chlor_a: nan</div>
-    <div class='kv'>Kd490: nan</div>
-    <div class='kv'>nFLH: nan</div>
-  </div>
-</div>
-<div class='card'>
-  <div class='figure'>
-    <div class='badges'><span class='badge tp'>TP</span><span class='badge score'>p_fused 0.519</span></div>
-    <div class='viewport'><img class='active' data-dt='' src='S2B_MSIL2A_20210302T065809_R063_T39QXG_20210302T153932_0000.jpg' loading='lazy'/>
-<img class='' data-dt='' src='S2B_MSIL2A_20210302T065809_R063_T39QXG_20210302T153932_0001.jpg' loading='lazy'/></div>
-    <div class='dtbar'><span class='dtpill'></span></div>
-    <div class='controls'><div class='btn prev'>&lsaquo;</div><div class='btn next'>&rsaquo;</div></div>
-    <div class='nav'><div class='dot'></div><div class='dot'></div></div>
-  </div>
-  <div class='meta'>
-    <div class='pills'><span class='pill'>2021-03</span><span class='pill'></span></div>
-    <div class='kv'>scene: S2B_MSIL2A_20210302T065809_R063_T39QXG_20210302T153932</div>
-    <div class='kv'>chlor_a: 0.785385</div>
-    <div class='kv'>Kd490: 0.089</div>
-    <div class='kv'>nFLH: 0.414212</div>
-  </div>
-</div>
-<div class='card'>
-  <div class='figure'>
-    <div class='badges'><span class='badge fp'>FP</span><span class='badge score'>p_fused 0.516</span></div>
-    <div class='viewport'><img class='active' data-dt='' src='S2B_MSIL2A_20240912T065619_R063_T39QWG_20240912T130211_preview.jpg' loading='lazy'/></div>
-    <div class='dtbar'><span class='dtpill'></span></div>
-    <div class='controls'><div class='btn prev'>&lsaquo;</div><div class='btn next'>&rsaquo;</div></div>
-    <div class='nav'><div class='dot'></div></div>
-  </div>
-  <div class='meta'>
-    <div class='pills'><span class='pill'>2024-09</span><span class='pill'></span></div>
-    <div class='kv'>scene: S2B_MSIL2A_20240912T065619_R063_T39QXG_20240912T130211</div>
-    <div class='kv'>chlor_a: nan</div>
-    <div class='kv'>Kd490: nan</div>
-    <div class='kv'>nFLH: nan</div>
-  </div>
-</div>
-<div class='card'>
-  <div class='figure'>
-    <div class='badges'><span class='badge fp'>FP</span><span class='badge score'>p_fused 0.514</span></div>
-    <div class='viewport'><img class='active' data-dt='' src='S2A_MSIL2A_20240907T065621_R063_T39QXG_20240907T115459_0000.jpg' loading='lazy'/>
-<img class='' data-dt='' src='S2A_MSIL2A_20240907T065621_R063_T39QXG_20240907T115459_0001.jpg' loading='lazy'/></div>
-    <div class='dtbar'><span class='dtpill'></span></div>
-    <div class='controls'><div class='btn prev'>&lsaquo;</div><div class='btn next'>&rsaquo;</div></div>
-    <div class='nav'><div class='dot'></div><div class='dot'></div></div>
-  </div>
-  <div class='meta'>
-    <div class='pills'><span class='pill'>2024-09</span><span class='pill'></span></div>
-    <div class='kv'>scene: S2A_MSIL2A_20240907T065621_R063_T39QXG_20240907T115459</div>
-    <div class='kv'>chlor_a: nan</div>
-    <div class='kv'>Kd490: nan</div>
-    <div class='kv'>nFLH: nan</div>
-  </div>
-</div>
-<div class='card'>
-  <div class='figure'>
-    <div class='badges'><span class='badge tp'>TP</span><span class='badge score'>p_fused 0.513</span></div>
-    <div class='viewport'><img class='active' data-dt='' src='S2B_MSIL2A_20210630T065629_R063_T39QWG_20210701T045123_preview.jpg' loading='lazy'/></div>
-    <div class='dtbar'><span class='dtpill'></span></div>
-    <div class='controls'><div class='btn prev'>&lsaquo;</div><div class='btn next'>&rsaquo;</div></div>
-    <div class='nav'><div class='dot'></div></div>
-  </div>
-  <div class='meta'>
-    <div class='pills'><span class='pill'>2021-06</span><span class='pill'></span></div>
-    <div class='kv'>scene: S2B_MSIL2A_20210630T065629_R063_T39QXG_20210701T040612</div>
-    <div class='kv'>chlor_a: 0.40209</div>
-    <div class='kv'>Kd490: 0.0588</div>
-    <div class='kv'>nFLH: 0.38544</div>
-  </div>
-</div>
-<div class='card'>
-  <div class='figure'>
-    <div class='badges'><span class='badge tp'>TP</span><span class='badge score'>p_fused 0.511</span></div>
-    <div class='viewport'><img class='active' data-dt='' src='S2B_MSIL2A_20210730T065629_R063_T39QXG_20210730T184548_0000.jpg' loading='lazy'/>
-<img class='' data-dt='' src='S2B_MSIL2A_20210730T065629_R063_T39QXG_20210730T184548_0001.jpg' loading='lazy'/></div>
-    <div class='dtbar'><span class='dtpill'></span></div>
-    <div class='controls'><div class='btn prev'>&lsaquo;</div><div class='btn next'>&rsaquo;</div></div>
-    <div class='nav'><div class='dot'></div><div class='dot'></div></div>
-  </div>
-  <div class='meta'>
-    <div class='pills'><span class='pill'>2021-07</span><span class='pill'></span></div>
-    <div class='kv'>scene: S2B_MSIL2A_20210730T065629_R063_T39QXG_20210730T184548</div>
-    <div class='kv'>chlor_a: 1.25599</div>
-    <div class='kv'>Kd490: 0.1158</div>
-    <div class='kv'>nFLH: 0.1862</div>
-  </div>
-</div>
-<div class='card'>
-  <div class='figure'>
-    <div class='badges'><span class='badge tp'>TP</span><span class='badge score'>p_fused 0.511</span></div>
-    <div class='viewport'><img class='active' data-dt='' src='S2A_MSIL2A_20240111T070241_R063_T39QXG_20240111T113149_0000.jpg' loading='lazy'/>
-<img class='' data-dt='' src='S2A_MSIL2A_20240111T070241_R063_T39QXG_20240111T113149_0001.jpg' loading='lazy'/></div>
-    <div class='dtbar'><span class='dtpill'></span></div>
-    <div class='controls'><div class='btn prev'>&lsaquo;</div><div class='btn next'>&rsaquo;</div></div>
-    <div class='nav'><div class='dot'></div><div class='dot'></div></div>
-  </div>
-  <div class='meta'>
-    <div class='pills'><span class='pill'>2024-01</span><span class='pill'></span></div>
-    <div class='kv'>scene: S2A_MSIL2A_20240111T070241_R063_T39QXG_20240111T113149</div>
-    <div class='kv'>chlor_a: 0.685757</div>
-    <div class='kv'>Kd490: 0.0848667</div>
-    <div class='kv'>nFLH: 0.176085</div>
-  </div>
-</div>
-<div class='card'>
-  <div class='figure'>
-    <div class='badges'><span class='badge fp'>FP</span><span class='badge score'>p_fused 0.499</span></div>
-    <div class='viewport'><img class='active' data-dt='' src='S2A_MSIL2A_20210307T065731_R063_T39QWG_20210307T201240_preview.jpg' loading='lazy'/></div>
-    <div class='dtbar'><span class='dtpill'></span></div>
-    <div class='controls'><div class='btn prev'>&lsaquo;</div><div class='btn next'>&rsaquo;</div></div>
-    <div class='nav'><div class='dot'></div></div>
-  </div>
-  <div class='meta'>
-    <div class='pills'><span class='pill'>2021-03</span><span class='pill'></span></div>
-    <div class='kv'>scene: S2A_MSIL2A_20210307T065731_R063_T39QXG_20210307T203727</div>
-    <div class='kv'>chlor_a: nan</div>
-    <div class='kv'>Kd490: nan</div>
-    <div class='kv'>nFLH: nan</div>
-  </div>
-</div>
-<div class='card'>
-  <div class='figure'>
-    <div class='badges'><span class='badge tp'>TP</span><span class='badge score'>p_fused 0.476</span></div>
-    <div class='viewport'><img class='active' data-dt='' src='S2B_MSIL2A_20240624T065629_R063_T39QWG_20240624T102152_preview.jpg' loading='lazy'/></div>
-    <div class='dtbar'><span class='dtpill'></span></div>
-    <div class='controls'><div class='btn prev'>&lsaquo;</div><div class='btn next'>&rsaquo;</div></div>
-    <div class='nav'><div class='dot'></div></div>
-  </div>
-  <div class='meta'>
-    <div class='pills'><span class='pill'>2024-06</span><span class='pill'></span></div>
-    <div class='kv'>scene: S2B_MSIL2A_20240624T065629_R063_T39QXG_20240624T103302</div>
-    <div class='kv'>chlor_a: 0.53855</div>
-    <div class='kv'>Kd490: 0.0898</div>
-    <div class='kv'>nFLH: 0.47588</div>
-  </div>
-</div>
-<div class='card'>
-  <div class='figure'>
-    <div class='badges'><span class='badge tp'>TP</span><span class='badge score'>p_fused 0.461</span></div>
-    <div class='viewport'><img class='active' data-dt='' src='S2A_MSIL2A_20240619T065631_R063_T39QXG_20240619T131334_0000.jpg' loading='lazy'/>
-<img class='' data-dt='' src='S2A_MSIL2A_20240619T065631_R063_T39QXG_20240619T131334_0001.jpg' loading='lazy'/></div>
-    <div class='dtbar'><span class='dtpill'></span></div>
-    <div class='controls'><div class='btn prev'>&lsaquo;</div><div class='btn next'>&rsaquo;</div></div>
-    <div class='nav'><div class='dot'></div><div class='dot'></div></div>
-  </div>
-  <div class='meta'>
-    <div class='pills'><span class='pill'>2024-06</span><span class='pill'></span></div>
-    <div class='kv'>scene: S2A_MSIL2A_20240619T065631_R063_T39QXG_20240619T131334</div>
-    <div class='kv'>chlor_a: 0.53855</div>
-    <div class='kv'>Kd490: 0.0898</div>
-    <div class='kv'>nFLH: 0.47588</div>
-  </div>
-</div>
-<div class='card'>
-  <div class='figure'>
-    <div class='badges'><span class='badge fp'>FP</span><span class='badge score'>p_fused 0.447</span></div>
-    <div class='viewport'><img class='active' data-dt='' src='S2A_MSIL2A_20210814T065631_R063_T39QXG_20210814T183828_0000.jpg' loading='lazy'/>
-<img class='' data-dt='' src='S2A_MSIL2A_20210814T065631_R063_T39QXG_20210814T183828_0001.jpg' loading='lazy'/></div>
-    <div class='dtbar'><span class='dtpill'></span></div>
-    <div class='controls'><div class='btn prev'>&lsaquo;</div><div class='btn next'>&rsaquo;</div></div>
-    <div class='nav'><div class='dot'></div><div class='dot'></div></div>
-  </div>
-  <div class='meta'>
-    <div class='pills'><span class='pill'>2021-08</span><span class='pill'></span></div>
-    <div class='kv'>scene: S2A_MSIL2A_20210814T065631_R063_T39QXG_20210814T183828</div>
-    <div class='kv'>chlor_a: nan</div>
-    <div class='kv'>Kd490: nan</div>
-    <div class='kv'>nFLH: nan</div>
-  </div>
-</div>
-<div class='card'>
-  <div class='figure'>
-    <div class='badges'><span class='badge fp'>FP</span><span class='badge score'>p_fused 0.431</span></div>
-    <div class='viewport'><img class='active' data-dt='' src='S2A_MSIL2A_20210824T065621_R063_T39QWG_20210824T162645_preview.jpg' loading='lazy'/></div>
-    <div class='dtbar'><span class='dtpill'></span></div>
-    <div class='controls'><div class='btn prev'>&lsaquo;</div><div class='btn next'>&rsaquo;</div></div>
-    <div class='nav'><div class='dot'></div></div>
-  </div>
-  <div class='meta'>
-    <div class='pills'><span class='pill'>2021-08</span><span class='pill'></span></div>
-    <div class='kv'>scene: S2A_MSIL2A_20210824T065621_R063_T39QXG_20210824T155101</div>
-    <div class='kv'>chlor_a: nan</div>
-    <div class='kv'>Kd490: nan</div>
-    <div class='kv'>nFLH: nan</div>
+    <div class='kv'>scene: S2B_MSIL2A_20240922T065619_R063_T39QXG_20240922T102739</div>
+    <div class='kv'>chlor_a: 0.988476</div>
+    <div class='kv'>Kd490: 0.0998667</div>
+    <div class='kv'>nFLH: 0.395725</div>
   </div>
 </div>
 </div></div>
-<div class='section'><small class='soft'>file: predictions_cv2.csv • score: p_fused • threshold: 0.407</small></div>
+<div class='section'><small class='soft'>file: predictions_cv3.csv • score: p_fused • threshold: 0.744</small></div>
+<script src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js' integrity='sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=' crossorigin=''></script>
 <script>
-// carousels
+// image carousels
 document.querySelectorAll('.figure').forEach(fig=>{
   const imgs=[...fig.querySelectorAll('img')];
   const dots=[...fig.querySelectorAll('.dot')];
@@ -485,6 +239,8 @@ document.querySelectorAll('.figure').forEach(fig=>{
   fig.querySelector('.next')?.addEventListener('click', ()=>show(i+1));
   dots.forEach((d,idx)=>d.addEventListener('click', ()=>show(idx)));
 });
+
+// scroll-in animation
 const io = new IntersectionObserver((ents)=>{
   ents.forEach(e=>{
     if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target); }
@@ -494,4 +250,28 @@ document.querySelectorAll('.card').forEach((el,i)=>{
   el.classList.add(i%2 ? 'reveal-right' : 'reveal-left');
   io.observe(el);
 });
+
+// Leaflet AOI map (Oman box)
+const aoiGeoJSON = {
+  "type":"FeatureCollection",
+  "features":[{"type":"Feature","properties":{},"geometry":{
+    "type":"Polygon",
+    "coordinates":[[
+      [51.5,26.5],[51.5,15.5],[60.8,15.5],[60.8,26.5],[51.5,26.5]
+    ]]
+  }}]
+};
+
+function initAoiMap(){
+  const mapEl = document.getElementById('aoi-map');
+  if(!mapEl || !window.L) return;
+  const map = L.map('aoi-map');
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 11,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+  const layer = L.geoJSON(aoiGeoJSON, {style:{color:'#4b8',weight:2,fillOpacity:0.1}}).addTo(map);
+  map.fitBounds(layer.getBounds().pad(0.15));
+}
+window.addEventListener('DOMContentLoaded', initAoiMap);
 </script></body></html>

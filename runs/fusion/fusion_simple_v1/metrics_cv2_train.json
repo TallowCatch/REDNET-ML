@@ -1,0 +1,41 @@
+{
+  "feats": [
+    "p_tab",
+    "p_frcnn_r50_med",
+    "p_frcnn_mb_med",
+    "p_ssd_mb_med",
+    "fai_mean",
+    "rednir_mean",
+    "ndwi_mean",
+    "kd490",
+    "chlor_a",
+    "nflh",
+    "month_sin",
+    "month_cos",
+    "ndwi_std",
+    "rednir_std",
+    "log_kd490",
+    "log_chlor_a",
+    "log_nflh",
+    "ratio_chl_kd",
+    "chl_times_nflh",
+    "ratio_nflh_kd"
+  ],
+  "auprc": 0.8625772931628188,
+  "auroc": 0.8914956011730205,
+  "thr_star": 0.4436043228663987,
+  "base_rate": 0.41509433962264153,
+  "cm": [
+    [
+      21,
+      10
+    ],
+    [
+      1,
+      21
+    ]
+  ],
+  "n": 53,
+  "pos": 22,
+  "unique_scores": 53
+}
