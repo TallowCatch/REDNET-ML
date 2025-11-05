@@ -1,0 +1,537 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HAB Showcase — Fusion</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#050f10; --card:#0f2627; --ink:#e8f5f5; --soft:#a8d0d0;
+  --pill:#2a7a5f; --pill-ink:#efe; --accent:#4b8; --accent2:#2a4;
+  --tp:#1b824e; --fp:#8b2b2b; --fn:#8b732b; --score:#2a5560;
+  --shadow:0 1px 0 #1c2e2e inset;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  padding:28px 20px 80px;
+}
+a{color:#7bffbf;text-decoration:none}
+.header{max-width:1100px;margin:0 auto 22px auto;text-align:center}
+h1{margin:0 0 10px 0;font-size:2.4rem;letter-spacing:.2px}
+.subtitle{color:var(--soft);margin:0 0 16px 0}
+.lead{max-width:900px;margin:12px auto 24px auto;color:#d7f0ee;line-height:1.6;font-size:17px;opacity:.95}
+.navbtns{display:flex;justify-content:center;gap:12px;margin-bottom:6px;flex-wrap:wrap}
+.navbtn{
+  padding:6px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.12);
+  background:rgba(0,0,0,.35);color:var(--ink);font-size:13px;cursor:pointer;
+}
+.navbtn:hover{border-color:var(--accent)}
+.hr{max-width:1100px;margin:26px auto;border:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent)}
+.section{max-width:1600px;margin:34px auto 14px auto;padding:0 2px}
+.section h2{margin:0 0 10px 0;font-size:1.5rem}
+.section .hint{color:var(--soft);font-size:13px;margin:2px 0 14px 0}
+.grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(380px,1fr)); gap:16px}
+.card{
+  background:var(--card); border-radius:16px; padding:12px;
+  box-shadow:var(--shadow); display:flex; flex-direction:column;
+  transform:translateX(0); opacity:0;
+  transition:transform .6s cubic-bezier(.22,1,.36,1), opacity .5s;
+}
+.card.reveal-left{transform:translateX(-34px); opacity:0}
+.card.reveal-right{transform:translateX(34px); opacity:0}
+.card.visible{transform:translateX(0); opacity:1}
+.figure{position:relative; border-radius:12px; overflow:hidden; background:#0d1e1e}
+.viewport{position:relative; width:100%; aspect-ratio:4/3}
+.figure img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; opacity:0; transition:opacity .2s}
+.figure img.active{opacity:1}
+.controls{position:absolute; inset:0; display:flex; align-items:center; justify-content:space-between; pointer-events:none}
+.btn{pointer-events:auto; background:rgba(0,0,0,.45); border:1px solid rgba(255,255,255,.25); color:#fff; width:40px; height:40px; border-radius:999px; display:flex; align-items:center; justify-content:center; margin:10px; user-select:none; font-size:22px; line-height:1}
+.nav{position:absolute; left:0; right:0; bottom:10px; display:flex; justify-content:center; gap:8px; pointer-events:auto}
+.dot{width:10px; height:10px; border-radius:50%; background:var(--accent2); opacity:.55; cursor:pointer}
+.dot.active{opacity:1; background:var(--accent)}
+.dtbar{position:absolute; left:0; bottom:48px; right:0; display:flex; justify-content:center}
+.dtpill{background:rgba(0,0,0,.45); color:#fff; font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.2)}
+.meta{font-size:14px; line-height:1.45; margin-top:10px; color:#cfe; word-break:break-word; overflow-wrap:anywhere}
+.pills{margin-bottom:6px}
+.pill{background:var(--pill); color:var(--pill-ink); padding:4px 10px; border-radius:999px; font-size:12px; margin-right:8px; display:inline-block}
+.kv{margin:2px 0}
+small.soft{color:var(--soft)}
+.badges{position:absolute;top:6px;left:6px;display:flex;flex-wrap:wrap;gap:6px;z-index:2}
+.badge{background:rgba(0,0,0,.55);border-radius:8px;padding:2px 6px;font-size:12px;line-height:1.3;color:#fff}
+.badge.tp{background:var(--tp)}
+.badge.fp{background:var(--fp)}
+.badge.fn{background:var(--fn)}
+.badge.score{background:var(--score)}
+#map{width:100%;height:420px;border-radius:20px;overflow:hidden;box-shadow:var(--shadow);margin-top:12px;pointer-events:none}
+.map-caption{color:var(--soft);font-size:13px;margin-top:4px}
+.model-layout{display:grid;grid-template-columns:minmax(260px,320px) minmax(0,1fr);gap:24px;align-items:flex-start}
+@media(max-width:900px){.model-layout{grid-template-columns:1fr}}
+.ticker{margin:16px 0 24px;display:flex;flex-direction:column;gap:8px;max-width:360px}
+.metric-pill{
+  border:none;text-align:left;padding:8px 14px;border-radius:999px;
+  font-size:13px;display:flex;justify-content:space-between;align-items:center;
+  cursor:pointer;background:linear-gradient(90deg,rgba(0,0,0,.25),rgba(0,0,0,.45));
+  color:var(--ink);box-shadow:var(--shadow);transition:background .2s,transform .1s,opacity .2s;
+}
+.metric-pill .name{font-weight:600;letter-spacing:.03em}
+.metric-pill .vals{opacity:.85}
+.metric-pill.strong{border:1px solid #2ecc71}
+.metric-pill.med{border:1px solid #f1c40f}
+.metric-pill.weak{border:1px solid #e74c3c}
+.metric-pill.active{background:linear-gradient(90deg,rgba(0,0,0,.5),rgba(0,0,0,.7));transform:translateY(-1px)}
+.metric-pill.inactive{opacity:.45}
+.chart-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-top:8px}
+.chart-card{
+  background:var(--card);border-radius:16px;padding:12px 14px;box-shadow:var(--shadow);
+}
+.chart-card h3{margin:2px 0 4px 0;font-size:1rem}
+.chart-card p{margin:0 0 8px 0;font-size:13px;color:var(--soft)}
+.chart-img{width:100%;border-radius:12px;display:block;background:#000;object-fit:contain}
+#radar-container{height:280px}
+#radarChart{width:100%;height:100%}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>HAB Detection Summary</h1>
+  <div class="subtitle">Oman coastline — Fusion (Tabular + Detectors)</div>
+  <div class="lead">
+    Visual audit of <b>fused HAB predictions</b> along the Oman coastline.
+    Tabular Sentinel-3 water-quality features are fused with deep detectors over Sentinel-2 tiles
+    to improve recall while controlling false alarms.
+  </div>
+  <div class="navbtns">
+    <a class="navbtn" href="#overview">Overview</a>
+    <a class="navbtn" href="#models">Model performance</a>
+    <a class="navbtn" href="#top-scenes">Top scenes</a>
+  </div>
+</div>
+
+<hr class="hr">
+
+<div id="overview" class="section">
+  <h2>Study area</h2>
+  <div class="hint">Oman coastal region monitored for potentially harmful algal blooms (HABs).</div>
+  <div id="map"></div>
+  <div class="map-caption">AOI bounding box: [51.5, 26.5] – [60.8, 15.5] (approx. Oman coastline and Arabian Sea).</div>
+</div>
+
+<hr class="hr">
+
+<div id="models" class="section">
+  <h2>Model performance snapshot</h2>
+  <div class="hint">
+    Each pill shows test F1 and AUROC for a detector or fusion run.
+    Green ≈ stronger, yellow ≈ moderate, red ≈ weaker. Click pills to toggle curves on the radar chart.
+  </div>
+  <div class="model-layout">
+    <div>
+      <div class="ticker">
+
+<button class="metric-pill weak" data-model="P_TAB">
+  <span class="name">P_TAB</span>
+  <span class="vals">F1 0.53 · AUROC 0.56</span>
+</button>
+
+<button class="metric-pill weak" data-model="FRCNN_R50_MED">
+  <span class="name">FRCNN_R50_MED</span>
+  <span class="vals">F1 0.49 · AUROC 0.45</span>
+</button>
+
+<button class="metric-pill weak" data-model="FRCNN_MB_MED">
+  <span class="name">FRCNN_MB_MED</span>
+  <span class="vals">F1 0.45 · AUROC 0.43</span>
+</button>
+
+<button class="metric-pill weak" data-model="SSD_MB_MED">
+  <span class="name">SSD_MB_MED</span>
+  <span class="vals">F1 0.46 · AUROC 0.46</span>
+</button>
+
+<button class="metric-pill strong active" data-model="FUSION_DET+ENV+TAB">
+  <span class="name">FUSION_DET+ENV+TAB</span>
+  <span class="vals">F1 0.78 · AUROC 0.84</span>
+</button>
+
+<button class="metric-pill strong active" data-model="FUSION_DET+ENV+TAB_TRAIN">
+  <span class="name">FUSION_DET+ENV+TAB_TRAIN</span>
+  <span class="vals">F1 0.78 · AUROC 0.89</span>
+</button>
+      </div>
+      <small class="soft">Thresholds for strength are based on a mix of F1 and AUROC.</small>
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-card">
+        <h3>Detector vs fusion — radar (interactive)</h3>
+        <p>Click pills to toggle models. Metrics: accuracy, precision, recall, F1, AUROC.</p>
+        <div id="radar-container">
+          <canvas id="radarChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>Detector vs fusion — bar metrics</h3>
+        <p>Static bar chart summarising accuracy, precision, recall, F1 and AUROC.</p>
+        <img class="chart-img" src="../fusion/qc_model_comparison/all_model_bar.png" alt="Bar metrics">
+      </div>
+      <div class="chart-card">
+        <h3>Fusion PR curve</h3>
+        <p>Precision–recall curve for fusion vs baselines (from your QC script).</p>
+        <img class="chart-img" src="../fusion/qc_model_comparison/comp_pr.png" alt="PR curve">
+      </div>
+      <div class="chart-card">
+        <h3>Fusion ROC curve</h3>
+        <p>ROC curve for fusion vs baselines.</p>
+        <img class="chart-img" src="../fusion/qc_model_comparison/comp_roc.png" alt="ROC curve">
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="hr">
+
+<div id="top-scenes" class="section">
+  <h2>Top scored scenes</h2>
+  <div class="hint">Scroll to reveal fused high-confidence HAB candidates (TPs & FPs annotated).</div>
+  <div class="grid">
+
+<div class='card'>
+  <div class='figure'>
+    <div class='badges'><span class='badge tp'>TP</span><span class='badge score'>p_fused 0.991</span></div>
+    <div class='viewport'>
+      <img class='active' data-dt='' src='S2A_MSIL2A_20210126T070151_R063_T39QXG_20210201T045017_0000.jpg' loading='lazy'/><img class='' data-dt='' src='S2A_MSIL2A_20210126T070151_R063_T39QXG_20210201T045017_0001.jpg' loading='lazy'/>
+    </div>
+    <div class='dtbar'><span class='dtpill'></span></div>
+    <div class='controls'>
+      <div class='btn prev'>&lsaquo;</div>
+      <div class='btn next'>&rsaquo;</div>
+    </div>
+    <div class='nav'><div class='dot'></div><div class='dot'></div></div>
+  </div>
+  <div class='meta'>
+    <div class='pills'><span class='pill'>2021-01</span></div>
+    <div class='kv'>scene: S2A_MSIL2A_20210126T070151_R063_T39QXG_20210201T045017</div>
+    <div class='kv'>chlor_a: nan</div>
+    <div class='kv'>Kd490: nan</div>
+    <div class='kv'>nFLH: nan</div>
+  </div>
+</div>
+
+
+<div class='card'>
+  <div class='figure'>
+    <div class='badges'><span class='badge tp'>TP</span><span class='badge score'>p_fused 0.926</span></div>
+    <div class='viewport'>
+      <img class='active' data-dt='' src='S2A_MSIL2A_20200730T065631_R063_T39QXG_20200818T030617_0000.jpg' loading='lazy'/><img class='' data-dt='' src='S2A_MSIL2A_20200730T065631_R063_T39QXG_20200818T030617_0001.jpg' loading='lazy'/>
+    </div>
+    <div class='dtbar'><span class='dtpill'></span></div>
+    <div class='controls'>
+      <div class='btn prev'>&lsaquo;</div>
+      <div class='btn next'>&rsaquo;</div>
+    </div>
+    <div class='nav'><div class='dot'></div><div class='dot'></div></div>
+  </div>
+  <div class='meta'>
+    <div class='pills'><span class='pill'>2020-07</span></div>
+    <div class='kv'>scene: S2A_MSIL2A_20200730T065631_R063_T39QXG_20200818T030617</div>
+    <div class='kv'>chlor_a: 0.657256</div>
+    <div class='kv'>Kd490: 0.079</div>
+    <div class='kv'>nFLH: 0.549235</div>
+  </div>
+</div>
+
+
+<div class='card'>
+  <div class='figure'>
+    <div class='badges'><span class='badge tp'>TP</span><span class='badge score'>p_fused 0.926</span></div>
+    <div class='viewport'>
+      <img class='active' data-dt='' src='S2A_MSIL2A_20200730T065631_R063_T39QXG_20200818T030617_0000.jpg' loading='lazy'/><img class='' data-dt='' src='S2A_MSIL2A_20200730T065631_R063_T39QXG_20200818T030617_0001.jpg' loading='lazy'/>
+    </div>
+    <div class='dtbar'><span class='dtpill'></span></div>
+    <div class='controls'>
+      <div class='btn prev'>&lsaquo;</div>
+      <div class='btn next'>&rsaquo;</div>
+    </div>
+    <div class='nav'><div class='dot'></div><div class='dot'></div></div>
+  </div>
+  <div class='meta'>
+    <div class='pills'><span class='pill'>2020-07</span></div>
+    <div class='kv'>scene: S2A_MSIL2A_20200730T065631_R063_T39QXG_20200818T030617</div>
+    <div class='kv'>chlor_a: 0.657256</div>
+    <div class='kv'>Kd490: 0.079</div>
+    <div class='kv'>nFLH: 0.549235</div>
+  </div>
+</div>
+
+
+<div class='card'>
+  <div class='figure'>
+    <div class='badges'><span class='badge tp'>TP</span><span class='badge score'>p_fused 0.898</span></div>
+    <div class='viewport'>
+      <img class='active' data-dt='' src='S2B_MSIL2A_20210730T065629_R063_T39QXG_20210730T184548_0000.jpg' loading='lazy'/><img class='' data-dt='' src='S2B_MSIL2A_20210730T065629_R063_T39QXG_20210730T184548_0001.jpg' loading='lazy'/>
+    </div>
+    <div class='dtbar'><span class='dtpill'></span></div>
+    <div class='controls'>
+      <div class='btn prev'>&lsaquo;</div>
+      <div class='btn next'>&rsaquo;</div>
+    </div>
+    <div class='nav'><div class='dot'></div><div class='dot'></div></div>
+  </div>
+  <div class='meta'>
+    <div class='pills'><span class='pill'>2021-07</span></div>
+    <div class='kv'>scene: S2B_MSIL2A_20210730T065629_R063_T39QXG_20210730T184548</div>
+    <div class='kv'>chlor_a: 1.25599</div>
+    <div class='kv'>Kd490: 0.1158</div>
+    <div class='kv'>nFLH: 0.1862</div>
+  </div>
+</div>
+
+
+<div class='card'>
+  <div class='figure'>
+    <div class='badges'><span class='badge tp'>TP</span><span class='badge score'>p_fused 0.898</span></div>
+    <div class='viewport'>
+      <img class='active' data-dt='' src='S2B_MSIL2A_20210730T065629_R063_T39QXG_20210730T184548_0000.jpg' loading='lazy'/><img class='' data-dt='' src='S2B_MSIL2A_20210730T065629_R063_T39QXG_20210730T184548_0001.jpg' loading='lazy'/>
+    </div>
+    <div class='dtbar'><span class='dtpill'></span></div>
+    <div class='controls'>
+      <div class='btn prev'>&lsaquo;</div>
+      <div class='btn next'>&rsaquo;</div>
+    </div>
+    <div class='nav'><div class='dot'></div><div class='dot'></div></div>
+  </div>
+  <div class='meta'>
+    <div class='pills'><span class='pill'>2021-07</span></div>
+    <div class='kv'>scene: S2B_MSIL2A_20210730T065629_R063_T39QXG_20210730T184548</div>
+    <div class='kv'>chlor_a: 1.25599</div>
+    <div class='kv'>Kd490: 0.1158</div>
+    <div class='kv'>nFLH: 0.1862</div>
+  </div>
+</div>
+
+
+<div class='card'>
+  <div class='figure'>
+    <div class='badges'><span class='badge tp'>TP</span><span class='badge score'>p_fused 0.863</span></div>
+    <div class='viewport'>
+      <img class='active' data-dt='' src='S2B_MSIL2A_20200913T065629_R063_T39QXG_20201027T093056_0000.jpg' loading='lazy'/><img class='' data-dt='' src='S2B_MSIL2A_20200913T065629_R063_T39QXG_20201027T093056_0001.jpg' loading='lazy'/>
+    </div>
+    <div class='dtbar'><span class='dtpill'></span></div>
+    <div class='controls'>
+      <div class='btn prev'>&lsaquo;</div>
+      <div class='btn next'>&rsaquo;</div>
+    </div>
+    <div class='nav'><div class='dot'></div><div class='dot'></div></div>
+  </div>
+  <div class='meta'>
+    <div class='pills'><span class='pill'>2020-09</span></div>
+    <div class='kv'>scene: S2B_MSIL2A_20200913T065629_R063_T39QXG_20201027T093056</div>
+    <div class='kv'>chlor_a: 0.607346</div>
+    <div class='kv'>Kd490: 0.0772</div>
+    <div class='kv'>nFLH: 0.379405</div>
+  </div>
+</div>
+
+
+<div class='card'>
+  <div class='figure'>
+    <div class='badges'><span class='badge tp'>TP</span><span class='badge score'>p_fused 0.863</span></div>
+    <div class='viewport'>
+      <img class='active' data-dt='' src='S2B_MSIL2A_20200913T065629_R063_T39QXG_20201027T093056_0000.jpg' loading='lazy'/><img class='' data-dt='' src='S2B_MSIL2A_20200913T065629_R063_T39QXG_20201027T093056_0001.jpg' loading='lazy'/>
+    </div>
+    <div class='dtbar'><span class='dtpill'></span></div>
+    <div class='controls'>
+      <div class='btn prev'>&lsaquo;</div>
+      <div class='btn next'>&rsaquo;</div>
+    </div>
+    <div class='nav'><div class='dot'></div><div class='dot'></div></div>
+  </div>
+  <div class='meta'>
+    <div class='pills'><span class='pill'>2020-09</span></div>
+    <div class='kv'>scene: S2B_MSIL2A_20200913T065629_R063_T39QXG_20201027T093056</div>
+    <div class='kv'>chlor_a: 0.607346</div>
+    <div class='kv'>Kd490: 0.0772</div>
+    <div class='kv'>nFLH: 0.379405</div>
+  </div>
+</div>
+
+
+<div class='card'>
+  <div class='figure'>
+    <div class='badges'><span class='badge tp'>TP</span><span class='badge score'>p_fused 0.857</span></div>
+    <div class='viewport'>
+      <img class='active' data-dt='' src='S2A_MSIL2A_20200918T065631_R063_T39QXG_20200921T101042_0000.jpg' loading='lazy'/><img class='' data-dt='' src='S2A_MSIL2A_20200918T065631_R063_T39QXG_20200921T101042_0001.jpg' loading='lazy'/>
+    </div>
+    <div class='dtbar'><span class='dtpill'></span></div>
+    <div class='controls'>
+      <div class='btn prev'>&lsaquo;</div>
+      <div class='btn next'>&rsaquo;</div>
+    </div>
+    <div class='nav'><div class='dot'></div><div class='dot'></div></div>
+  </div>
+  <div class='meta'>
+    <div class='pills'><span class='pill'>2020-09</span></div>
+    <div class='kv'>scene: S2A_MSIL2A_20200918T065631_R063_T39QXG_20200921T101042</div>
+    <div class='kv'>chlor_a: 0.607346</div>
+    <div class='kv'>Kd490: 0.0772</div>
+    <div class='kv'>nFLH: 0.379405</div>
+  </div>
+</div>
+
+
+<div class='card'>
+  <div class='figure'>
+    <div class='badges'><span class='badge tp'>TP</span><span class='badge score'>p_fused 0.857</span></div>
+    <div class='viewport'>
+      <img class='active' data-dt='' src='S2A_MSIL2A_20200918T065631_R063_T39QXG_20200921T101042_0000.jpg' loading='lazy'/><img class='' data-dt='' src='S2A_MSIL2A_20200918T065631_R063_T39QXG_20200921T101042_0001.jpg' loading='lazy'/>
+    </div>
+    <div class='dtbar'><span class='dtpill'></span></div>
+    <div class='controls'>
+      <div class='btn prev'>&lsaquo;</div>
+      <div class='btn next'>&rsaquo;</div>
+    </div>
+    <div class='nav'><div class='dot'></div><div class='dot'></div></div>
+  </div>
+  <div class='meta'>
+    <div class='pills'><span class='pill'>2020-09</span></div>
+    <div class='kv'>scene: S2A_MSIL2A_20200918T065631_R063_T39QXG_20200921T101042</div>
+    <div class='kv'>chlor_a: 0.607346</div>
+    <div class='kv'>Kd490: 0.0772</div>
+    <div class='kv'>nFLH: 0.379405</div>
+  </div>
+</div>
+
+  </div>
+</div>
+
+<script>
+// ---- static Leaflet map (no interaction) ----
+const map = L.map('map', {
+  zoomControl: false,
+  attributionControl: true,
+  dragging: false,
+  scrollWheelZoom: false,
+  doubleClickZoom: false,
+  boxZoom: false,
+  keyboard: false,
+  tap: false,
+});
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 8,
+  minZoom: 3
+}).addTo(map);
+
+// AOI polygon: original coords are [lon, lat]; Leaflet wants [lat, lon]
+const aoi = [
+  [26.5, 51.5],
+  [15.5, 51.5],
+  [15.5, 60.8],
+  [26.5, 60.8],
+  [26.5, 51.5]
+];
+
+const poly = L.polygon(aoi, {
+  color: '#4bff9a',
+  weight: 2,
+  fillColor: '#4bff9a',
+  fillOpacity: 0.15
+}).addTo(map);
+
+map.fitBounds(poly.getBounds());
+
+// ---- feature cards: image carousels + scroll reveal ----
+document.querySelectorAll('.figure').forEach(fig=>{
+  const imgs=[...fig.querySelectorAll('img')];
+  const dots=[...fig.querySelectorAll('.dot')];
+  const dateEl=fig.querySelector('.dtpill');
+  let i=0;
+  function show(k){
+    i=((k%imgs.length)+imgs.length)%imgs.length;
+    imgs.forEach((im,j)=>im.classList.toggle('active', j===i));
+    dots.forEach((d,j)=>d.classList.toggle('active', j===i));
+    if(dateEl){ dateEl.textContent = imgs[i].dataset.dt || ''; }
+  }
+  if(imgs.length){ show(0); }
+  fig.querySelector('.prev')?.addEventListener('click', ()=>show(i-1));
+  fig.querySelector('.next')?.addEventListener('click', ()=>show(i+1));
+  dots.forEach((d,idx)=>d.addEventListener('click', ()=>show(idx)));
+});
+
+const io = new IntersectionObserver((ents)=>{
+  ents.forEach(e=>{
+    if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target); }
+  });
+},{threshold:.15});
+document.querySelectorAll('.card').forEach((el,i)=>{
+  el.classList.add(i%2 ? 'reveal-right' : 'reveal-left');
+  io.observe(el);
+});
+
+// ---- metrics for interactive radar ----
+const METRICS = [{"model": "P_TAB", "acc": 0.533, "prec": 0.5253, "rec": 0.5361, "f1": 0.5306, "auroc": 0.5587, "is_fusion": false}, {"model": "FRCNN_R50_MED", "acc": 0.4873, "prec": 0.48, "rec": 0.4948, "f1": 0.4873, "auroc": 0.4522, "is_fusion": false}, {"model": "FRCNN_MB_MED", "acc": 0.4518, "prec": 0.4444, "rec": 0.4536, "f1": 0.449, "auroc": 0.4299, "is_fusion": false}, {"model": "SSD_MB_MED", "acc": 0.4619, "prec": 0.4545, "rec": 0.4639, "f1": 0.4592, "auroc": 0.4589, "is_fusion": false}, {"model": "FUSION_DET+ENV+TAB", "acc": 0.7826, "prec": 0.7429, "rec": 0.8125, "f1": 0.7761, "auroc": 0.8353, "is_fusion": true}, {"model": "FUSION_DET+ENV+TAB_TRAIN", "acc": 0.7925, "prec": 0.7037, "rec": 0.8636, "f1": 0.7755, "auroc": 0.8915, "is_fusion": true}];
+
+// build radar chart
+const radarLabels = ['acc','prec','rec','f1','auroc'];
+const radarCtx = document.getElementById('radarChart').getContext('2d');
+
+const datasets = METRICS.map((m, idx) => ({
+  label: m.model,
+  data: radarLabels.map(k => m[k] ?? 0),
+  fill: true,
+  tension: 0.25,
+  pointRadius: 2,
+  hidden: !m.is_fusion,   // show fusion models by default
+}));
+
+const radarChart = new Chart(radarCtx, {
+  type: 'radar',
+  data: {
+    labels: radarLabels,
+    datasets: datasets
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'right',
+        labels: { color: '#e8f5f5', font: { size: 11 } }
+      }
+    },
+    scales: {
+      r: {
+        suggestedMin: 0,
+        suggestedMax: 1,
+        ticks: { stepSize: 0.2, backdropColor: 'rgba(0,0,0,0)', color:'#a8d0d0' },
+        grid: { color:'rgba(255,255,255,0.15)' },
+        angleLines: { color:'rgba(255,255,255,0.15)' },
+        pointLabels: { color:'#e8f5f5', font:{ size:11 } }
+      }
+    }
+  }
+});
+
+// click pills to toggle datasets
+document.querySelectorAll('.metric-pill').forEach(pill=>{
+  const model = pill.dataset.model;
+  pill.addEventListener('click', ()=>{
+    const ds = radarChart.data.datasets.find(d => d.label === model);
+    if(!ds) return;
+    const willShow = ds.hidden;   // toggle
+    ds.hidden = !willShow;
+    pill.classList.toggle('inactive', !willShow);
+    pill.classList.toggle('active', willShow);
+    radarChart.update();
+  });
+});
+</script>
+</body>
+</html>
