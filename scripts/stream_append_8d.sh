@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # ========= Config =========
-LISTDIR="filelists_8d"
+LISTDIR="filelists/8d"   # ✅ updated path
 CHIPS_GLOB='data/aerial_*_20*/chip_indices_clean.csv'
 TMPROOT="data/l3/tmp_8d"
 FINALROOT="data/l3/aqua_8d"
@@ -16,9 +16,10 @@ MAX_DAYS=30
 # ---- mappers (Bash 3 compatible) ----
 filelist_for() {
   case "$1" in
-    chlor_a) echo "$LISTDIR/filelist_8d_chlor_a_filtered.txt" ;; # remove filtered for smaller set
+    chlor_a) echo "$LISTDIR/filelist_8d_chlor_a_filtered.txt" ;;
     Kd_490)  echo "$LISTDIR/filelist_8d_Kd_490_filtered.txt"  ;;
-    nflh)    echo "$LISTDIR/filelist_8d_nflh_filtered.txt"    ;;  # lowercase 'nflh' for script
+    nflh)    echo "$LISTDIR/filelist_8d_nflh_filtered.txt"    ;;
+    sst)     echo "$LISTDIR/filelist_8d_sst.txt"              ;;  
     *) echo "Unknown product: $1" >&2; exit 2 ;;
   esac
 }
@@ -28,7 +29,8 @@ final_subdir_for() {
   case "$1" in
     chlor_a) echo "chlor_a" ;;
     Kd_490)  echo "Kd_490"  ;;
-    nflh)    echo "nFLH"    ;;   # folder can stay with capital F/L/H if that's what you have
+    nflh)    echo "nFLH"    ;;
+    sst)     echo "sst"     ;;  # ✅ new
     *) echo "Unknown product: $1" >&2; exit 2 ;;
   esac
 }
@@ -39,7 +41,7 @@ mkdir -p "$TMPROOT" "$FINALROOT"
 if [[ "$#" -gt 0 ]]; then
   PRODS=("$@")
 else
-  PRODS=(chlor_a Kd_490 nflh)
+  PRODS=(chlor_a Kd_490 nflh sst)  # ✅ include sst by default (optional)
 fi
 
 echo "Products to process: ${PRODS[*]}"

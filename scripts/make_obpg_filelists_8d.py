@@ -9,6 +9,7 @@ PRODUCTS = {
     "chlor_a": ("CHL", "chlor_a"),
     "Kd_490":  ("KD",  "Kd_490"),
     "nflh":    ("FLH", "nflh"),
+    "sst":     ("SST", "sst"), 
 }
 
 def eight_day_bins(year: int):

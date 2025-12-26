@@ -44,7 +44,7 @@ def main():
     full = pd.concat(rows, ignore_index=True)
 
     # normalize likely numeric columns
-    for c in ["fai_mean","rednir_mean","ndwi_mean","chlor_a","kd490","flh","nflh","valid_px"]:
+    for c in ["fai_mean","rednir_mean","ndwi_mean","chlor_a","kd490","flh","nflh","sst", "valid_px"]:
         if c in full.columns:
             full[c] = pd.to_numeric(full[c], errors="coerce")
     # unifying FLH
