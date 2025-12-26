@@ -7,7 +7,7 @@ import numpy as np
 KEY_ORDER = [
     "tag","source_csv","scene_id","tile","datetime","year","month","season",
     "lon","lat","xmin","xmax","ymin","ymax","valid_px",
-    "chlor_a","flh","kd490","fai_mean","rednir_mean","ndwi_mean",
+    "chlor_a","flh","kd490", "sst", "fai_mean","rednir_mean","ndwi_mean",
     "hab_label"
 ]
 
@@ -23,7 +23,7 @@ def normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
     if "kd490" not in df.columns and "Kd_490" in df.columns:
         df = df.rename(columns={"Kd_490":"kd490"})
     # numeric coercion
-    for c in ["chlor_a","flh","kd490","fai_mean","rednir_mean","ndwi_mean","valid_px",
+    for c in ["chlor_a","flh","kd490", "sst", "fai_mean","rednir_mean","ndwi_mean","valid_px",
               "lon","lat","xmin","xmax","ymin","ymax","hab_label"]:
         if c in df.columns:
             df[c] = pd.to_numeric(df[c], errors="coerce")

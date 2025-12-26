@@ -90,6 +90,9 @@ def list_product_files(root: Path, product_key: str) -> list[Path]:
         elif product_key == "nflh":
             if ("8d" in s or ".l3m.8d." in s) and ("flh" in s and "nflh" in s):
                 out.append(p)
+        elif product_key == "sst":
+            if ("8d" in s or ".l3m.8d." in s) and (".sst." in s or "/sst." in s or "sst.sst" in s):
+                out.append(p)
     return sorted(out)
 
 # ────────────────────────────────────────────────────────────────────────────────
@@ -254,8 +257,8 @@ def process_csv(chips_csv: Path, modis_root: Path, max_days: int,
         return (best, bestd) if best is not None else (None, None)
 
     # NetCDF var names and CSV output column names
-    var_of = {"chlor_a":"chlor_a", "Kd_490":"Kd_490", "kd_490":"Kd_490", "nflh":"nflh"}
-    col_of = {"chlor_a":"chlor_a", "Kd_490":"kd490", "kd_490":"kd490", "nflh":"flh"}
+    var_of = {"chlor_a":"chlor_a", "Kd_490":"Kd_490", "kd_490":"Kd_490", "nflh":"nflh", "sst":"sst"}
+    col_of = {"chlor_a":"chlor_a", "Kd_490":"kd490", "kd_490":"kd490", "nflh":"flh", "sst":"sst"}
 
     # Build header (keep old cols, ensure our output cols exist)
     base_fields = list(rows[0].keys())
@@ -321,7 +324,7 @@ def main():
     ap.add_argument("--max_days", type=int, default=30,
         help="Max temporal gap allowed between chip date and 8-day composite mid-date.")
     ap.add_argument("--products", nargs="+", default=["chlor_a"],
-        choices=["chlor_a","Kd_490","nflh"])
+        choices=["chlor_a","Kd_490","nflh", "sst"])
     ap.add_argument("--px_radius", type=int, default=7,
         help="Search/average radius (in MODIS pixels).")
     ap.add_argument("--sample_mode", choices=["nearest","mean"], default="mean",
