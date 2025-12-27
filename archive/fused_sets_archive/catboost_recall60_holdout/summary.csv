@@ -1,0 +1,2 @@
+model,feats,auprc,auroc,test_pos,test_total
+fusion(catboost),"BASE(p_tab,p_frcnn_r50_med,p_frcnn_mb_med,p_ssd_mb_med)+ENV(split-safe)",0.9367986222004658,0.9376,25,50

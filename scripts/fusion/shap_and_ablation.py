@@ -349,7 +349,16 @@ def main():
         X_cal = df.loc[cal, feat_list].astype(float).fillna(0.0).values
         y_cal = df.loc[cal, "hab_label"].astype(int).values
         p_cal_raw = cb.predict_proba(X_cal)[:, 1]
-        calibrator = fit_calibrator(cal_method, p_cal_raw, y_cal)
+        # conservative calibration guard (avoid unstable calibration)
+        min_n, min_pos, min_neg = 40, 8, 8
+        if (cal_method != "none"
+            and len(y_cal) >= min_n
+            and (y_cal == 1).sum() >= min_pos
+            and (y_cal == 0).sum() >= min_neg):
+            calibrator = fit_calibrator(cal_method, p_cal_raw, y_cal)
+        else:
+            calibrator = None
+
 
         p_te_raw = cb.predict_proba(X_te)[:, 1]
         p_te = _apply_calibrator(calibrator, p_te_raw)
