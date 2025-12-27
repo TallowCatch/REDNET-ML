@@ -1,4 +1,20 @@
 #!/usr/bin/env python3
+"""
+feature_importance_fusion.py
+
+Feature importance for fusion models (LogReg / CatBoost),
+compatible with:
+  - calibrated probabilities
+  - pipelines
+  - CatBoost native importances
+  - permutation importance using AUPRC (HAB-safe)
+
+Outputs:
+  - feature_importances_catboost.csv (if CatBoost)
+  - feature_importances_perm.csv
+  - top-20 bar plots
+"""
+
 import argparse
 from pathlib import Path
 import joblib
@@ -8,144 +24,201 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# --- dummy WeightedScaler so unpickling works ---
+from sklearn.inspection import permutation_importance
+from sklearn.metrics import average_precision_score
+
+
+# ---------------------------------------------------------------------
+# Minimal dummy class so old joblibs with WeightedScaler still load
+# ---------------------------------------------------------------------
 class WeightedScaler:
-    def __init__(self, *args, **kwargs):
-        pass
+    def __init__(self, *args, **kwargs): pass
+    def fit(self, X, y=None): return self
+    def transform(self, X): return X
+    def fit_transform(self, X, y=None): return X
 
-    def fit(self, X, y=None):
-        return self
+class _SigmoidCalibrator:
+    def __init__(self, *args, **kwargs): pass
+    def fit(self, p, y=None): return self
+    def transform(self, p): return p
 
-    def transform(self, X):
-        return X
+class _IsotonicCalibrator:
+    def __init__(self, *args, **kwargs): pass
+    def fit(self, p, y=None): return self
+    def transform(self, p): return p
 
-    def fit_transform(self, X, y=None):
-        return X
-
-
-def _load_model(model_file: Path):
-    """Load a fusion model, handling dict-wrapped models and custom scalers."""
+# ---------------------------------------------------------------------
+# Utilities
+# ---------------------------------------------------------------------
+def load_joblib_any(path: Path):
     try:
-        clf = joblib.load(model_file)
-    except Exception as e:
-        print(f"[warn] joblib.load failed: {e}")
-        with open(model_file, "rb") as f:
-            clf = pickle.load(f)
-
-    model = clf
-    feature_cols = None
-
-    # if we saved as {"model": clf, "features": feat_cols, "args": ...}
-    if isinstance(clf, dict):
-        if "model" in clf:
-            model = clf["model"]
-        if "features" in clf:
-            feature_cols = clf["features"]
-
-    return model, feature_cols
+        return joblib.load(path)
+    except Exception:
+        with open(path, "rb") as f:
+            return pickle.load(f)
 
 
-def _get_final_estimator(model):
-    """Unwrap Pipeline to get the final estimator."""
-    # Pipeline case
-    if hasattr(model, "named_steps"):
-        final = model.named_steps.get("clf") or model.named_steps.get("estimator")
-        return final if final is not None else model
-    return model
-
-
-def _get_importances(estimator):
+def unwrap_model(obj):
     """
-    Get feature importances from the final estimator.
-
-    Priority:
-      1) feature_importances_ (trees/GBDT)
-      2) coef_ (linear models: we use |coef| as importance)
+    Extract the *actual estimator* used for prediction.
+    Handles:
+      - dict wrappers
+      - sklearn Pipeline
+      - calibrated models
     """
-    # tree-based / GBDT
-    if hasattr(estimator, "feature_importances_"):
-        imp = estimator.feature_importances_
-        return np.asarray(imp, dtype=float)
+    if isinstance(obj, dict):
+        obj = obj.get("model", obj)
 
-    # linear models (LogisticRegression, etc.)
-    if hasattr(estimator, "coef_"):
-        coef = np.asarray(estimator.coef_, dtype=float)
-        if coef.ndim == 1:
-            imp = np.abs(coef)
-        else:
-            # average magnitude across classes
-            imp = np.mean(np.abs(coef), axis=0)
-        return imp
+    # sklearn Pipeline
+    if hasattr(obj, "named_steps"):
+        return obj.named_steps.get("clf", obj)
 
+    return obj
+
+
+def find_catboost(estimator):
+    """
+    Return CatBoostClassifier if present, else None.
+    """
+    try:
+        from catboost import CatBoostClassifier
+        if isinstance(estimator, CatBoostClassifier):
+            return estimator
+    except Exception:
+        pass
     return None
 
 
+def ap_scorer(estimator, X, y):
+    p = estimator.predict_proba(X)[:, 1]
+    return average_precision_score(y, p)
+
+
+# ---------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--model_dir", required=True, help="Folder from a fusion run")
+    ap.add_argument("--model_dir", required=True)
+    ap.add_argument("--model_file", default="")
+    ap.add_argument("--perm_repeats", type=int, default=15)
+    ap.add_argument("--perm_max_rows", type=int, default=6000)
     args = ap.parse_args()
-    p = Path(args.model_dir)
 
-    # --- detect model file ---
-    candidates = [
-        "fusion_model_cv2.joblib",
-        "fusion_model_cv3.joblib",
-        "model_cv2.joblib",
-        "model_cv3.joblib",
-        "clf_cv2.joblib",
-        "clf_cv3.joblib",
-    ]
-    model_file = next((p / c for c in candidates if (p / c).exists()), None)
-    if not model_file:
-        raise SystemExit(f"❌ No model file found in {p}")
-    print(f"📂 Loading model from {model_file.name}")
+    run_dir = Path(args.model_dir)
 
-    # --- load model & (optionally) feature list from joblib ---
-    model, feature_cols = _load_model(model_file)
+    # -------------------------------------------------
+    # Locate model file
+    # -------------------------------------------------
+    if args.model_file:
+        model_path = run_dir / args.model_file
+    else:
+        candidates = sorted(run_dir.glob("fusion_model_*.joblib"))
+        if not candidates:
+            raise SystemExit("❌ No fusion_model_*.joblib found")
+        model_path = candidates[0]
 
-    # --- if no feature list in joblib, fall back to merged_features_debug.csv ---
-    if feature_cols is None:
-        merged_path = p / "merged_features_debug.csv"
-        if not merged_path.exists():
-            raise SystemExit(f"❌ Missing merged_features_debug.csv in {p}")
-        merged = pd.read_csv(merged_path)
+    print(f"📂 Loading model: {model_path.name}")
 
-        non_feature_cols = ["tile", "scene_id", "datetime", "hab_label",
-                            "month_key", "region_key", "group_for_cv", "_month_ord"]
-        feature_cols = [c for c in merged.columns if c not in non_feature_cols]
+    bundle = load_joblib_any(model_path)
 
-    feature_cols = list(feature_cols)
+    if not isinstance(bundle, dict):
+        raise SystemExit("❌ Expected joblib dict with model + features")
 
-    # --- unwrap to final estimator and get "importances" ---
-    final = _get_final_estimator(model)
-    importances = _get_importances(final)
+    model = bundle["model"]
+    feature_cols = list(bundle["features"])
 
-    if importances is None:
-        raise SystemExit("❌ This model doesn't expose feature_importances_ or coef_")
+    merged_path = run_dir / "merged_features_debug.csv"
+    if not merged_path.exists():
+        raise SystemExit("❌ merged_features_debug.csv missing")
 
-    if len(importances) != len(feature_cols):
-        raise SystemExit(
-            f"❌ Mismatch: model has {len(importances)} weights, "
-            f"but we found {len(feature_cols)} feature columns. "
-            "Check feature_cols logic."
+    merged = pd.read_csv(merged_path)
+
+    X = merged[feature_cols].astype(float).fillna(0.0).values
+    y = merged["hab_label"].astype(int).values
+
+    # Optional subsample for speed
+    if args.perm_max_rows and len(y) > args.perm_max_rows:
+        rng = np.random.RandomState(123)
+        idx = rng.choice(len(y), size=args.perm_max_rows, replace=False)
+        X, y = X[idx], y[idx]
+        print(f"[perm] Subsampled to {len(y)} rows")
+
+    # -------------------------------------------------
+    # CATBOOST NATIVE IMPORTANCE (BEST)
+    # -------------------------------------------------
+    estimator = unwrap_model(model)
+    cb = find_catboost(estimator)
+
+    if cb is not None:
+        print("🐱 Detected CatBoost model — using native importances")
+
+        importances = cb.get_feature_importance(
+            type="PredictionValuesChange"
         )
 
-    df = (
-        pd.DataFrame({"feature": feature_cols, "importance": importances})
-        .sort_values("importance", ascending=False)
+        df_cb = (
+            pd.DataFrame({
+                "feature": feature_cols,
+                "importance": importances
+            })
+            .sort_values("importance", ascending=False)
+        )
+
+        df_cb.to_csv(run_dir / "feature_importances_catboost.csv", index=False)
+
+        plt.figure(figsize=(7, 5))
+        plt.barh(df_cb.head(20)["feature"][::-1],
+                 df_cb.head(20)["importance"][::-1])
+        plt.xlabel("CatBoost importance (PredictionValuesChange)")
+        plt.tight_layout()
+        plt.savefig(run_dir / "feature_importances_catboost_top20.png")
+
+        print("✅ Saved CatBoost native importances")
+        print("\nTop 10 (CatBoost):")
+        for _, r in df_cb.head(10).iterrows():
+            print(f"  {r.feature:35s} → {r.importance:.4f}")
+
+    else:
+        print("ℹ️ Not a CatBoost model — skipping native importance")
+
+    # -------------------------------------------------
+    # PERMUTATION IMPORTANCE (CALIBRATION-SAFE)
+    # -------------------------------------------------
+    print("🔁 Computing permutation importance (AUPRC scorer)")
+
+    perm = permutation_importance(
+        model,
+        X,
+        y,
+        scoring=lambda est, Xt, yt: ap_scorer(est, Xt, yt),
+        n_repeats=args.perm_repeats,
+        random_state=123,
+        n_jobs=-1,
     )
-    df.to_csv(p / "feature_importances.csv", index=False)
+
+    df_perm = (
+        pd.DataFrame({
+            "feature": feature_cols,
+            "importance_mean": perm.importances_mean,
+            "importance_std": perm.importances_std,
+        })
+        .sort_values("importance_mean", ascending=False)
+    )
+
+    df_perm.to_csv(run_dir / "feature_importances_perm.csv", index=False)
 
     plt.figure(figsize=(7, 5))
-    plt.barh(df.head(20)["feature"][::-1], df.head(20)["importance"][::-1])
-    plt.xlabel("Importance (|coef| or feature_importances_)")
+    plt.barh(df_perm.head(20)["feature"][::-1],
+             df_perm.head(20)["importance_mean"][::-1])
+    plt.xlabel("Permutation importance (ΔAUPRC)")
     plt.tight_layout()
-    plt.savefig(p / "feature_importances_top20.png")
+    plt.savefig(run_dir / "feature_importances_perm_top20.png")
 
-    print("✅ Saved feature_importances.csv and feature_importances_top20.png")
-    print("\nTop 10 features:")
-    for _, row in df.head(10).iterrows():
-        print(f"  {row.feature:30s} → {row.importance:.4f}")
+    print("✅ Saved permutation importances")
+    print("\nTop 10 (Permutation ΔAUPRC):")
+    for _, r in df_perm.head(10).iterrows():
+        print(f"  {r.feature:35s} → {r.importance_mean:.6f} ± {r.importance_std:.6f}")
 
 
 if __name__ == "__main__":
