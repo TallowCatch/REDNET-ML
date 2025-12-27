@@ -3,8 +3,12 @@
 """
 Decision-level fusion for S2 tabular scores + external detectors.
 
-Adds:
-  - sst_anom (region x month-of-year climatology) + z-score
+Fixes:
+  - Prevents leakage: all env imputation + SST climatology/anomaly + region-month context
+    are fit on TRAIN only and applied to TEST per split.
+
+Adds/keeps:
+  - sst_anom (region x month-of-year climatology) + z-score (split-safe)
   - model choice: logreg | catboost
   - Option A threshold: Max precision subject to recall >= min_recall
       --threshold_policy prec_at_recall --min_recall 0.60
@@ -35,7 +39,6 @@ from sklearn.metrics import (
     precision_recall_curve, roc_curve,
     classification_report, confusion_matrix
 )
-
 from sklearn.isotonic import IsotonicRegression
 
 
@@ -107,22 +110,6 @@ def _apply_calibrator(cal, p):
     return np.clip(cal.transform(p), 1e-6, 1 - 1e-6)
 
 
-def _impute_env_features(df: pd.DataFrame, env_cols) -> pd.DataFrame:
-    """Fill missing env features per (region_key, month_key) median, then global median."""
-    df = df.copy()
-    env_cols = [c for c in env_cols if c in df.columns]
-    if not env_cols:
-        return df
-    for col in env_cols:
-        if df[col].isna().any():
-            df[col] = df.groupby(["region_key", "month_key"])[col].transform(
-                lambda s: s.fillna(s.median())
-            )
-            df[col] = df[col].fillna(df[col].median())
-    print(f"[impute] filled missing environmental columns: {env_cols}")
-    return df
-
-
 # ---------------- plotting ----------------
 def _pr_envelope(rec, prec):
     if len(rec) == 0:
@@ -135,7 +122,6 @@ def _pr_envelope(rec, prec):
     prec_u = df["prec"].values
     prec_env = np.maximum.accumulate(prec_u[::-1])[::-1]
     return rec_u, prec_env
-
 
 def _pr_plot(rec, prec, auprc, base, outpng):
     plt.close("all")
@@ -154,7 +140,6 @@ def _pr_plot(rec, prec, auprc, base, outpng):
     plt.xlim([-0.05, 1.05]); plt.ylim([-0.05, 1.05])
     plt.grid(True, linestyle="--", alpha=0.35); plt.legend(loc="lower left", fontsize=8)
     plt.tight_layout(); plt.savefig(outpng, dpi=200); plt.close()
-
 
 def _roc_plot(fpr, tpr, auroc, outpng):
     plt.close("all")
@@ -175,7 +160,6 @@ MONTH_RE = re.compile(r"(20\d{2})[._-]?(\d{2})")
 RANGE_RE = re.compile(r"(20\d{2})(\d{2})(\d{2})_(20\d{2})(\d{2})(\d{2})")
 TAIL4_RE = re.compile(r"_(\d{4})$")
 
-
 def _clean_columns(df: pd.DataFrame, src: str = "") -> pd.DataFrame:
     df = df.copy()
     cols = [str(c).strip() for c in df.columns]
@@ -191,10 +175,8 @@ def _clean_columns(df: pd.DataFrame, src: str = "") -> pd.DataFrame:
         df = df.drop(columns=bad)
     return df
 
-
 def _normalize_ids(s: pd.Series) -> pd.Series:
     return s.astype(str).apply(lambda x: Path(str(x)).name)
-
 
 def _swap_ext(name: str) -> str:
     p = Path(name)
@@ -204,11 +186,9 @@ def _swap_ext(name: str) -> str:
         return p.with_suffix(".jpg").name
     return p.name
 
-
 def _canonical_scene_key(x: str) -> str:
     stem = Path(str(x)).stem
     return TAIL4_RE.sub("", stem)
-
 
 def _extract_month_key_from_scene(scene_id: str) -> str | None:
     m = DATE8_RE.search(scene_id)
@@ -217,14 +197,12 @@ def _extract_month_key_from_scene(scene_id: str) -> str | None:
     m2 = MONTH_RE.search(scene_id)
     return f"{m2.group(1)}-{m2.group(2)}" if m2 else None
 
-
 def _extract_month_key_from_modis(fname: str) -> str | None:
     r = RANGE_RE.search(fname)
     if r:
         return f"{r.group(1)}-{r.group(2)}"
     m = MONTH_RE.search(fname)
     return f"{m.group(1)}-{m.group(2)}" if m else None
-
 
 def _extract_dates_from_name(s: str):
     s = str(s)
@@ -245,7 +223,6 @@ def _extract_dates_from_name(s: str):
             return None, None
     return None, None
 
-
 def _mid_date(d1, d2):
     if d1 is None and d2 is None:
         return None
@@ -254,7 +231,6 @@ def _mid_date(d1, d2):
     if d2 is None:
         return d1
     return d1 + (d2 - d1) / 2
-
 
 def _extract_region_key(s: str) -> str | None:
     m = REGION_RE.search(s)
@@ -265,7 +241,6 @@ def _extract_region_key(s: str) -> str | None:
         return m2.group(0).upper()
     return None
 
-
 def _load_coco_map(coco_json: str):
     if not coco_json:
         return None, None
@@ -274,7 +249,6 @@ def _load_coco_map(coco_json: str):
     id2name = {int(im["id"]): str(im["file_name"]) for im in coco["images"]}
     name2id = {str(v): int(k) for k, v in id2name.items()}
     return id2name, name2id
-
 
 def _coerce_id(df: pd.DataFrame, id_col: str, src: str) -> pd.DataFrame:
     df = df.copy()
@@ -289,7 +263,6 @@ def _coerce_id(df: pd.DataFrame, id_col: str, src: str) -> pd.DataFrame:
             raise SystemExit(f"{src} has no id column '{id_col}'. Columns: {list(df.columns)}")
     return df
 
-
 def _guess_score_col(df: pd.DataFrame, id_col: str) -> str:
     numeric = [c for c in df.columns if c != id_col and pd.api.types.is_numeric_dtype(df[c])]
     cand = [c for c in numeric if str(c).lower().startswith("p_") or "score" in str(c).lower()]
@@ -303,7 +276,6 @@ def _guess_score_col(df: pd.DataFrame, id_col: str) -> str:
         if c != id_col:
             return c
     raise SystemExit("Could not guess score column.")
-
 
 def _attach_month_region_keys_for_base(base: pd.DataFrame, id_col: str, group_col: str):
     """Ensure month_key, date_key, region_key exist for base table."""
@@ -322,7 +294,8 @@ def _attach_month_region_keys_for_base(base: pd.DataFrame, id_col: str, group_co
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             dt = pd.to_datetime(base["datetime"], errors="coerce", utc=True)
-        base["date_key"] = dt.dt.tz_convert(None) if hasattr(dt.dt, "tz_localize") else dt
+        # store naive timestamp
+        base["date_key"] = dt.dt.tz_convert(None)
     else:
         d1d2 = base[group_col].astype(str).map(_extract_dates_from_name)
         base["date_key"] = [_mid_date(a, b) for (a, b) in d1d2]
@@ -333,7 +306,6 @@ def _attach_month_region_keys_for_base(base: pd.DataFrame, id_col: str, group_co
         base.loc[mask, "region_key"] = base.loc[mask, id_col].astype(str).map(_extract_region_key)
     return base
 
-
 def _attach_month_region_keys_for_det(det_df: pd.DataFrame, id_col: str):
     det = det_df.copy()
     det["month_key"] = det[id_col].astype(str).map(_extract_month_key_from_modis)
@@ -341,7 +313,6 @@ def _attach_month_region_keys_for_det(det_df: pd.DataFrame, id_col: str):
     d1d2 = det[id_col].astype(str).map(_extract_dates_from_name)
     det["date_key"] = [_mid_date(a, b) for (a, b) in d1d2]
     return det
-
 
 def _agg(df: pd.DataFrame, by_cols, score_name: str, how: str) -> pd.DataFrame:
     if how == "max":
@@ -351,7 +322,6 @@ def _agg(df: pd.DataFrame, by_cols, score_name: str, how: str) -> pd.DataFrame:
     if how == "median":
         return df.groupby(by_cols, as_index=False)[score_name].median()
     raise ValueError(f"Unknown agg '{how}'")
-
 
 def _merge_on_id(base, det_df, id_col, score_name):
     merged = base.merge(det_df[[id_col, score_name]], on=id_col, how="left")
@@ -367,7 +337,6 @@ def _merge_on_id(base, det_df, id_col, score_name):
         print(f"[info] Detector '{score_name}' merged on {id_col} via ext swap. Coverage={cov:.1f}%")
         return merged2, True
     return base, False
-
 
 def _merge_on_scene(base, det_df_scene_like, group_col, score_name):
     if group_col not in base.columns:
@@ -398,59 +367,6 @@ def _merge_on_scene(base, det_df_scene_like, group_col, score_name):
         return merged2, True
     return base, False
 
-
-def _make_fit_cal_split(df_train_full: pd.DataFrame,
-                        y_train_full: np.ndarray,
-                        g_train: np.ndarray,
-                        calib_frac: float,
-                        seed: int):
-    """
-    Robustly split TRAIN into (fit, calib).
-
-    Priority:
-      1) GroupShuffleSplit if >=2 unique groups and it yields non-empty splits
-      2) StratifiedShuffleSplit on rows (keeps class balance) if possible
-      3) Fallback: no calibration split (return all rows for fit, empty for cal)
-    """
-    n = len(df_train_full)
-    if n < 8:
-        # too tiny to sensibly calibrate
-        return np.arange(n), np.array([], dtype=int)
-
-    calib_frac = float(np.clip(calib_frac, 0.05, 0.45))
-
-    # --- 1) group-aware split if meaningful ---
-    uniq_groups = pd.Series(g_train).nunique(dropna=True)
-    if uniq_groups >= 2:
-        for frac in [calib_frac, 0.15, 0.10, 0.08, 0.05]:
-            try:
-                gss = GroupShuffleSplit(test_size=frac, random_state=seed)
-                tr_fit_idx, tr_cal_idx = next(gss.split(df_train_full, y_train_full, groups=g_train))
-                if len(tr_fit_idx) > 0 and len(tr_cal_idx) > 0:
-                    # ensure both classes exist in CAL (needed for sigmoid/isotonic)
-                    y_cal = y_train_full[tr_cal_idx]
-                    if len(np.unique(y_cal)) == 2:
-                        return tr_fit_idx, tr_cal_idx
-            except Exception:
-                pass
-
-    # --- 2) stratified row-level split (no groups) ---
-    if len(np.unique(y_train_full)) == 2:
-        for frac in [calib_frac, 0.15, 0.10, 0.08, 0.05]:
-            try:
-                sss = StratifiedShuffleSplit(n_splits=1, test_size=frac, random_state=seed)
-                tr_fit_idx, tr_cal_idx = next(sss.split(np.zeros(n), y_train_full))
-                if len(tr_fit_idx) > 0 and len(tr_cal_idx) > 0:
-                    y_cal = y_train_full[tr_cal_idx]
-                    if len(np.unique(y_cal)) == 2:
-                        return tr_fit_idx, tr_cal_idx
-            except Exception:
-                pass
-
-    # --- 3) give up: disable calibration split ---
-    return np.arange(n), np.array([], dtype=int)
-
-
 def _nearest_month_map(base_months: pd.Series, det_months: pd.Series, k_months: int = 1) -> dict:
     def _to_ym(s: str) -> datetime | None:
         try:
@@ -473,7 +389,6 @@ def _nearest_month_map(base_months: pd.Series, det_months: pd.Series, k_months: 
                 best, best_delta = dm, delta
         out[bm] = best
     return out
-
 
 def _merge_on_month_region(base, det_df, score_name, agg: str, month_backfill: int = 0):
     det_ok = det_df.copy()
@@ -511,7 +426,6 @@ def _merge_on_month_region(base, det_df, score_name, agg: str, month_backfill: i
                 return m3, True
 
     return base, False
-
 
 def _merge_on_nearest_date(base, det_df, score_name, max_day_gap: int = 12, use_region: bool = True):
     if "date_key" not in base.columns or "date_key" not in det_df.columns:
@@ -567,20 +481,21 @@ def _pick_threshold_from_policy(
     target_fpr=None,
     top_frac=None,
     expected_pos_rate=None,
-    min_recall=None,            # for prec_at_recall
+    min_recall=None,
 ):
     thr = np.asarray(thr)
 
     if policy == "prec_at_recall":
         if min_recall is None:
             min_recall = 0.60
-        # precision_recall_curve: prec,rec length = len(thr)+1
         ok = np.where(rec[:-1] >= float(min_recall))[0]
         if len(ok):
             best = ok[np.argmax(prec[:-1][ok])]
             return float(thr[best]), f"prec_at_recall>=({min_recall:.3f})"
-        # fallback
-        policy = "f1"
+        # fallback: max recall -> lowest threshold
+        if len(thr):
+            return float(np.min(thr)), f"fallback_max_recall(min_recall_unmet={min_recall:.3f})"
+        return 0.0, f"fallback_max_recall(min_recall_unmet={min_recall:.3f})"
 
     if policy == "precision" and target_precision is not None:
         cand = np.where(prec[:-1] >= target_precision)[0]
@@ -610,7 +525,6 @@ def _pick_threshold_from_policy(
     i = int(np.argmax(f1s)) if len(f1s) else 0
     return (float(thr[i]) if len(thr) else 0.5), "f1"
 
-
 def _safe_metrics(y_true, p):
     base_rate = float(y_true.mean()) if y_true.size else None
     auprc = average_precision_score(y_true, p) if y_true.sum() > 0 else 0.0
@@ -621,7 +535,6 @@ def _safe_metrics(y_true, p):
     else:
         fpr, tpr = np.array([0, 1]), np.array([0, 1])
     return base_rate, auprc, auroc, prec, rec, thr, fpr, tpr
-
 
 def _eval_and_save(outdir: Path, tag: str, feats, y_true, p, thr_star, ids_df):
     p = np.clip(np.asarray(p, dtype=float), 1e-6, 1 - 1e-6)
@@ -666,6 +579,265 @@ def _eval_and_save(outdir: Path, tag: str, feats, y_true, p, thr_star, ids_df):
     print(rep)
     return auprc, auroc
 
+
+# --------- split-safe env feature engineering (NO LEAKAGE) ----------
+def _ensure_month_num(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.copy()
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        dt = pd.to_datetime(df["datetime"], errors="coerce", utc=True)
+    df["month_num"] = dt.dt.month.astype("Int64")
+    return df
+
+def _fit_env_transforms_train(df_train: pd.DataFrame, env_base_cols, interactions: str, no_env_context: bool):
+    """
+    Fit TRAIN-only statistics for:
+      - env imputation medians per (region_key, month_key)
+      - SST climatology mean/std per (region_key, month_num)
+      - region-month context mean/std per (region_key, month_key) for all env/derived/interaction cols
+
+    Returns dict with lookup tables and global fallbacks.
+    """
+    tr = df_train.copy()
+    tr = _ensure_month_num(tr)
+
+    # --- imputation tables (region_key, month_key) medians ---
+    impute_tables = {}
+    global_medians = {}
+    for col in env_base_cols:
+        s = pd.to_numeric(tr[col], errors="coerce")
+        global_medians[col] = float(s.median()) if np.isfinite(s.median()) else 0.0
+        # median per (region_key, month_key)
+        gmed = (
+            pd.concat([tr[["region_key", "month_key"]], s.rename(col)], axis=1)
+            .groupby(["region_key", "month_key"], as_index=False)[col]
+            .median()
+        )
+        impute_tables[col] = gmed
+
+    # --- SST climatology mean/std per (region_key, month_num) ---
+    tr_sst = tr.copy()
+    tr_sst["sst"] = pd.to_numeric(tr_sst["sst"], errors="coerce")
+
+    sst_rm = (
+        tr_sst.dropna(subset=["sst", "region_key", "month_num"])
+        .groupby(["region_key", "month_num"])["sst"]
+        .agg(sst_clim_mean="mean", sst_clim_std="std")
+        .reset_index()
+    )
+
+    # region-only fallback
+    sst_r = (
+        tr_sst.dropna(subset=["sst", "region_key"])
+        .groupby(["region_key"])["sst"]
+        .agg(sst_r_mean="mean", sst_r_std="std")
+        .reset_index()
+    )
+
+
+    # global fallback
+    sst_global_mean = float(tr_sst["sst"].median()) if np.isfinite(tr_sst["sst"].median()) else 0.0
+    sst_global_std = float(tr_sst["sst"].std()) if np.isfinite(tr_sst["sst"].std()) else 1.0
+    if sst_global_std <= 0:
+        sst_global_std = 1.0
+
+    # --- derived env columns list (names only) ---
+    derived_env_cols = ["month_num", "sst_clim_rm", "sst_anom", "sst_anom_z",
+                        "log_kd490", "log_chlor_a", "log_nflh",
+                        "ratio_chl_kd", "chl_times_nflh", "ratio_nflh_kd"]
+
+    # --- interaction columns list ---
+    interaction_cols = []
+    if interactions == "basic":
+        inter_specs = [
+            ("sst_anom", "chlor_a"),
+            ("sst_anom", "nflh"),
+            ("sst_anom", "fai_mean"),
+            ("sst_anom", "kd490"),
+            ("sst_anom", "month_sin"),
+            ("sst_anom", "month_cos"),
+        ]
+        for a, b in inter_specs:
+            interaction_cols.append(f"{a}_x_{b}")
+
+    # --- context mean/std tables per (region_key, month_key), for (env+derived+inter) cols ---
+    # We'll compute these AFTER derived/inter are created on TRAIN.
+    return {
+        "impute_tables": impute_tables,
+        "global_medians": global_medians,
+        "sst_rm": sst_rm,
+        "sst_r": sst_r,
+        "sst_global_mean": sst_global_mean,
+        "sst_global_std": sst_global_std,
+        "derived_env_cols": derived_env_cols,
+        "interaction_cols": interaction_cols,
+        "no_env_context": bool(no_env_context),
+    }
+
+def _apply_env_transforms(df: pd.DataFrame, env_base_cols, stats: dict, interactions: str):
+    """
+    Apply TRAIN-fitted env transforms to a dataframe (train or test):
+      - impute env_base_cols using (region_key, month_key) medians, then global
+      - compute split-safe SST climatology/anomaly/z
+      - compute derived features (logs, ratios)
+      - compute interactions if requested
+
+    Returns df with added columns.
+    """
+    out = df.copy()
+    out = _ensure_month_num(out)
+
+    # --- impute base env cols ---
+    for col in env_base_cols:
+        out[col] = pd.to_numeric(out[col], errors="coerce")
+        tab = stats["impute_tables"][col]
+        out = out.merge(tab, on=["region_key", "month_key"], how="left", suffixes=("", "__imp__"))
+        imp_col = f"{col}__imp__"
+        # if original NaN -> use group median; else keep original
+        out[col] = out[col].where(out[col].notna(), out[imp_col])
+        out[col] = out[col].fillna(stats["global_medians"][col])
+        out = out.drop(columns=[imp_col], errors="ignore")
+
+    # --- SST climatology fit on train ---
+    out["sst"] = pd.to_numeric(out["sst"], errors="coerce").fillna(stats["global_medians"].get("sst", 0.0))
+
+    out = out.merge(stats["sst_rm"], on=["region_key", "month_num"], how="left")
+    out = out.merge(stats["sst_r"], on=["region_key"], how="left")
+
+    # fill climatology mean/std with region fallback, then global fallback
+    out["sst_clim_mean"] = out["sst_clim_mean"].fillna(out["sst_r_mean"]).fillna(stats["sst_global_mean"])
+    out["sst_clim_std"] = out["sst_clim_std"].fillna(out["sst_r_std"]).fillna(stats["sst_global_std"])
+    out["sst_clim_std"] = out["sst_clim_std"].replace(0, np.nan).fillna(stats["sst_global_std"])
+
+    out["sst_clim_rm"] = out["sst_clim_mean"]
+    out["sst_anom"] = out["sst"] - out["sst_clim_mean"]
+    out["sst_anom_z"] = (out["sst"] - out["sst_clim_mean"]) / out["sst_clim_std"]
+
+    # drop helper columns (keep sst_clim_rm, anom, z)
+    out = out.drop(columns=["sst_clim_mean", "sst_clim_std", "sst_r_mean", "sst_r_std"], errors="ignore")
+
+    # --- logs ---
+    out["log_kd490"] = np.log10(pd.to_numeric(out["kd490"], errors="coerce").clip(lower=1e-4))
+    out["log_chlor_a"] = np.log10(pd.to_numeric(out["chlor_a"], errors="coerce").clip(lower=1e-4))
+    out["log_nflh"] = np.log10(pd.to_numeric(out["nflh"], errors="coerce").clip(lower=1e-4))
+
+    # --- ratios / combos ---
+    kd = pd.to_numeric(out["kd490"], errors="coerce").replace(0, np.nan)
+    chl = pd.to_numeric(out["chlor_a"], errors="coerce")
+    nflh = pd.to_numeric(out["nflh"], errors="coerce")
+    out["ratio_chl_kd"] = (chl / kd).replace([np.inf, -np.inf], np.nan)
+    out["chl_times_nflh"] = (chl * nflh).replace([np.inf, -np.inf], np.nan)
+    out["ratio_nflh_kd"] = (nflh / kd).replace([np.inf, -np.inf], np.nan)
+
+    # --- interactions ---
+    if interactions == "basic":
+        def _safe_mul(a, b):
+            return (pd.to_numeric(out[a], errors="coerce") * pd.to_numeric(out[b], errors="coerce")).replace(
+                [np.inf, -np.inf], np.nan
+            )
+        inter_specs = [
+            ("sst_anom", "chlor_a"),
+            ("sst_anom", "nflh"),
+            ("sst_anom", "fai_mean"),
+            ("sst_anom", "kd490"),
+            ("sst_anom", "month_sin"),
+            ("sst_anom", "month_cos"),
+        ]
+        for a, b in inter_specs:
+            out[f"{a}_x_{b}"] = _safe_mul(a, b)
+
+    return out
+
+def _fit_context_tables_train(df_train_aug: pd.DataFrame, ctx_cols):
+    """
+    Fit TRAIN-only region-month context mean/std for ctx_cols.
+    Returns a dict {col: table_df(region_key, month_key, mean, std)} plus global mean/std fallbacks.
+    """
+    ctx_tables = {}
+    global_mu = {}
+    global_sd = {}
+    for col in ctx_cols:
+        s = pd.to_numeric(df_train_aug[col], errors="coerce")
+        global_mu[col] = float(s.mean()) if np.isfinite(s.mean()) else 0.0
+        sd = float(s.std()) if np.isfinite(s.std()) else 1.0
+        global_sd[col] = sd if sd > 0 else 1.0
+        tmp = pd.concat([df_train_aug[["region_key", "month_key"]], s.rename(col)], axis=1)
+        tab = (
+            tmp.dropna(subset=[col])
+            .groupby(["region_key", "month_key"], as_index=False)[col]
+            .agg(["mean", "std"])
+            .reset_index()
+        )
+        tab.columns = ["region_key", "month_key", f"{col}_rm_mean", f"{col}_rm_std"]
+        ctx_tables[col] = tab
+    return {"tables": ctx_tables, "global_mu": global_mu, "global_sd": global_sd}
+
+def _apply_context(df_aug: pd.DataFrame, ctx_cols, ctx_stats: dict):
+    """
+    Apply TRAIN-only region-month context mean/std to df_aug, producing:
+      - {col}_rm_mean, {col}_anom_rm, {col}_z_rm
+    """
+    out = df_aug.copy()
+    for col in ctx_cols:
+        tab = ctx_stats["tables"][col]
+        out = out.merge(tab, on=["region_key", "month_key"], how="left")
+        mu = f"{col}_rm_mean"
+        sd = f"{col}_rm_std"
+        # fallbacks
+        out[mu] = pd.to_numeric(out[mu], errors="coerce").fillna(ctx_stats["global_mu"][col])
+        out[sd] = pd.to_numeric(out[sd], errors="coerce").replace(0, np.nan).fillna(ctx_stats["global_sd"][col])
+        out[f"{col}_anom_rm"] = pd.to_numeric(out[col], errors="coerce") - out[mu]
+        out[f"{col}_z_rm"] = (pd.to_numeric(out[col], errors="coerce") - out[mu]) / out[sd]
+        # drop std helper
+        out = out.drop(columns=[sd], errors="ignore")
+    return out
+
+
+def _make_fit_cal_split(df_train_full: pd.DataFrame,
+                        y_train_full: np.ndarray,
+                        g_train: np.ndarray,
+                        calib_frac: float,
+                        seed: int):
+    """
+    Robustly split TRAIN into (fit, calib).
+
+    Priority:
+      1) GroupShuffleSplit if >=2 unique groups and it yields non-empty splits
+      2) StratifiedShuffleSplit on rows (keeps class balance) if possible
+      3) Fallback: no calibration split (return all rows for fit, empty for cal)
+    """
+    n = len(df_train_full)
+    if n < 8:
+        return np.arange(n), np.array([], dtype=int)
+
+    calib_frac = float(np.clip(calib_frac, 0.05, 0.45))
+
+    uniq_groups = pd.Series(g_train).nunique(dropna=True)
+    if uniq_groups >= 2:
+        for frac in [calib_frac, 0.15, 0.10, 0.08, 0.05]:
+            try:
+                gss = GroupShuffleSplit(test_size=frac, random_state=seed)
+                tr_fit_idx, tr_cal_idx = next(gss.split(df_train_full, y_train_full, groups=g_train))
+                if len(tr_fit_idx) > 0 and len(tr_cal_idx) > 0:
+                    y_cal = y_train_full[tr_cal_idx]
+                    if len(np.unique(y_cal)) == 2:
+                        return tr_fit_idx, tr_cal_idx
+            except Exception:
+                pass
+
+    if len(np.unique(y_train_full)) == 2:
+        for frac in [calib_frac, 0.15, 0.10, 0.08, 0.05]:
+            try:
+                sss = StratifiedShuffleSplit(n_splits=1, test_size=frac, random_state=seed)
+                tr_fit_idx, tr_cal_idx = next(sss.split(np.zeros(n), y_train_full))
+                if len(tr_fit_idx) > 0 and len(tr_cal_idx) > 0:
+                    y_cal = y_train_full[tr_cal_idx]
+                    if len(np.unique(y_cal)) == 2:
+                        return tr_fit_idx, tr_cal_idx
+            except Exception:
+                pass
+
+    return np.arange(n), np.array([], dtype=int)
 
 
 # --------------- main ----------------------
@@ -717,6 +889,9 @@ def main():
     # calibration (split-safe)
     ap.add_argument("--calibrate", choices=["none", "sigmoid", "isotonic"], default="sigmoid")
     ap.add_argument("--calib_frac", type=float, default=0.20, help="Fraction of TRAIN used for calibration fit")
+    ap.add_argument("--min_calib_n", type=int, default=40, help="Minimum calibration set size to enable calibration")
+    ap.add_argument("--min_calib_pos", type=int, default=8, help="Minimum positives in calibration set")
+    ap.add_argument("--min_calib_neg", type=int, default=8, help="Minimum negatives in calibration set")
 
     # merge/agg
     ap.add_argument("--det_agg", choices=["max", "mean", "median"], default="mean")
@@ -769,6 +944,7 @@ def main():
     if missing:
         raise SystemExit(f"{args.tabular_csv} missing columns: {sorted(missing)}")
 
+    # Keep RAW env columns only here. Derived/context features are created per split (no leakage).
     keep_cols = [
         args.id_col, args.group_by, "datetime", "month_key",
         "fai_mean", "rednir_mean", "ndwi_mean", "kd490", "chlor_a", "nflh", "sst",
@@ -781,7 +957,7 @@ def main():
 
     base[args.group_by] = base[args.group_by].astype(str).map(_canonical_scene_key)
     base = _attach_month_region_keys_for_base(base, args.id_col, args.group_by)
-    base["group_for_cv"] = base["region_key"]
+    base["group_for_cv"] = base[args.group_by]
 
     # env base columns
     env_base_cols = [
@@ -789,87 +965,16 @@ def main():
         "month_sin","month_cos","ndwi_std","rednir_std",
     ]
 
-    base = _impute_env_features(base, env_base_cols)
-
-    # --- derived env features ---
-    derived_env_cols = []
-
-    # month_num (needed for sst climatology)
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        dt = pd.to_datetime(base["datetime"], errors="coerce", utc=True)
-    base["month_num"] = dt.dt.month.astype("Int64")
-    derived_env_cols.append("month_num")
-
-    # sst climatology by (region_key, month_num)
-    # clim mean + anom + z (using within-region-month std)
-    grp = base.groupby(["region_key", "month_num"])["sst"]
-    sst_clim = grp.transform("mean")
-    sst_std = grp.transform("std").replace(0, np.nan)
-    base["sst_clim_rm"] = sst_clim
-    base["sst_anom"] = base["sst"] - sst_clim
-    base["sst_anom_z"] = (base["sst"] - sst_clim) / sst_std
-    derived_env_cols += ["sst_clim_rm", "sst_anom", "sst_anom_z"]
-    print("[sst] added sst_anom (region x month-of-year climatology) + sst_anom_z")
-
-    # log transforms
-    for col in ["kd490", "chlor_a", "nflh"]:
-        new_col = f"log_{col}"
-        base[new_col] = np.log10(base[col].clip(lower=1e-4))
-        derived_env_cols.append(new_col)
-
-    # ratios/combinations
-    base["ratio_chl_kd"] = base["chlor_a"] / base["kd490"].replace(0, np.nan)
-    base["chl_times_nflh"] = base["chlor_a"] * base["nflh"]
-    base["ratio_nflh_kd"] = base["nflh"] / base["kd490"].replace(0, np.nan)
-    derived_env_cols += ["ratio_chl_kd", "chl_times_nflh", "ratio_nflh_kd"]
-
-    # explicit interactions
-    interaction_cols = []
-    if args.interactions == "basic":
-        def _safe_mul(a, b):
-            return (base[a].astype(float) * base[b].astype(float)).replace([np.inf, -np.inf], np.nan)
-
-        inter_specs = [
-            ("sst_anom", "chlor_a"),
-            ("sst_anom", "nflh"),
-            ("sst_anom", "fai_mean"),
-            ("sst_anom", "kd490"),
-            ("sst_anom", "month_sin"),
-            ("sst_anom", "month_cos"),
-        ]
-        for a, b in inter_specs:
-            col = f"{a}_x_{b}"
-            base[col] = _safe_mul(a, b)
-            interaction_cols.append(col)
-
-    # region-month env context
-    context_env_cols = []
-    if not args.no_env_context:
-        ctx_cols = [c for c in env_base_cols + derived_env_cols + interaction_cols if c in base.columns]
-        for col in ctx_cols:
-            grp2 = base.groupby(["region_key", "month_key"])[col]
-            mean_rm = grp2.transform("mean")
-            std_rm = grp2.transform("std").replace(0, np.nan)
-            mcol = f"{col}_rm_mean"
-            acol = f"{col}_anom_rm"
-            zcol = f"{col}_z_rm"
-            base[mcol] = mean_rm
-            base[acol] = base[col] - mean_rm
-            base[zcol] = (base[col] - mean_rm) / std_rm
-            context_env_cols.extend([mcol, acol, zcol])
-        print(f"[env-context] added region-month context cols for: {ctx_cols}")
-
     # --- merge detectors from separate CSVs ---
-    feats = []
+    feats_base = []
     det_names = []
 
     if not args.drop_p_tab and "p_tab" in base.columns:
-        feats.append("p_tab")
+        feats_base.append("p_tab")
 
     in_tab_det_cols = ["p_frcnn_r50_med","p_frcnn_mb_med","p_ssd_mb_med"]
     for c in in_tab_det_cols:
-        feats.append(c); det_names.append(c)
+        feats_base.append(c); det_names.append(c)
     print(f"[info] Using in-tabular detector columns as features: {det_names}")
 
     # external detectors
@@ -920,9 +1025,9 @@ def main():
         base = merged
         if name not in base.columns:
             base[name] = np.nan
-        feats.append(name); det_names.append(name)
+        feats_base.append(name); det_names.append(name)
 
-    # leak check presence/absence
+    # leak check presence/absence (still useful)
     for c in det_names:
         cov_pos = base.loc[base.hab_label == 1, c].notna().mean()
         cov_neg = base.loc[base.hab_label == 0, c].notna().mean()
@@ -938,27 +1043,10 @@ def main():
         print(f"[info] intersection_only: keeping {kept}/{total} rows ({kept/total*100:.1f}%).")
         base = base.loc[mask_all].reset_index(drop=True)
 
-    # add env features explicitly
-    env_feats = [c for c in env_base_cols + derived_env_cols + interaction_cols + context_env_cols if c in base.columns]
-    for ef in env_feats:
-        if ef not in feats:
-            feats.append(ef)
+    # Debug dump BEFORE split-safe env expansion (raw merged)
+    base.to_csv(outdir / "merged_features_debug_raw.csv", index=False)
 
-    base.to_csv(outdir / "merged_features_debug.csv", index=False)
-    print(f"[info] Final feature columns ({len(feats)}): {feats}")
-
-    # missing handling
-    if args.no_missing_flags:
-        for col in feats:
-            base[col] = base[col].astype(float).fillna(0.0)
-    else:
-        miss_df = base[feats].isna().astype(float)
-        miss_df.columns = [f"{c}_missing" for c in feats]
-        base[feats] = base[feats].astype(float).fillna(0.0)
-        base = pd.concat([base, miss_df], axis=1)
-        feats = feats + list(miss_df.columns)
-
-    X_all = base[feats].values
+    X_all = base[feats_base + env_base_cols].apply(pd.to_numeric, errors="coerce").fillna(0.0).values
     y_all = base["hab_label"].astype(int).values
     groups = base["group_for_cv"].astype(str).values
 
@@ -996,7 +1084,56 @@ def main():
         df_train_full = base.iloc[train_idx].copy()
         df_test = base.iloc[test_idx].copy()
 
-        feat_cols = feats.copy()
+        # --- split-safe env feature engineering (fit on TRAIN, apply to TRAIN+TEST) ---
+        env_stats = _fit_env_transforms_train(
+            df_train=df_train_full,
+            env_base_cols=env_base_cols,
+            interactions=args.interactions,
+            no_env_context=args.no_env_context,
+        )
+
+        df_train_aug = _apply_env_transforms(df_train_full, env_base_cols, env_stats, interactions=args.interactions)
+        df_test_aug = _apply_env_transforms(df_test, env_base_cols, env_stats, interactions=args.interactions)
+
+        # context features (train-only tables)
+        derived_env_cols = env_stats["derived_env_cols"]
+        interaction_cols = env_stats["interaction_cols"]
+        env_cols_all = [c for c in (env_base_cols + derived_env_cols + interaction_cols) if c in df_train_aug.columns]
+
+        context_env_cols = []
+        if not args.no_env_context:
+            ctx_fit = _fit_context_tables_train(df_train_aug, env_cols_all)
+            df_train_aug = _apply_context(df_train_aug, env_cols_all, ctx_fit)
+            df_test_aug = _apply_context(df_test_aug, env_cols_all, ctx_fit)
+            # track names
+            for col in env_cols_all:
+                context_env_cols.extend([f"{col}_rm_mean", f"{col}_anom_rm", f"{col}_z_rm"])
+            print(f"[env-context] added split-safe region-month context for: {env_cols_all}")
+
+        env_feats = env_cols_all + context_env_cols
+
+        # --- build final feature columns for this fold ---
+        feat_cols = feats_base + env_feats
+
+        # missing flags: apply AFTER env augmentation
+        if args.no_missing_flags:
+            for col in feat_cols:
+                df_train_aug[col] = pd.to_numeric(df_train_aug[col], errors="coerce").fillna(0.0)
+                df_test_aug[col] = pd.to_numeric(df_test_aug[col], errors="coerce").fillna(0.0)
+        else:
+            miss_tr = df_train_aug[feat_cols].isna().astype(float)
+            miss_te = df_test_aug[feat_cols].isna().astype(float)
+            miss_cols = [f"{c}_missing" for c in feat_cols]
+            miss_tr.columns = miss_cols
+            miss_te.columns = miss_cols
+
+            df_train_aug[feat_cols] = df_train_aug[feat_cols].apply(pd.to_numeric, errors="coerce").fillna(0.0)
+            df_test_aug[feat_cols] = df_test_aug[feat_cols].apply(pd.to_numeric, errors="coerce").fillna(0.0)
+
+            df_train_aug = pd.concat([df_train_aug, miss_tr], axis=1)
+            df_test_aug = pd.concat([df_test_aug, miss_te], axis=1)
+
+            feat_cols = feat_cols + miss_cols
 
         # per-split normalization (train-fit)
         if args.normalize_scores:
@@ -1004,41 +1141,40 @@ def main():
                 protect = ["p_tab"] if ("p_tab" in feat_cols and not args.drop_p_tab) else []
                 norm_candidates = det_names + env_feats
                 det_env_cols = [c for c in feat_cols if c in norm_candidates and not c.endswith("_missing")]
-                used = _normalize_inplace(df_train_full, df_test, det_env_cols, protect_cols=protect)
+                used = _normalize_inplace(df_train_aug, df_test_aug, det_env_cols, protect_cols=protect)
                 print(f"[norm] normalized (detectors+env only): {used}")
             else:
                 cols = [c for c in feat_cols if not c.endswith("_missing")]
-                used = _normalize_inplace(df_train_full, df_test, cols)
+                used = _normalize_inplace(df_train_aug, df_test_aug, cols)
                 print(f"[norm] normalized (all non-missing-feature cols): {used}")
 
         # ---- split TRAIN into fit + calib (robust) ----
-        g_train = df_train_full["group_for_cv"].astype(str).values
-        y_train_full = df_train_full["hab_label"].astype(int).values
+        g_train = df_train_aug["group_for_cv"].astype(str).values
+        y_train_full = df_train_aug["hab_label"].astype(int).values
 
         tr_fit_idx, tr_cal_idx = _make_fit_cal_split(
-            df_train_full=df_train_full,
+            df_train_full=df_train_aug,
             y_train_full=y_train_full,
             g_train=g_train,
             calib_frac=float(args.calib_frac),
             seed=final_seed + 17,
         )
 
-        df_fit = df_train_full.iloc[tr_fit_idx].copy()
-        df_cal = df_train_full.iloc[tr_cal_idx].copy()
+        df_fit = df_train_aug.iloc[tr_fit_idx].copy()
+        df_cal = df_train_aug.iloc[tr_cal_idx].copy()
 
         if len(tr_cal_idx) == 0:
             print("[cal] Calibration split unavailable for this fold (too few groups/classes). Calibration will be disabled.")
-
 
         X_fit = df_fit[feat_cols].values
         y_fit = df_fit["hab_label"].astype(int).values
         X_cal = df_cal[feat_cols].values
         y_cal = df_cal["hab_label"].astype(int).values
 
-        X_train_full = df_train_full[feat_cols].values
-        y_train_full = df_train_full["hab_label"].astype(int).values
-        X_test = df_test[feat_cols].values
-        y_test = df_test["hab_label"].astype(int).values
+        X_train_full = df_train_aug[feat_cols].values
+        y_train_full = df_train_aug["hab_label"].astype(int).values
+        X_test = df_test_aug[feat_cols].values
+        y_test = df_test_aug["hab_label"].astype(int).values
 
         # ---- build model ----
         if args.model == "catboost":
@@ -1069,7 +1205,11 @@ def main():
                 od_wait=args.cb_early_stop,
             )
 
-            cb.fit(X_fit, y_fit, eval_set=(X_cal, y_cal), use_best_model=True)
+            if len(y_cal) > 0:
+                cb.fit(X_fit, y_fit, eval_set=(X_cal, y_cal), use_best_model=True)
+            else:
+                cb.fit(X_fit, y_fit)
+
             model = cb
 
         else:
@@ -1098,20 +1238,26 @@ def main():
             model.fit(X_fit, y_fit)
 
         # ---- calibration (fit on CAL set) ----
-        calibrator = None
-        if args.calibrate != "none" and len(y_cal) >= 8 and len(np.unique(y_cal)) == 2:
+        cal_ok = (
+            args.calibrate != "none"
+            and len(y_cal) >= int(args.min_calib_n)
+            and (y_cal == 1).sum() >= int(args.min_calib_pos)
+            and (y_cal == 0).sum() >= int(args.min_calib_neg)
+        )
+
+        if cal_ok:
             p_cal_raw = model.predict_proba(X_cal)[:, 1]
             calibrator = _fit_calibrator(args.calibrate, p_cal_raw, y_cal)
-            print(f"[cal] fitted {args.calibrate} calibrator on {len(y_cal)} samples")
+            print(f"[cal] fitted {args.calibrate} calibrator on {len(y_cal)} samples "
+                  f"(pos={(y_cal==1).sum()}, neg={(y_cal==0).sum()})")
         else:
             if args.calibrate == "none":
                 print("[cal] calibration disabled (flag)")
             else:
-                print(f"[cal] calibration disabled (cal set too small or single-class): n={len(y_cal)} classes={np.unique(y_cal) if len(y_cal) else []}")
-        if calibrator is None:
-            print("[cal] calibration disabled")
-        else:
-            print(f"[cal] fitted {args.calibrate} calibrator on {len(y_cal)} samples")
+                print(f"[cal] calibration disabled (insufficient cal data): "
+                      f"n={len(y_cal)} pos={(y_cal==1).sum()} neg={(y_cal==0).sum()} "
+                      f"(need n>={args.min_calib_n}, pos>={args.min_calib_pos}, neg>={args.min_calib_neg})")
+            calibrator = None
 
         # ---- predict (calibrated) ----
         p_tr_raw = model.predict_proba(X_train_full)[:, 1]
@@ -1170,11 +1316,16 @@ def main():
             f"test  neg q90={_q(neg_te,0.9):.3f}"
         )
 
-        ids_te = df_test[[args.id_col, args.group_by, "hab_label", "month_key", "region_key"]].copy()
+        # Save a merged debug view for this fold (optional but useful)
+        df_train_aug.to_csv(outdir / f"merged_features_debug_{tag}_train.csv", index=False)
+        df_test_aug.to_csv(outdir / f"merged_features_debug_{tag}_test.csv", index=False)
+        print(f"[debug] wrote fold feature dumps for {tag}")
+
+        ids_te = df_test_aug[[args.id_col, args.group_by, "hab_label", "month_key", "region_key"]].copy()
         auprc, auroc = _eval_and_save(outdir, tag, feat_cols, y_test, p_te, thr_star, ids_te)
 
-        # (Optional) still save train eval, but don't stress about it
-        ids_tr = df_train_full[[args.id_col, args.group_by, "hab_label", "month_key", "region_key"]].copy()
+        # (Optional) train eval too
+        ids_tr = df_train_aug[[args.id_col, args.group_by, "hab_label", "month_key", "region_key"]].copy()
         _eval_and_save(outdir, f"{tag}_train", feat_cols, y_train_full, p_tr, thr_star, ids_tr)
 
         joblib.dump(
@@ -1206,7 +1357,23 @@ def main():
         if len(uniq_months) < args.cv_time_folds:
             raise SystemExit(f"Not enough unique months ({len(uniq_months)}) for cv_time_folds={args.cv_time_folds}.")
 
-        month_blocks = np.array_split(uniq_months, args.cv_time_folds)
+        month_blocks = []
+        target_blocks = int(args.cv_time_folds)
+        pos_by_month = base.groupby("_month_ord")["hab_label"].sum().to_dict()
+
+        cur = []
+        cur_pos = 0
+        for m in uniq_months:
+            cur.append(m)
+            cur_pos += int(pos_by_month.get(m, 0))
+            if cur_pos >= args.min_pos_per_split and len(month_blocks) < target_blocks - 1:
+                month_blocks.append(np.array(cur))
+                cur = []
+                cur_pos = 0
+        if cur:
+            month_blocks.append(np.array(cur))
+
+        print(f"[cv-time] Built {len(month_blocks)} pos-aware blocks (requested={target_blocks}).")
         for fold_id, block in enumerate(month_blocks, 1):
             test_mask = base["_month_ord"].isin(block)
             earliest_test = int(block.min())
@@ -1248,7 +1415,7 @@ def main():
             raise SystemExit("StratifiedGroupKFold not available. Use --cv_time_folds instead.")
         print(f"[cv] StratifiedGroupKFold with {args.cv_folds} folds")
         sgkf = StratifiedGroupKFold(n_splits=args.cv_folds, shuffle=True, random_state=final_seed)
-        for fold_id, (tr, te) in enumerate(sgkf.split(X_all, y_all, groups), 1):
+        for fold_id, (tr, te) in enumerate(sgkf.split(np.zeros(len(base)), y_all, groups), 1):
             if y_all[tr].sum() < args.min_pos_per_split or y_all[te].sum() < args.min_pos_per_split:
                 print(f"[cv] Skipping fold {fold_id} (insufficient positives).")
                 continue
@@ -1273,7 +1440,7 @@ def main():
         good = None
         for _ in range(1, args.max_tries + 1):
             gss = GroupShuffleSplit(test_size=args.test_size, random_state=int(rng.randint(0, 10_000)))
-            tr, te = next(gss.split(X_all, y_all, groups=groups))
+            tr, te = next(gss.split(np.zeros(len(base)), y_all, groups=groups))
             if y_all[tr].sum() >= args.min_pos_per_split and y_all[te].sum() >= args.min_pos_per_split:
                 good = (tr, te)
                 break
@@ -1284,7 +1451,7 @@ def main():
         auprc, auroc = _fit_predict(tr, te, "holdout")
         pd.DataFrame([{
             "model": f"fusion({args.model})",
-            "feats": "+".join(feats),
+            "feats": "+".join(["BASE(" + ",".join(feats_base) + ")", "ENV(split-safe)"]),
             "auprc": auprc,
             "auroc": auroc,
             "test_pos": int(y_all[te].sum()),
@@ -1292,7 +1459,7 @@ def main():
         }]).to_csv(outdir / "summary.csv", index=False)
 
     print(f"[debug] Saving outputs to: {outdir.resolve()}")
-    print("✓ saved models, metrics, PR/ROC plots, predictions, and merged_features_debug.csv")
+    print("✓ saved models, metrics, PR/ROC plots, predictions, and merged feature dumps per fold")
 
 
 if __name__ == "__main__":
