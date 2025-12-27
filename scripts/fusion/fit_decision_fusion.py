@@ -3,39 +3,13 @@
 """
 Decision-level fusion for S2 tabular scores + external detectors.
 
-Assumes the main training table (tabular_csv) has at least:
-
-  tile, scene_id, datetime, month_key,
-  fai_mean, rednir_mean, ndwi_mean, kd490, chlor_a, nflh,
-  month_sin, month_cos, ndwi_std, rednir_std,
-  hab_label,
-  p_frcnn_r50_med, p_frcnn_mb_med, p_ssd_mb_med, p_tab
-
-You can also add more detectors via --det name=path.csv
-
-Merge priority for external detector CSVs:
-  (1) exact id; (2) scene key; (3) month(+region) agg; (4) nearest date (±k days).
-
-Key features:
-  • Optional score normalization learned on TRAIN only:
-      --normalize_scores [--normalize_detectors_only]
-  • Threshold policies: f1 | precision | recall | fpr | topfrac | expected_pos
-      --expected_pos_rate <float in (0,1)>
-  • Threshold scope:
-      --threshold_scope train | test_unsupervised
-     If 'test_unsupervised', threshold is re-picked on TEST by score quantile.
-  • Time-based CV: --cv_time_folds K  (train on earlier months, test on month block)
-  • Optional region–month env context features (means/anoms/z-scores).
-  • Debug flag --shuffle_labels to check for leakage/overfitting.
-
-Outputs (per run):
-  outdir/
-    - merged_features_debug.csv
-    - predictions_*.csv
-    - metrics_*.json
-    - pr_fusion_*.png, roc_fusion_*.png
-    - summary_cv.csv         (for cv_time_folds / cv_folds)
-    - summary.csv            (for simple holdout)
+Adds:
+  - sst_anom (region x month-of-year climatology) + z-score
+  - model choice: logreg | catboost
+  - Option A threshold: Max precision subject to recall >= min_recall
+      --threshold_policy prec_at_recall --min_recall 0.60
+  - Split-safe probability calibration (sigmoid or isotonic)
+  - Explicit interaction features (basic HAB-motivated)
 """
 
 import argparse, json, re, warnings, hashlib
@@ -46,7 +20,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import joblib
 
-from sklearn.model_selection import GroupShuffleSplit
+from sklearn.model_selection import GroupShuffleSplit, StratifiedShuffleSplit
 try:
     from sklearn.model_selection import StratifiedGroupKFold
     HAS_SGF = True
@@ -61,16 +35,13 @@ from sklearn.metrics import (
     precision_recall_curve, roc_curve,
     classification_report, confusion_matrix
 )
-from sklearn.calibration import CalibratedClassifierCV
+
+from sklearn.isotonic import IsotonicRegression
 
 
 # ---------- custom scaler: standardize then apply per-feature weights ----------
 class WeightedScaler(StandardScaler):
-    """StandardScaler followed by per-feature multipliers.
-
-    This lets us give extra weight to p_tab (or downweight other features)
-    while keeping everything otherwise identical to StandardScaler.
-    """
+    """StandardScaler followed by per-feature multipliers."""
     def __init__(self, weights=None):
         super().__init__()
         self.weights = np.asarray(weights) if weights is not None else None
@@ -80,6 +51,60 @@ class WeightedScaler(StandardScaler):
         if self.weights is not None:
             X_scaled = X_scaled * self.weights
         return X_scaled
+
+
+# ---------- calibration helpers ----------
+def _logit(p):
+    p = np.clip(np.asarray(p, dtype=float), 1e-6, 1 - 1e-6)
+    return np.log(p / (1 - p))
+
+class _SigmoidCalibrator:
+    """Platt scaling on logit(p) -> y via logistic regression."""
+    def __init__(self):
+        self.a_ = None
+        self.b_ = None
+
+    def fit(self, p, y):
+        x = _logit(p).reshape(-1, 1)
+        y = np.asarray(y, dtype=int)
+        lr = LogisticRegression(max_iter=1000, solver="lbfgs")
+        lr.fit(x, y)
+        self.a_ = float(lr.coef_.ravel()[0])
+        self.b_ = float(lr.intercept_.ravel()[0])
+        return self
+
+    def transform(self, p):
+        x = _logit(p)
+        z = self.a_ * x + self.b_
+        return 1.0 / (1.0 + np.exp(-z))
+
+class _IsotonicCalibrator:
+    def __init__(self):
+        self.iso_ = IsotonicRegression(out_of_bounds="clip")
+
+    def fit(self, p, y):
+        p = np.clip(np.asarray(p, dtype=float), 1e-6, 1 - 1e-6)
+        y = np.asarray(y, dtype=float)
+        self.iso_.fit(p, y)
+        return self
+
+    def transform(self, p):
+        p = np.clip(np.asarray(p, dtype=float), 1e-6, 1 - 1e-6)
+        return np.clip(self.iso_.transform(p), 1e-6, 1 - 1e-6)
+
+def _fit_calibrator(method: str, p_cal, y_cal):
+    if method == "none":
+        return None
+    if method == "sigmoid":
+        return _SigmoidCalibrator().fit(p_cal, y_cal)
+    if method == "isotonic":
+        return _IsotonicCalibrator().fit(p_cal, y_cal)
+    raise ValueError(f"Unknown calibrate='{method}'")
+
+def _apply_calibrator(cal, p):
+    if cal is None:
+        return np.clip(np.asarray(p, dtype=float), 1e-6, 1 - 1e-6)
+    return np.clip(cal.transform(p), 1e-6, 1 - 1e-6)
 
 
 def _impute_env_features(df: pd.DataFrame, env_cols) -> pd.DataFrame:
@@ -284,7 +309,6 @@ def _attach_month_region_keys_for_base(base: pd.DataFrame, id_col: str, group_co
     """Ensure month_key, date_key, region_key exist for base table."""
     base = base.copy()
 
-    # month_key: use existing if present, otherwise infer
     if "month_key" not in base.columns:
         if "datetime" in base.columns:
             with warnings.catch_warnings():
@@ -294,7 +318,6 @@ def _attach_month_region_keys_for_base(base: pd.DataFrame, id_col: str, group_co
         else:
             base["month_key"] = base[group_col].astype(str).map(_extract_month_key_from_scene)
 
-    # date_key
     if "datetime" in base.columns:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
@@ -304,7 +327,6 @@ def _attach_month_region_keys_for_base(base: pd.DataFrame, id_col: str, group_co
         d1d2 = base[group_col].astype(str).map(_extract_dates_from_name)
         base["date_key"] = [_mid_date(a, b) for (a, b) in d1d2]
 
-    # region_key
     base["region_key"] = base[group_col].astype(str).map(_extract_region_key)
     mask = base["region_key"].isna()
     if mask.any():
@@ -377,6 +399,58 @@ def _merge_on_scene(base, det_df_scene_like, group_col, score_name):
     return base, False
 
 
+def _make_fit_cal_split(df_train_full: pd.DataFrame,
+                        y_train_full: np.ndarray,
+                        g_train: np.ndarray,
+                        calib_frac: float,
+                        seed: int):
+    """
+    Robustly split TRAIN into (fit, calib).
+
+    Priority:
+      1) GroupShuffleSplit if >=2 unique groups and it yields non-empty splits
+      2) StratifiedShuffleSplit on rows (keeps class balance) if possible
+      3) Fallback: no calibration split (return all rows for fit, empty for cal)
+    """
+    n = len(df_train_full)
+    if n < 8:
+        # too tiny to sensibly calibrate
+        return np.arange(n), np.array([], dtype=int)
+
+    calib_frac = float(np.clip(calib_frac, 0.05, 0.45))
+
+    # --- 1) group-aware split if meaningful ---
+    uniq_groups = pd.Series(g_train).nunique(dropna=True)
+    if uniq_groups >= 2:
+        for frac in [calib_frac, 0.15, 0.10, 0.08, 0.05]:
+            try:
+                gss = GroupShuffleSplit(test_size=frac, random_state=seed)
+                tr_fit_idx, tr_cal_idx = next(gss.split(df_train_full, y_train_full, groups=g_train))
+                if len(tr_fit_idx) > 0 and len(tr_cal_idx) > 0:
+                    # ensure both classes exist in CAL (needed for sigmoid/isotonic)
+                    y_cal = y_train_full[tr_cal_idx]
+                    if len(np.unique(y_cal)) == 2:
+                        return tr_fit_idx, tr_cal_idx
+            except Exception:
+                pass
+
+    # --- 2) stratified row-level split (no groups) ---
+    if len(np.unique(y_train_full)) == 2:
+        for frac in [calib_frac, 0.15, 0.10, 0.08, 0.05]:
+            try:
+                sss = StratifiedShuffleSplit(n_splits=1, test_size=frac, random_state=seed)
+                tr_fit_idx, tr_cal_idx = next(sss.split(np.zeros(n), y_train_full))
+                if len(tr_fit_idx) > 0 and len(tr_cal_idx) > 0:
+                    y_cal = y_train_full[tr_cal_idx]
+                    if len(np.unique(y_cal)) == 2:
+                        return tr_fit_idx, tr_cal_idx
+            except Exception:
+                pass
+
+    # --- 3) give up: disable calibration split ---
+    return np.arange(n), np.array([], dtype=int)
+
+
 def _nearest_month_map(base_months: pd.Series, det_months: pd.Series, k_months: int = 1) -> dict:
     def _to_ym(s: str) -> datetime | None:
         try:
@@ -404,7 +478,6 @@ def _nearest_month_map(base_months: pd.Series, det_months: pd.Series, k_months: 
 def _merge_on_month_region(base, det_df, score_name, agg: str, month_backfill: int = 0):
     det_ok = det_df.copy()
 
-    # month+region
     if {"month_key", "region_key", score_name}.issubset(det_ok.columns) and "region_key" in base.columns:
         det_mr = _agg(det_ok.dropna(subset=["month_key", "region_key"]), ["month_key", "region_key"], score_name, agg)
         m = base.merge(det_mr, on=["month_key", "region_key"], how="left")
@@ -413,7 +486,6 @@ def _merge_on_month_region(base, det_df, score_name, agg: str, month_backfill: i
             print(f"[info] Detector '{score_name}' merged on month+region ({agg}). Coverage={cov:.1f}%")
             return m, True
 
-    # month-only
     if {"month_key", score_name}.issubset(det_ok.columns):
         det_m = _agg(det_ok.dropna(subset=["month_key"]), ["month_key"], score_name, agg)
         m2 = base.merge(det_m, on="month_key", how="left")
@@ -422,7 +494,6 @@ def _merge_on_month_region(base, det_df, score_name, agg: str, month_backfill: i
             print(f"[info] Detector '{score_name}' merged on month-only ({agg}). Coverage={cov:.1f}%")
             return m2, True
 
-        # nearest-month backfill
         if month_backfill and len(det_m):
             nn_map = _nearest_month_map(base["month_key"], det_m["month_key"], k_months=month_backfill)
             base_remap = base.copy()
@@ -496,8 +567,20 @@ def _pick_threshold_from_policy(
     target_fpr=None,
     top_frac=None,
     expected_pos_rate=None,
+    min_recall=None,            # for prec_at_recall
 ):
     thr = np.asarray(thr)
+
+    if policy == "prec_at_recall":
+        if min_recall is None:
+            min_recall = 0.60
+        # precision_recall_curve: prec,rec length = len(thr)+1
+        ok = np.where(rec[:-1] >= float(min_recall))[0]
+        if len(ok):
+            best = ok[np.argmax(prec[:-1][ok])]
+            return float(thr[best]), f"prec_at_recall>=({min_recall:.3f})"
+        # fallback
+        policy = "f1"
 
     if policy == "precision" and target_precision is not None:
         cand = np.where(prec[:-1] >= target_precision)[0]
@@ -523,7 +606,6 @@ def _pick_threshold_from_policy(
         q = np.clip(1.0 - float(expected_pos_rate), 0.0, 1.0)
         return float(np.quantile(p, q)), f"expected_pos(rate={expected_pos_rate:.3f})"
 
-    # fallback: max-F1 on train
     f1s = (2 * prec * rec / (prec + rec + 1e-12))[:-1]
     i = int(np.argmax(f1s)) if len(f1s) else 0
     return (float(thr[i]) if len(thr) else 0.5), "f1"
@@ -585,20 +667,12 @@ def _eval_and_save(outdir: Path, tag: str, feats, y_true, p, thr_star, ids_df):
     return auprc, auroc
 
 
+
 # --------------- main ----------------------
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument(
-        "--tabular_csv",
-        required=True,
-        help="CSV with fusion table (tile,scene_id,datetime,month_key,env cols, hab_label, p_*).",
-    )
-    ap.add_argument(
-        "--det",
-        nargs="*",
-        default=[],
-        help="named detector CSVs: name=path.csv (must contain id_col and a score column)",
-    )
+    ap.add_argument("--tabular_csv", required=True)
+    ap.add_argument("--det", nargs="*", default=[])
     ap.add_argument("--outdir", default="runs/fusion/decision_fusion")
     ap.add_argument("--id_col", default="tile")
     ap.add_argument("--group_by", default="scene_id")
@@ -608,34 +682,41 @@ def main():
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--cv_folds", type=int, default=0)
     ap.add_argument("--cv_time_folds", type=int, default=0)
-    ap.add_argument("--coco_json", default="", help="COCO JSON (chip_id → file_name)")
+    ap.add_argument("--coco_json", default="")
     ap.add_argument("--require_overlap", action="store_true")
+
+    # model
+    ap.add_argument("--model", choices=["logreg", "catboost"], default="logreg")
+
+    # CatBoost params (safe defaults)
+    ap.add_argument("--cb_iters", type=int, default=800)
+    ap.add_argument("--cb_depth", type=int, default=6)
+    ap.add_argument("--cb_lr", type=float, default=0.05)
+    ap.add_argument("--cb_l2", type=float, default=6.0)
+    ap.add_argument("--cb_early_stop", type=int, default=80)
 
     # thresholding
     ap.add_argument(
         "--threshold_policy",
-        choices=["f1", "precision", "recall", "fpr", "topfrac", "expected_pos"],
+        choices=["f1", "precision", "recall", "fpr", "topfrac", "expected_pos", "prec_at_recall"],
         default="f1",
     )
     ap.add_argument("--target_precision", type=float, default=None)
     ap.add_argument("--target_recall", type=float, default=None)
     ap.add_argument("--target_fpr", type=float, default=None)
     ap.add_argument("--top_frac", type=float, default=None)
-    ap.add_argument(
-        "--expected_pos_rate",
-        type=float,
-        default=None,
-        help="Expected positive rate used by threshold_policy=expected_pos.",
-    )
+    ap.add_argument("--expected_pos_rate", type=float, default=None)
+    ap.add_argument("--min_recall", type=float, default=0.60, help="For threshold_policy=prec_at_recall")
+
     ap.add_argument(
         "--threshold_scope",
         choices=["train", "test_unsupervised"],
         default="train",
-        help="Finalize threshold on TRAIN (default) or on TEST by score-quantile (unsupervised).",
     )
 
-    # calibration
-    ap.add_argument("--calibrate", choices=["none", "isotonic", "platt"], default="none")
+    # calibration (split-safe)
+    ap.add_argument("--calibrate", choices=["none", "sigmoid", "isotonic"], default="sigmoid")
+    ap.add_argument("--calib_frac", type=float, default=0.20, help="Fraction of TRAIN used for calibration fit")
 
     # merge/agg
     ap.add_argument("--det_agg", choices=["max", "mean", "median"], default="mean")
@@ -645,37 +726,25 @@ def main():
     # features
     ap.add_argument("--drop_p_tab", action="store_true")
     ap.add_argument("--intersection_only", action="store_true")
-    ap.add_argument(
-        "--no_missing_flags",
-        action="store_true",
-        help="If set, just fill NaNs with 0.0. Otherwise add *_missing flags.",
-    )
+    ap.add_argument("--no_missing_flags", action="store_true")
 
     # normalization
-    ap.add_argument(
-        "--normalize_scores",
-        action="store_true",
-        help="Apply train-fitted min-max normalization to scores.",
-    )
-    ap.add_argument(
-        "--normalize_detectors_only",
-        action="store_true",
-        help="If set, normalize only detector+env columns; keep p_tab as-is.",
-    )
+    ap.add_argument("--normalize_scores", action="store_true")
+    ap.add_argument("--normalize_detectors_only", action="store_true")
 
     # env context
-    ap.add_argument(
-        "--no_env_context",
-        action="store_true",
-        help="Disable region-month env context features (_rm_mean/_anom_rm/_z_rm).",
-    )
+    ap.add_argument("--no_env_context", action="store_true")
+
+    # interactions
+    ap.add_argument("--interactions", choices=["none", "basic"], default="basic")
+
+    # logreg weighting knobs
+    ap.add_argument("--p_tab_weight", type=float, default=1.8, help="Only affects logreg mode")
+    ap.add_argument("--missing_weight", type=float, default=0.5, help="Only affects logreg mode")
+    ap.add_argument("--logreg_C", type=float, default=1.0, help="Only affects logreg mode")
 
     # debug
-    ap.add_argument(
-        "--shuffle_labels",
-        action="store_true",
-        help="DEBUG: randomly permute labels to sanity-check for leakage/overfitting.",
-    )
+    ap.add_argument("--shuffle_labels", action="store_true")
 
     args = ap.parse_args()
     outdir = Path(args.outdir)
@@ -688,27 +757,11 @@ def main():
     base = _coerce_id(base, args.id_col, args.tabular_csv)
     base[args.id_col] = _normalize_ids(base[args.id_col])
 
-    # required cols
     need = {
-        args.id_col,
-        args.group_by,
-        "hab_label",
-        "datetime",
-        "month_key",
-        "fai_mean",
-        "rednir_mean",
-        "ndwi_mean",
-        "kd490",
-        "chlor_a",
-        "nflh",
-        "sst",
-        "month_sin",
-        "month_cos",
-        "ndwi_std",
-        "rednir_std",
-        "p_frcnn_r50_med",
-        "p_frcnn_mb_med",
-        "p_ssd_mb_med",
+        args.id_col, args.group_by, "hab_label", "datetime", "month_key",
+        "fai_mean", "rednir_mean", "ndwi_mean", "kd490", "chlor_a", "nflh", "sst",
+        "month_sin", "month_cos", "ndwi_std", "rednir_std",
+        "p_frcnn_r50_med", "p_frcnn_mb_med", "p_ssd_mb_med",
     }
     if not args.drop_p_tab:
         need.add("p_tab")
@@ -716,87 +769,88 @@ def main():
     if missing:
         raise SystemExit(f"{args.tabular_csv} missing columns: {sorted(missing)}")
 
-    # keep only the known fusion columns + label + ids/time
     keep_cols = [
-        args.id_col,
-        args.group_by,
-        "datetime",
-        "month_key",
-        "fai_mean",
-        "rednir_mean",
-        "ndwi_mean",
-        "kd490",
-        "chlor_a",
-        "nflh",
-        "sst",
-        "month_sin",
-        "month_cos",
-        "ndwi_std",
-        "rednir_std",
-        "hab_label",
-        "p_frcnn_r50_med",
-        "p_frcnn_mb_med",
-        "p_ssd_mb_med",
+        args.id_col, args.group_by, "datetime", "month_key",
+        "fai_mean", "rednir_mean", "ndwi_mean", "kd490", "chlor_a", "nflh", "sst",
+        "month_sin", "month_cos", "ndwi_std", "rednir_std",
+        "hab_label", "p_frcnn_r50_med", "p_frcnn_mb_med", "p_ssd_mb_med",
     ]
     if not args.drop_p_tab and "p_tab" in base.columns:
         keep_cols.append("p_tab")
+    base = base[[c for c in keep_cols if c in base.columns]].copy()
 
-    keep_cols = [c for c in keep_cols if c in base.columns]
-    base = base[keep_cols].copy()
-
-    # basic canonicalization + region/month/date keys
     base[args.group_by] = base[args.group_by].astype(str).map(_canonical_scene_key)
     base = _attach_month_region_keys_for_base(base, args.id_col, args.group_by)
     base["group_for_cv"] = base["region_key"]
-    groups = base["group_for_cv"].astype(str).values
 
     # env base columns
     env_base_cols = [
-        "fai_mean",
-        "rednir_mean",
-        "ndwi_mean",
-        "kd490",
-        "chlor_a",
-        "nflh",
-        "sst",
-        "month_sin",
-        "month_cos",
-        "ndwi_std",
-        "rednir_std",
+        "fai_mean","rednir_mean","ndwi_mean","kd490","chlor_a","nflh","sst",
+        "month_sin","month_cos","ndwi_std","rednir_std",
     ]
 
-    # impute env features
     base = _impute_env_features(base, env_base_cols)
 
-    # --- simple derived env features (logs + ratios) ---
+    # --- derived env features ---
     derived_env_cols = []
+
+    # month_num (needed for sst climatology)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        dt = pd.to_datetime(base["datetime"], errors="coerce", utc=True)
+    base["month_num"] = dt.dt.month.astype("Int64")
+    derived_env_cols.append("month_num")
+
+    # sst climatology by (region_key, month_num)
+    # clim mean + anom + z (using within-region-month std)
+    grp = base.groupby(["region_key", "month_num"])["sst"]
+    sst_clim = grp.transform("mean")
+    sst_std = grp.transform("std").replace(0, np.nan)
+    base["sst_clim_rm"] = sst_clim
+    base["sst_anom"] = base["sst"] - sst_clim
+    base["sst_anom_z"] = (base["sst"] - sst_clim) / sst_std
+    derived_env_cols += ["sst_clim_rm", "sst_anom", "sst_anom_z"]
+    print("[sst] added sst_anom (region x month-of-year climatology) + sst_anom_z")
 
     # log transforms
     for col in ["kd490", "chlor_a", "nflh"]:
-        if col in base.columns:
-            new_col = f"log_{col}"
-            base[new_col] = np.log10(base[col].clip(lower=1e-4))
-            derived_env_cols.append(new_col)
+        new_col = f"log_{col}"
+        base[new_col] = np.log10(base[col].clip(lower=1e-4))
+        derived_env_cols.append(new_col)
 
     # ratios/combinations
-    if {"chlor_a", "kd490"}.issubset(base.columns):
-        base["ratio_chl_kd"] = base["chlor_a"] / base["kd490"].replace(0, np.nan)
-        derived_env_cols.append("ratio_chl_kd")
-    if {"chlor_a", "nflh"}.issubset(base.columns):
-        base["chl_times_nflh"] = base["chlor_a"] * base["nflh"]
-        derived_env_cols.append("chl_times_nflh")
-    if {"nflh", "kd490"}.issubset(base.columns):
-        base["ratio_nflh_kd"] = base["nflh"] / base["kd490"].replace(0, np.nan)
-        derived_env_cols.append("ratio_nflh_kd")
+    base["ratio_chl_kd"] = base["chlor_a"] / base["kd490"].replace(0, np.nan)
+    base["chl_times_nflh"] = base["chlor_a"] * base["nflh"]
+    base["ratio_nflh_kd"] = base["nflh"] / base["kd490"].replace(0, np.nan)
+    derived_env_cols += ["ratio_chl_kd", "chl_times_nflh", "ratio_nflh_kd"]
+
+    # explicit interactions
+    interaction_cols = []
+    if args.interactions == "basic":
+        def _safe_mul(a, b):
+            return (base[a].astype(float) * base[b].astype(float)).replace([np.inf, -np.inf], np.nan)
+
+        inter_specs = [
+            ("sst_anom", "chlor_a"),
+            ("sst_anom", "nflh"),
+            ("sst_anom", "fai_mean"),
+            ("sst_anom", "kd490"),
+            ("sst_anom", "month_sin"),
+            ("sst_anom", "month_cos"),
+        ]
+        for a, b in inter_specs:
+            col = f"{a}_x_{b}"
+            base[col] = _safe_mul(a, b)
+            interaction_cols.append(col)
 
     # region-month env context
     context_env_cols = []
     if not args.no_env_context:
-        ctx_cols = [c for c in env_base_cols + derived_env_cols if c in base.columns]
+        ctx_cols = [c for c in env_base_cols + derived_env_cols + interaction_cols if c in base.columns]
         for col in ctx_cols:
-            grp = base.groupby(["region_key", "month_key"])[col]
-            mean_rm = grp.transform("mean")
-            std_rm = grp.transform("std").replace(0, np.nan)
+            grp2 = base.groupby(["region_key", "month_key"])[col]
+            mean_rm = grp2.transform("mean")
+            std_rm = grp2.transform("std").replace(0, np.nan)
             mcol = f"{col}_rm_mean"
             acol = f"{col}_anom_rm"
             zcol = f"{col}_z_rm"
@@ -813,28 +867,20 @@ def main():
     if not args.drop_p_tab and "p_tab" in base.columns:
         feats.append("p_tab")
 
-    # detectors already in table
-    in_tab_det_cols = [
-        "p_frcnn_r50_med",
-        "p_frcnn_mb_med",
-        "p_ssd_mb_med",
-    ]
+    in_tab_det_cols = ["p_frcnn_r50_med","p_frcnn_mb_med","p_ssd_mb_med"]
     for c in in_tab_det_cols:
-        if c in base.columns:
-            feats.append(c)
-            det_names.append(c)
-
-    if det_names:
-        print(f"[info] Using in-tabular detector columns as features: {det_names}")
+        feats.append(c); det_names.append(c)
+    print(f"[info] Using in-tabular detector columns as features: {det_names}")
 
     # external detectors
     for spec in args.det:
         if "=" not in spec:
-            raise SystemExit("Use name=path.csv for --det (e.g., frcnn_r50=runs/fusion/p_frcnn_r50.csv)")
+            raise SystemExit("Use name=path.csv for --det")
         name, path = spec.split("=", 1)
         df = pd.read_csv(path)
         df = _clean_columns(df, path)
         df = _coerce_id(df, args.id_col, path)
+
         if id2name is not None:
             ser = pd.to_numeric(df[args.id_col], errors="coerce").astype("Int64")
             if ser.notna().mean() >= 0.90:
@@ -844,8 +890,8 @@ def main():
                 )
                 mapped = df[args.id_col].notna().sum()
                 print(f"[info] {path}: COCO mapped {mapped}/{before} ids to filenames.")
-        df[args.id_col] = _normalize_ids(df[args.id_col])
 
+        df[args.id_col] = _normalize_ids(df[args.id_col])
         score_col = _guess_score_col(df, args.id_col)
         if score_col != name:
             df = df.rename(columns={score_col: name})
@@ -870,11 +916,11 @@ def main():
             print(f"[warn] Detector '{name}' 0% coverage after all strategies.")
             if args.require_overlap:
                 raise SystemExit(f"[fatal] '{name}' contributed 0 matches.")
+
         base = merged
         if name not in base.columns:
             base[name] = np.nan
-        feats.append(name)
-        det_names.append(name)
+        feats.append(name); det_names.append(name)
 
     # leak check presence/absence
     for c in det_names:
@@ -892,18 +938,12 @@ def main():
         print(f"[info] intersection_only: keeping {kept}/{total} rows ({kept/total*100:.1f}%).")
         base = base.loc[mask_all].reset_index(drop=True)
 
-    # optional: drop p_tab
-    if args.drop_p_tab and "p_tab" in feats:
-        feats = [f for f in feats if f != "p_tab"]
-        print("[info] Dropping p_tab; using detectors+env only:", feats)
-
-    # ---- add env features to feature list explicitly ----
-    env_feats = [c for c in env_base_cols + derived_env_cols + context_env_cols if c in base.columns]
+    # add env features explicitly
+    env_feats = [c for c in env_base_cols + derived_env_cols + interaction_cols + context_env_cols if c in base.columns]
     for ef in env_feats:
         if ef not in feats:
             feats.append(ef)
 
-    # save raw merged for debugging
     base.to_csv(outdir / "merged_features_debug.csv", index=False)
     print(f"[info] Final feature columns ({len(feats)}): {feats}")
 
@@ -922,22 +962,19 @@ def main():
     y_all = base["hab_label"].astype(int).values
     groups = base["group_for_cv"].astype(str).values
 
-    # debug: optionally shuffle labels to test for leakage/overfitting
     if args.shuffle_labels:
         rng_dbg = np.random.RandomState(12345)
         perm = rng_dbg.permutation(len(base))
         base["hab_label"] = base["hab_label"].values[perm]
-        y_all = base["hab_label"].astype(int).values  # update view
+        y_all = base["hab_label"].astype(int).values
         print("[debug] Labels have been RANDOMLY SHUFFLED in the DataFrame for leakage check.")
 
-
-    # dataset-dependent seed
     dataset_tag = Path(args.tabular_csv).stem
     dataset_hash = int(hashlib.sha1(dataset_tag.encode()).hexdigest(), 16) % (10**6)
     final_seed = int(args.seed) + dataset_hash % 100000
     print(f"[debug] Using dataset-dependent seed: {final_seed} (from '{dataset_tag}')")
 
-    # ------------- normalization helper (train-fit) -------------
+    # normalization helper (train-fit)
     def _normalize_inplace(train_df: pd.DataFrame, test_df: pd.DataFrame, cols, protect_cols=None):
         protect_cols = set(protect_cols or [])
         cols = [c for c in cols if c not in protect_cols]
@@ -950,9 +987,13 @@ def main():
         test_df[cols] = (test_df[cols] - mins) / spans
         return cols
 
-    # ------------- fit/predict per split -------------
+    def _q(arr, q):
+        arr = np.asarray(arr, dtype=float)
+        return float(np.quantile(arr, q)) if arr.size else float("nan")
+
+    # fit/predict per split
     def _fit_predict(train_idx, test_idx, tag):
-        df_train = base.iloc[train_idx].copy()
+        df_train_full = base.iloc[train_idx].copy()
         df_test = base.iloc[test_idx].copy()
 
         feat_cols = feats.copy()
@@ -961,64 +1002,136 @@ def main():
         if args.normalize_scores:
             if args.normalize_detectors_only:
                 protect = ["p_tab"] if ("p_tab" in feat_cols and not args.drop_p_tab) else []
-                # detectors + env, excluding missing flags
                 norm_candidates = det_names + env_feats
-                det_env_cols = [c for c in feat_cols
-                                if c in norm_candidates and not c.endswith("_missing")]
-                used = _normalize_inplace(df_train, df_test, det_env_cols, protect_cols=protect)
+                det_env_cols = [c for c in feat_cols if c in norm_candidates and not c.endswith("_missing")]
+                used = _normalize_inplace(df_train_full, df_test, det_env_cols, protect_cols=protect)
                 print(f"[norm] normalized (detectors+env only): {used}")
             else:
                 cols = [c for c in feat_cols if not c.endswith("_missing")]
-                used = _normalize_inplace(df_train, df_test, cols)
+                used = _normalize_inplace(df_train_full, df_test, cols)
                 print(f"[norm] normalized (all non-missing-feature cols): {used}")
 
-        X_train = df_train[feat_cols].values
-        y_train = df_train["hab_label"].astype(int).values
+        # ---- split TRAIN into fit + calib (robust) ----
+        g_train = df_train_full["group_for_cv"].astype(str).values
+        y_train_full = df_train_full["hab_label"].astype(int).values
+
+        tr_fit_idx, tr_cal_idx = _make_fit_cal_split(
+            df_train_full=df_train_full,
+            y_train_full=y_train_full,
+            g_train=g_train,
+            calib_frac=float(args.calib_frac),
+            seed=final_seed + 17,
+        )
+
+        df_fit = df_train_full.iloc[tr_fit_idx].copy()
+        df_cal = df_train_full.iloc[tr_cal_idx].copy()
+
+        if len(tr_cal_idx) == 0:
+            print("[cal] Calibration split unavailable for this fold (too few groups/classes). Calibration will be disabled.")
+
+
+        X_fit = df_fit[feat_cols].values
+        y_fit = df_fit["hab_label"].astype(int).values
+        X_cal = df_cal[feat_cols].values
+        y_cal = df_cal["hab_label"].astype(int).values
+
+        X_train_full = df_train_full[feat_cols].values
+        y_train_full = df_train_full["hab_label"].astype(int).values
         X_test = df_test[feat_cols].values
         y_test = df_test["hab_label"].astype(int).values
 
-        # ---- feature weights (bias p_tab, downweight missing flags a bit) ----
-        feat_weights = []
-        for f in feat_cols:
-            if f == "p_tab":
-                feat_weights.append(3.0)   # main knob to make p_tab dominate more
-            elif f.endswith("_missing"):
-                feat_weights.append(0.5)
-            else:
-                feat_weights.append(1.0)
-        print(f"[boost] applied feature weights (p_tab=3, *_missing=0.5, others=1).")
+        # ---- build model ----
+        if args.model == "catboost":
+            try:
+                from catboost import CatBoostClassifier
+            except Exception as e:
+                raise SystemExit(
+                    "CatBoost import failed. If you see 'numpy.dtype size changed', you have NumPy 2.x "
+                    "with a CatBoost build compiled against NumPy 1.x.\n"
+                    "Fix:\n"
+                    "  python -m pip uninstall -y catboost\n"
+                    "  python -m pip install -U 'numpy<2' --force-reinstall\n"
+                    "  python -m pip install --no-cache-dir catboost\n"
+                    f"\nOriginal error: {e}"
+                )
 
-        base_clf = Pipeline(
-            [
-                ("scaler", WeightedScaler(weights=feat_weights)),
-                (
-                    "clf",
-                    LogisticRegression(
-                        max_iter=1000,
+            cb = CatBoostClassifier(
+                iterations=args.cb_iters,
+                depth=args.cb_depth,
+                learning_rate=args.cb_lr,
+                l2_leaf_reg=args.cb_l2,
+                loss_function="Logloss",
+                eval_metric="AUC",
+                random_seed=final_seed,
+                verbose=False,
+                auto_class_weights="Balanced",
+                od_type="Iter",
+                od_wait=args.cb_early_stop,
+            )
+
+            cb.fit(X_fit, y_fit, eval_set=(X_cal, y_cal), use_best_model=True)
+            model = cb
+
+        else:
+            # logreg with weighted scaling
+            feat_weights = []
+            for f in feat_cols:
+                if f == "p_tab":
+                    feat_weights.append(float(args.p_tab_weight))
+                elif f.endswith("_missing"):
+                    feat_weights.append(float(args.missing_weight))
+                else:
+                    feat_weights.append(1.0)
+            print(f"[boost] logreg weights: p_tab={args.p_tab_weight}, *_missing={args.missing_weight}, others=1.")
+
+            model = Pipeline(
+                [
+                    ("scaler", WeightedScaler(weights=feat_weights)),
+                    ("clf", LogisticRegression(
+                        max_iter=2000,
                         class_weight="balanced",
                         random_state=final_seed,
-                    ),
-                ),
-            ]
+                        C=float(args.logreg_C),
+                    )),
+                ]
+            )
+            model.fit(X_fit, y_fit)
+
+        # ---- calibration (fit on CAL set) ----
+        calibrator = None
+        if args.calibrate != "none" and len(y_cal) >= 8 and len(np.unique(y_cal)) == 2:
+            p_cal_raw = model.predict_proba(X_cal)[:, 1]
+            calibrator = _fit_calibrator(args.calibrate, p_cal_raw, y_cal)
+            print(f"[cal] fitted {args.calibrate} calibrator on {len(y_cal)} samples")
+        else:
+            if args.calibrate == "none":
+                print("[cal] calibration disabled (flag)")
+            else:
+                print(f"[cal] calibration disabled (cal set too small or single-class): n={len(y_cal)} classes={np.unique(y_cal) if len(y_cal) else []}")
+        if calibrator is None:
+            print("[cal] calibration disabled")
+        else:
+            print(f"[cal] fitted {args.calibrate} calibrator on {len(y_cal)} samples")
+
+        # ---- predict (calibrated) ----
+        p_tr_raw = model.predict_proba(X_train_full)[:, 1]
+        p_te_raw = model.predict_proba(X_test)[:, 1]
+
+        p_tr = _apply_calibrator(calibrator, p_tr_raw)
+        p_te = _apply_calibrator(calibrator, p_te_raw)
+
+        # q50 diagnostics before/after
+        pos_tr_raw, neg_tr_raw = p_tr_raw[y_train_full == 1], p_tr_raw[y_train_full == 0]
+        pos_tr, neg_tr = p_tr[y_train_full == 1], p_tr[y_train_full == 0]
+        print(
+            f"[cal-q50:{tag}] raw  train pos q50={_q(pos_tr_raw,0.5):.3f} neg q50={_q(neg_tr_raw,0.5):.3f} | "
+            f"cal  train pos q50={_q(pos_tr,0.5):.3f} neg q50={_q(neg_tr,0.5):.3f}"
         )
 
-        if args.calibrate != "none":
-            method = "isotonic" if args.calibrate == "isotonic" else "sigmoid"
-            try:
-                clf = CalibratedClassifierCV(base_estimator=base_clf, method=method, cv=3)
-            except TypeError:
-                clf = CalibratedClassifierCV(estimator=base_clf, method=method, cv=3)
-        else:
-            clf = base_clf
-
-        clf.fit(X_train, y_train)
-
-        # TRAIN scores (for train-scope threshold)
-        p_tr = clf.predict_proba(X_train)[:, 1]
-        p_tr = np.clip(p_tr, 1e-6, 1 - 1e-6)
-        prec_tr, rec_tr, thr_tr = precision_recall_curve(y_train, p_tr)
+        # threshold on TRAIN (calibrated)
+        prec_tr, rec_tr, thr_tr = precision_recall_curve(y_train_full, p_tr)
         thr_star, how = _pick_threshold_from_policy(
-            y_train,
+            y_train_full,
             p_tr,
             prec_tr,
             rec_tr,
@@ -1029,46 +1142,26 @@ def main():
             target_fpr=args.target_fpr,
             top_frac=args.top_frac,
             expected_pos_rate=args.expected_pos_rate,
+            min_recall=args.min_recall,
         )
         print(f"[thr] Selected on TRAIN via '{how}': {thr_star:.3f}")
-
-        # TEST scores
-        p_te = clf.predict_proba(X_test)[:, 1]
-        p_te = np.clip(p_te, 1e-6, 1 - 1e-6)
 
         # optional unsupervised TEST-scope threshold override
         if args.threshold_scope == "test_unsupervised":
             if args.threshold_policy == "expected_pos" and args.expected_pos_rate is not None:
                 q = max(0.0, min(1.0, 1.0 - float(args.expected_pos_rate)))
-                thr_test = float(np.quantile(p_te, q)) if p_te.size else thr_star
-                print(
-                    f"[thr] Overriding thr* on TEST via expected_pos(rate={args.expected_pos_rate:.3f}) "
-                    f"=> test-quantile={q:.3f} thr_test={thr_test:.3f}"
-                )
-                thr_star = thr_test
+                thr_star = float(np.quantile(p_te, q)) if p_te.size else thr_star
+                print(f"[thr] TEST override expected_pos -> q={q:.3f} thr={thr_star:.3f}")
             elif args.threshold_policy == "topfrac" and args.top_frac is not None:
                 q = max(0.0, min(1.0, 1.0 - float(args.top_frac)))
-                thr_test = float(np.quantile(p_te, q)) if p_te.size else thr_star
-                print(
-                    f"[thr] Overriding thr* on TEST via topfrac(frac={args.top_frac:.3f}) "
-                    f"=> test-quantile={q:.3f} thr_test={thr_test:.3f}"
-                )
-                thr_star = thr_test
+                thr_star = float(np.quantile(p_te, q)) if p_te.size else thr_star
+                print(f"[thr] TEST override topfrac -> q={q:.3f} thr={thr_star:.3f}")
             elif args.threshold_policy == "fpr" and args.target_fpr is not None:
                 q = max(0.0, min(1.0, 1.0 - float(args.target_fpr)))
-                thr_test = float(np.quantile(p_te, q)) if p_te.size else thr_star
-                print(
-                    f"[thr] Overriding thr* on TEST via fpr≈quantile(target_fpr={args.target_fpr:.3f}) "
-                    f"=> test-quantile={q:.3f} thr_test={thr_test:.3f}"
-                )
-                thr_star = thr_test
-            # precision/recall/f1 need labels; keep train-based
+                thr_star = float(np.quantile(p_te, q)) if p_te.size else thr_star
+                print(f"[thr] TEST override fpr≈quantile -> q={q:.3f} thr={thr_star:.3f}")
 
         # diagnostics: score quantiles
-        def _q(arr, q):
-            return float(np.quantile(arr, q)) if arr.size else float("nan")
-
-        pos_tr, neg_tr = p_tr[y_train == 1], p_tr[y_train == 0]
         pos_te, neg_te = p_te[y_test == 1], p_te[y_test == 0]
         print(
             f"[score-q:{tag}] train pos q50={_q(pos_tr,0.5):.3f} q90={_q(pos_tr,0.9):.3f} | "
@@ -1080,19 +1173,23 @@ def main():
         ids_te = df_test[[args.id_col, args.group_by, "hab_label", "month_key", "region_key"]].copy()
         auprc, auroc = _eval_and_save(outdir, tag, feat_cols, y_test, p_te, thr_star, ids_te)
 
-        # train diagnostics (optional)
-        ids_tr = df_train[[args.id_col, args.group_by, "hab_label", "month_key", "region_key"]].copy()
-        _eval_and_save(outdir, f"{tag}_train", feat_cols, y_train, p_tr, thr_star, ids_tr)
+        # (Optional) still save train eval, but don't stress about it
+        ids_tr = df_train_full[[args.id_col, args.group_by, "hab_label", "month_key", "region_key"]].copy()
+        _eval_and_save(outdir, f"{tag}_train", feat_cols, y_train_full, p_tr, thr_star, ids_tr)
 
         joblib.dump(
-            {"model": clf, "features": feat_cols, "args": vars(args)},
+            {
+                "model": model,
+                "calibrator": calibrator,
+                "features": feat_cols,
+                "args": vars(args),
+            },
             outdir / f"fusion_model_{tag}.joblib",
         )
         return auprc, auroc
 
     summaries = []
 
-    # --------- CV strategies ----------
     def _month_to_ordinal(s: str | None) -> int:
         if not isinstance(s, str) or "-" not in s:
             return -10**9
@@ -1103,16 +1200,11 @@ def main():
             return -10**9
 
     if args.cv_time_folds and args.cv_time_folds > 1:
-        print(
-            f"[cv-time] Chronological CV with {args.cv_time_folds} folds "
-            f"(min_pos_per_fold={args.min_pos_per_split})"
-        )
+        print(f"[cv-time] Chronological CV with {args.cv_time_folds} folds (min_pos_per_fold={args.min_pos_per_split})")
         base["_month_ord"] = base["month_key"].apply(_month_to_ordinal)
         uniq_months = np.array(sorted([m for m in base["_month_ord"].unique() if m >= 0]))
         if len(uniq_months) < args.cv_time_folds:
-            raise SystemExit(
-                f"Not enough unique months ({len(uniq_months)}) for cv_time_folds={args.cv_time_folds}."
-            )
+            raise SystemExit(f"Not enough unique months ({len(uniq_months)}) for cv_time_folds={args.cv_time_folds}.")
 
         month_blocks = np.array_split(uniq_months, args.cv_time_folds)
         for fold_id, block in enumerate(month_blocks, 1):
@@ -1125,28 +1217,17 @@ def main():
             if len(tr) == 0:
                 print(f"[cv-time] Skipping fold {fold_id} (no earlier months to train).")
                 continue
-            if (
-                base.loc[tr, "hab_label"].sum() < args.min_pos_per_split
-                or base.loc[te, "hab_label"].sum() < args.min_pos_per_split
-            ):
+            if (base.loc[tr, "hab_label"].sum() < args.min_pos_per_split or
+                base.loc[te, "hab_label"].sum() < args.min_pos_per_split):
                 print(f"[cv-time] Skipping fold {fold_id} (insufficient positives).")
                 continue
 
-            print(
-                f"[CV{fold_id}] (time) train={len(tr)} (pos={int(base.loc[tr,'hab_label'].sum())}) | "
-                f"test={len(te)} (pos={int(base.loc[te,'hab_label'].sum())}) | "
-                f"months_test={[int(b) for b in block]}"
-            )
+            print(f"[CV{fold_id}] (time) train={len(tr)} (pos={int(base.loc[tr,'hab_label'].sum())}) | "
+                  f"test={len(te)} (pos={int(base.loc[te,'hab_label'].sum())})")
             auprc, auroc = _fit_predict(tr, te, f"cv{fold_id}")
-            summaries.append(
-                {
-                    "fold": fold_id,
-                    "auprc": auprc,
-                    "auroc": auroc,
-                    "test_pos": int(base.loc[te, "hab_label"].sum()),
-                    "test_total": int(len(te)),
-                }
-            )
+            summaries.append({"fold": fold_id, "auprc": auprc, "auroc": auroc,
+                              "test_pos": int(base.loc[te, "hab_label"].sum()),
+                              "test_total": int(len(te))})
 
         if not summaries:
             raise SystemExit("[cv-time] Could not form any valid time-based folds.")
@@ -1165,26 +1246,15 @@ def main():
     elif args.cv_folds and args.cv_folds > 1:
         if not HAS_SGF:
             raise SystemExit("StratifiedGroupKFold not available. Use --cv_time_folds instead.")
-        print(f"[cv] StratifiedGroupKFold with {args.cv_folds} folds (min_pos_per_fold={args.min_pos_per_split})")
+        print(f"[cv] StratifiedGroupKFold with {args.cv_folds} folds")
         sgkf = StratifiedGroupKFold(n_splits=args.cv_folds, shuffle=True, random_state=final_seed)
         for fold_id, (tr, te) in enumerate(sgkf.split(X_all, y_all, groups), 1):
             if y_all[tr].sum() < args.min_pos_per_split or y_all[te].sum() < args.min_pos_per_split:
                 print(f"[cv] Skipping fold {fold_id} (insufficient positives).")
                 continue
-            print(
-                f"[CV{fold_id}] train={len(tr)} (pos={int(y_all[tr].sum())}) | "
-                f"test={len(te)} (pos={int(y_all[te].sum())})"
-            )
             auprc, auroc = _fit_predict(tr, te, f"cv{fold_id}")
-            summaries.append(
-                {
-                    "fold": fold_id,
-                    "auprc": auprc,
-                    "auroc": auroc,
-                    "test_pos": int(y_all[te].sum()),
-                    "test_total": int(len(te)),
-                }
-            )
+            summaries.append({"fold": fold_id, "auprc": auprc, "auroc": auroc,
+                              "test_pos": int(y_all[te].sum()), "test_total": int(len(te))})
         if not summaries:
             raise SystemExit("[cv] No valid folds.")
         df_sum = pd.DataFrame(summaries)
@@ -1199,7 +1269,6 @@ def main():
         print("[cv] Averages:", df_sum.loc["mean"].to_dict())
 
     else:
-        # simple group holdout with positives on both sides
         rng = np.random.RandomState(final_seed)
         good = None
         for _ in range(1, args.max_tries + 1):
@@ -1211,23 +1280,16 @@ def main():
         if good is None:
             raise SystemExit("Could not find a split with positives in both partitions.")
         tr, te = good
-        print(
-            f"[Split] train={len(tr)} (pos={int(y_all[tr].sum())}) | "
-            f"test={len(te)} (pos={int(y_all[te].sum())})"
-        )
+        print(f"[Split] train={len(tr)} (pos={int(y_all[tr].sum())}) | test={len(te)} (pos={int(y_all[te].sum())})")
         auprc, auroc = _fit_predict(tr, te, "holdout")
-        pd.DataFrame(
-            [
-                {
-                    "model": "fusion(logreg)",
-                    "feats": "+".join(feats),
-                    "auprc": auprc,
-                    "auroc": auroc,
-                    "test_pos": int(y_all[te].sum()),
-                    "test_total": int(len(te)),
-                }
-            ]
-        ).to_csv(outdir / "summary.csv", index=False)
+        pd.DataFrame([{
+            "model": f"fusion({args.model})",
+            "feats": "+".join(feats),
+            "auprc": auprc,
+            "auroc": auroc,
+            "test_pos": int(y_all[te].sum()),
+            "test_total": int(len(te)),
+        }]).to_csv(outdir / "summary.csv", index=False)
 
     print(f"[debug] Saving outputs to: {outdir.resolve()}")
     print("✓ saved models, metrics, PR/ROC plots, predictions, and merged_features_debug.csv")
