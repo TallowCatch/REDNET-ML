@@ -180,6 +180,11 @@ def main():
     # SHAP controls
     ap.add_argument("--shap_max_rows", type=int, default=5000, help="Cap rows for SHAP speed")
     ap.add_argument("--shap_seed", type=int, default=123)
+    ap.add_argument("--shap_split", choices=["train", "test", "raw"], default="test",
+                help="Which merged_features_debug CSV to explain.")
+    ap.add_argument("--shap_fold", default="cv4",
+                    help="Which fold prefix to use, e.g. cv2, cv3, cv4. Use 'all' to combine all folds.")
+
 
     # Ablation controls
     ap.add_argument("--do_ablation", action="store_true")
@@ -204,11 +209,36 @@ def main():
     outdir = Path(args.outdir) if args.outdir else (run_dir / "shap_ablation")
     outdir.mkdir(parents=True, exist_ok=True)
 
-    merged_path = run_dir / "merged_features_debug.csv"
-    if not merged_path.exists():
-        raise SystemExit(f"❌ Missing merged_features_debug.csv in {run_dir}")
+    def pick_shap_csv(run_dir: Path, split: str, fold: str) -> Path:
+        if split == "raw":
+            p = run_dir / "merged_features_debug_raw.csv"
+            return p
 
-    df = pd.read_csv(merged_path)
+        # train/test case
+        if fold == "all":
+            # we'll merge all matching fold CSVs into one temporary dataframe later
+            return Path("__ALL__")
+
+        p = run_dir / f"merged_features_debug_{fold}_{split}.csv"
+        return p
+
+    merged_path = pick_shap_csv(run_dir, args.shap_split, args.shap_fold)
+
+    if str(merged_path) == "__ALL__":
+            pattern = f"merged_features_debug_*_{args.shap_split}.csv"
+            files = sorted(run_dir.glob(pattern))
+            if not files:
+                raise SystemExit(f"❌ No files matching {pattern} in {run_dir}")
+            print(f"[shap] Combining {len(files)} files for split={args.shap_split}:")
+            for f in files:
+                print("  -", f.name)
+            df = pd.concat([pd.read_csv(f) for f in files], axis=0, ignore_index=True)
+    else:
+        if not merged_path.exists():
+                raise SystemExit(f"❌ Missing SHAP CSV: {merged_path}")
+        df = pd.read_csv(merged_path)
+
+
     if "hab_label" not in df.columns:
         raise SystemExit("❌ merged_features_debug.csv missing hab_label")
 
