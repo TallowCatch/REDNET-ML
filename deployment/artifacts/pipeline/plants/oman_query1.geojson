@@ -1,0 +1,8004 @@
+{
+  "type": "FeatureCollection",
+  "generator": "overpass-turbo",
+  "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.",
+  "timestamp": "2025-12-29T13:37:30Z",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "relation/12252212",
+        "amenity": "place_of_worship",
+        "building": "yes",
+        "name": "Sultan Qaboos Grand Mosque Sohar",
+        "name:en": "Sultan Qaboos Grand Mosque Sohar",
+        "religion": "muslim",
+        "type": "multipolygon",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.7569191,
+          24.3127017
+        ]
+      },
+      "id": "relation/12252212"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "relation/15990136",
+        "name": "Old Muscat Market",
+        "place": "neighbourhood",
+        "type": "multipolygon",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5621642,
+          23.6214801
+        ]
+      },
+      "id": "relation/15990136"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/33812294",
+        "amenity": "parking",
+        "name": "Former Salalah International Airport (now defunct)",
+        "parking": "surface",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.1066742,
+          17.0375299
+        ]
+      },
+      "id": "way/33812294"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/35977043",
+        "addr:city": "حي الصاروج  As Saruj St",
+        "addr:housenumber": "3032",
+        "air_conditioning": "yes",
+        "bar": "yes",
+        "brand": "Grand Hyatt",
+        "brand:wikidata": "Q115794899",
+        "building": "yes",
+        "contact:facebook": "GrandHyattMuscat",
+        "internet_access": "yes",
+        "internet_access:fee": "no",
+        "name": "Grand Hyatt Muscat",
+        "opening_hours": "24/7",
+        "operator": "Hyatt",
+        "payment:cash": "yes",
+        "payment:credit_cards": "yes",
+        "payment:maestro": "yes",
+        "payment:mastercard": "yes",
+        "payment:visa": "yes",
+        "phone": "+968 24641234",
+        "reservation": "yes",
+        "smoking": "outside",
+        "stars": "5",
+        "tourism": "hotel",
+        "website": "https://www.hyatt.com/grand-hyatt/en-US/musca-grand-hyatt-muscat",
+        "wheelchair": "yes",
+        "wikidata": "Q5594656",
+        "wikimedia_commons": "Category:Grand Hyatt Muscat",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.444307,
+          23.6090403
+        ]
+      },
+      "id": "way/35977043"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/35980551",
+        "amenity": "parking",
+        "name": "Intercontinental Muscat Parking",
+        "parking": "surface",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4642972,
+          23.6161395
+        ]
+      },
+      "id": "way/35980551"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/36057542",
+        "amenity": "parking",
+        "fee": "no",
+        "name": "Muscat City Centre Car Parking",
+        "parking": "multi-storey",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2480648,
+          23.6005977
+        ]
+      },
+      "id": "way/36057542"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/41445531",
+        "building": "office",
+        "name": "Muscat Securities market",
+        "source": "yahoo",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5487892,
+          23.5954815
+        ]
+      },
+      "id": "way/41445531"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/59298006",
+        "building": "yes",
+        "name": "Muscat Holiday",
+        "tourism": "hotel",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4187453,
+          23.5945813
+        ]
+      },
+      "id": "way/59298006"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/95403400",
+        "highway": "unclassified",
+        "name": "Sohar Sanniya Park Road",
+        "name:en": "Sohar Sanniya Park Road",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.6848806,
+          24.3392524
+        ]
+      },
+      "id": "way/95403400"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/119304774",
+        "leisure": "park",
+        "name": "Ghubrah Lake Park",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4019459,
+          23.6011945
+        ]
+      },
+      "id": "way/119304774"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/125152717",
+        "destination": "Nizwa;al Seeb;Suhar",
+        "highway": "motorway_link",
+        "lanes": "1",
+        "lit": "yes",
+        "name": "Muscat Expressway J8",
+        "oneway": "yes",
+        "surface": "asphalt",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.3360551,
+          23.5626734
+        ]
+      },
+      "id": "way/125152717"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/125849640",
+        "building": "apartments",
+        "name": "Muscat Oasis Residences",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4095514,
+          23.5818635
+        ]
+      },
+      "id": "way/125849640"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/125849646",
+        "building": "apartments",
+        "name": "Muscat Oasis Residences",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.409223,
+          23.5823306
+        ]
+      },
+      "id": "way/125849646"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/146914359",
+        "addr:street": "Al Souq Street",
+        "name": "Salalah Hotel",
+        "tourism": "hotel",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0973403,
+          17.0194887
+        ]
+      },
+      "id": "way/146914359"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/160485289",
+        "highway": "tertiary",
+        "junction": "roundabout",
+        "lanes": "2",
+        "name": "Baladiat Muscat Roundabout",
+        "oneway": "yes",
+        "surface": "asphalt",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5425606,
+          23.6138311
+        ]
+      },
+      "id": "way/160485289"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/181915068",
+        "building": "yes",
+        "historic": "castle",
+        "name": "Barka Fort",
+        "name:ar": "حصن بركاء",
+        "name:ml": "ബർക്ക കോട്ട",
+        "tourism": "attraction",
+        "wikidata": "Q10283777",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.8951186,
+          23.708602
+        ]
+      },
+      "id": "way/181915068"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/200263242",
+        "name": "Muscat Gate Museum",
+        "tourism": "museum",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5858571,
+          23.6186763
+        ]
+      },
+      "id": "way/200263242"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/200263244",
+        "building": "yes",
+        "name": "Muscat Gate",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5868868,
+          23.6176593
+        ]
+      },
+      "id": "way/200263244"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/202217580",
+        "building": "yes",
+        "name": "Kitesurf Shop",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.7813955,
+          23.7775938
+        ]
+      },
+      "id": "way/202217580"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/202217582",
+        "building": "yes",
+        "name": "Muscat",
+        "ref": "161-170, 261-270",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.7844856,
+          23.7764696
+        ]
+      },
+      "id": "way/202217582"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/202217600",
+        "building": "yes",
+        "name": "Salalah",
+        "ref": "141-150",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.7855722,
+          23.7776667
+        ]
+      },
+      "id": "way/202217600"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/215088759",
+        "landuse": "farmland",
+        "name": "Animal enclosure",
+        "source": "Bing Aerial",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.733531,
+          17.1392788
+        ]
+      },
+      "id": "way/215088759"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/215088760",
+        "landuse": "farmland",
+        "name": "Animal enclosure",
+        "source": "Bing Aerial",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.7350461,
+          17.1387962
+        ]
+      },
+      "id": "way/215088760"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/215088761",
+        "landuse": "farmland",
+        "name": "Animal enclosure",
+        "source": "Bing Aerial",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.735555,
+          17.1387862
+        ]
+      },
+      "id": "way/215088761"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/223295994",
+        "brand": "Ramada",
+        "brand:wikidata": "Q1502859",
+        "building": "yes",
+        "building:levels": "9",
+        "internet_access": "wlan",
+        "internet_access:fee": "customers",
+        "name": "Ramada Encore by Wyndham Muscat Al-Ghubra",
+        "tourism": "hotel",
+        "website": "https://www.wyndhamhotels.com/ramada/muscat-oman/ramada-encore-muscat-al-ghubra/overview",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4060796,
+          23.5865186
+        ]
+      },
+      "id": "way/223295994"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/224448607",
+        "building": "yes",
+        "building:levels": "8",
+        "name": "Muscat Insurance Company",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4282785,
+          23.5963976
+        ]
+      },
+      "id": "way/224448607"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/226874075",
+        "comment": "Experimental import of Omani places and POIs from GNS Dataset",
+        "gns:ADM1": "00",
+        "gns:CC1": "MU",
+        "gns:DMS_LAT": "195000",
+        "gns:DMS_LONG": "574500",
+        "gns:DSG": "PPL",
+        "gns:FC": "P",
+        "gns:JOG": "NE40-03",
+        "gns:LAT": "19.833333",
+        "gns:LONG": "57.75",
+        "gns:MGRS": "40QEG7853893213",
+        "gns:N:ara:FULL_NAME": "Surayr",
+        "gns:N:ara:FULL_NAME_ND": "Surayr",
+        "gns:N:ara:LC": "ara",
+        "gns:N:ara:MODIFY_DATE": "1993-12-14",
+        "gns:N:ara:NT": "N",
+        "gns:N:ara:SORT_NAME": "SURAYR",
+        "gns:RC": "3",
+        "gns:UFI": "-789059",
+        "gns:UNI": "-1136982",
+        "name": "Surayr",
+        "name:ar": "Surayr",
+        "place": "village",
+        "source": "gns_om"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.75,
+          19.833333
+        ]
+      },
+      "id": "node/226874075"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/229986929",
+        "building": "yes",
+        "name": "Muscat Media Group",
+        "website": "https://flammaintl.com/",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4259091,
+          23.5935479
+        ]
+      },
+      "id": "way/229986929"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/240467989",
+        "building": "school",
+        "name": "Muscat International School",
+        "source": "Kaart Ground Survey 2017",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4920901,
+          23.6064863
+        ]
+      },
+      "id": "way/240467989"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/240577351",
+        "barrier": "wall",
+        "frequency": "50",
+        "name": "Salalah Free Zone",
+        "power": "substation",
+        "substation": "industrial",
+        "voltage": "132000",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          53.9679235,
+          16.9384935
+        ]
+      },
+      "id": "way/240577351"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/242731406",
+        "landuse": "residential",
+        "name": "Muscat Oasis Residences",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.409228,
+          23.5821519
+        ]
+      },
+      "id": "way/242731406"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/249439290",
+        "addr:street": "18 نوفمبر شارع",
+        "amenity": "bank",
+        "atm": "yes",
+        "building": "yes",
+        "name": "Bank Muscat - Athaiba Branch",
+        "name:ar": "بنك مسقط",
+        "opening_hours": "Su-Th 08:00-14:00",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.3673263,
+          23.6018514
+        ]
+      },
+      "id": "way/249439290"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/255539899",
+        "amenity": "place_of_worship",
+        "building": "yes",
+        "name": "Salalah Christian Centre",
+        "religion": "christian",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.156801,
+          17.0309756
+        ]
+      },
+      "id": "way/255539899"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/260257447",
+        "building": "yes",
+        "name": "Eastin Residence, Muscat",
+        "tourism": "hotel",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2218012,
+          23.6566065
+        ]
+      },
+      "id": "way/260257447"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/262518108",
+        "amenity": "school",
+        "name": "The American International School Muscat",
+        "wikidata": "Q24765439",
+        "wikipedia": "en:The American International School Muscat",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.382445,
+          23.5690288
+        ]
+      },
+      "id": "way/262518108"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/284769611",
+        "building": "yes",
+        "name": "Muscat municipality market",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5636358,
+          23.6261057
+        ]
+      },
+      "id": "way/284769611"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/287080308",
+        "landuse": "residential",
+        "name": "Sur Al Bu Khamis",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.650483,
+          23.757998
+        ]
+      },
+      "id": "way/287080308"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/289146220",
+        "aeroway": "terminal",
+        "building": "airport_terminal",
+        "iata": "SLL",
+        "layer": "1",
+        "name": "Salalah International Airport",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0885428,
+          17.0465055
+        ]
+      },
+      "id": "way/289146220"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/306050061",
+        "name": "ABT Salalah",
+        "sport": "scuba_diving"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.1517412,
+          17.0087552
+        ]
+      },
+      "id": "node/306050061"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/313745819",
+        "name": "Salalah Museum",
+        "tourism": "museum"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0863555,
+          17.0226753
+        ]
+      },
+      "id": "node/313745819"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/314380622",
+        "addr:city": "Sur",
+        "addr:postcode": "411",
+        "addr:street": "Sherkiya",
+        "internet_access": "wlan",
+        "name": "Resort Sur Beach Hotel",
+        "opening_hours": "Mo-Su 12:00-00:00",
+        "parking": "yes",
+        "phone": "+968 255 30 300",
+        "stars": "3",
+        "tourism": "hotel",
+        "website": "http://www.surhotelsoman.com/sur.html",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.4936197,
+          22.5954342
+        ]
+      },
+      "id": "node/314380622"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/326843836",
+        "landuse": "industrial",
+        "name": "Sohar Aluminium Power Plant",
+        "name:en": "Sohar Aluminium Power Plant",
+        "plant:method": "combustion",
+        "plant:output:electricity": "1000 MW",
+        "plant:source": "gas",
+        "plant:type": "combined_cycle",
+        "power": "plant",
+        "source": "https://www.sohar-aluminium.com/en/content/facilities",
+        "wikidata": "Q12001757",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.6365855,
+          24.4679979
+        ]
+      },
+      "id": "way/326843836"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/327884629",
+        "leisure": "garden",
+        "name": "Royal Garden Sohar",
+        "name:en": "Royal Garden Sohar",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.7714197,
+          24.3203725
+        ]
+      },
+      "id": "way/327884629"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/336213422",
+        "addr:city": "Salalah",
+        "addr:postcode": "211",
+        "addr:street": "As Sultan Qaboos St",
+        "brand": "Hilton",
+        "building": "yes",
+        "contact:facebook": "https://www.facebook.com/Hilton.Salalah.Resort.SAOG",
+        "contact:twitter": "https://twitter.com/HiltonSalalah",
+        "email": "salalah@hilton.com",
+        "internet_access": "wlan",
+        "name": "Hilton Salalah Resort",
+        "operator": "Hilton Worldwide",
+        "phone": "+968-23-133333",
+        "rooms": "147",
+        "stars": "5",
+        "tourism": "hotel",
+        "website": "https://www.hilton.com/en/hotels/sllhihi-hilton-salalah-resort/",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0152603,
+          16.9812774
+        ]
+      },
+      "id": "node/336213422"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/355308354",
+        "building": "retail",
+        "name": "WATER-FRONT Muscat",
+        "opening_hours": "Mo-Su 08:00-23:00",
+        "phone": "+96895968732",
+        "shop": "mall",
+        "website": "https://www.waterfrontmuscat.com/",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4531847,
+          23.6125433
+        ]
+      },
+      "id": "way/355308354"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/382112815",
+        "landuse": "commercial",
+        "leisure": "resort",
+        "name": "Hawana Salalah",
+        "tourism": "hotel",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.2992742,
+          17.0336362
+        ]
+      },
+      "id": "way/382112815"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/441978972",
+        "addr:street": "18 November Street",
+        "amenity": "school",
+        "name": "Bangladesh School Muscat",
+        "source": "Kaart Ground Survey 2017",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4095644,
+          23.5969128
+        ]
+      },
+      "id": "way/441978972"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/442484754",
+        "building": "hotel",
+        "name": "Salalah Plaza Hotel",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.039035,
+          17.0042336
+        ]
+      },
+      "id": "way/442484754"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/449632054",
+        "building": "industrial",
+        "name": "Sur Desalination Plant",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.4529725,
+          22.6220753
+        ]
+      },
+      "id": "way/449632054"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/474360910",
+        "addr:city": "Sohar",
+        "landuse": "industrial",
+        "man_made": "wastewater_plant",
+        "name": "STP Sohar",
+        "name:en": "STP Sohar",
+        "operator": "Haya Water",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.6884621,
+          24.3522854
+        ]
+      },
+      "id": "way/474360910"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/474360918",
+        "addr:city": "Liwa",
+        "landuse": "industrial",
+        "man_made": "wastewater_plant",
+        "name": "STP Sohar Port",
+        "name:en": "STP Sohar Port",
+        "operator": "Sohar Port",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.6039624,
+          24.484866
+        ]
+      },
+      "id": "way/474360918"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/491042867",
+        "leisure": "resort",
+        "name": "Al Baleed Resort Salalah by Anantara",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.144041,
+          17.0082923
+        ]
+      },
+      "id": "way/491042867"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/500071381",
+        "addr:city": "Salalah",
+        "addr:postcode": "211",
+        "addr:street": "Al Matar Street",
+        "building": "yes",
+        "name": "Municipalicity of Salalah",
+        "office": "government",
+        "source": "Kaart Ground Survey 2017",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.1112514,
+          17.0208613
+        ]
+      },
+      "id": "way/500071381"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/505674831",
+        "building": "yes",
+        "name": "Bank Muscat",
+        "source": "Kaart Ground Survey 2017",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5534628,
+          23.5897018
+        ]
+      },
+      "id": "way/505674831"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/505867599",
+        "addr:street": "Way 1816",
+        "building": "yes",
+        "name": "Muscat Electricity Distribution",
+        "office": "company",
+        "source": "Kaart Ground Survey 2017",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5007366,
+          23.6196376
+        ]
+      },
+      "id": "way/505867599"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/505870285",
+        "amenity": "bank",
+        "building": "yes",
+        "name": "Sohar International Bank Headquarters",
+        "name:ar": "المقر الرئيسي لبنك صحار الدولي",
+        "operator": "Sohar International",
+        "source": "Kaart Ground Survey 2017",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4366504,
+          23.5963044
+        ]
+      },
+      "id": "way/505870285"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/505881932",
+        "building": "yes",
+        "name": "Muscat Building",
+        "source": "Kaart Ground Survey 2017",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5598367,
+          23.5867594
+        ]
+      },
+      "id": "way/505881932"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/505933449",
+        "addr:street": "Way 6114",
+        "building": "yes",
+        "name": "Muscat Shoes",
+        "shop": "shoes",
+        "source": "Kaart Ground Survey 2017",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5484381,
+          23.5832895
+        ]
+      },
+      "id": "way/505933449"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/506560398",
+        "addr:street": "Bosher Street",
+        "building": "hospital",
+        "name": "Muscat Private Hospital",
+        "phone": "+968-24583600",
+        "source": "Kaart Ground Survey 2017",
+        "website": "https://muscatprivatehospital.com/",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.3978622,
+          23.5494874
+        ]
+      },
+      "id": "way/506560398"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/506574468",
+        "addr:street": "Abu Obaidah Al Jarrah Street",
+        "building": "yes",
+        "name": "Hawthorn Muscat",
+        "source": "Kaart Ground Survey 2017",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4945301,
+          23.6255459
+        ]
+      },
+      "id": "way/506574468"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/506772292",
+        "addr:street": "Saih Al Malah Street",
+        "amenity": "bank",
+        "building": "yes",
+        "name": "Bank Muscat",
+        "source": "Kaart Ground Survey 2017",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5060743,
+          23.6229602
+        ]
+      },
+      "id": "way/506772292"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/506825572",
+        "addr:street": "Way 1717",
+        "landuse": "military",
+        "military": "training_area",
+        "name": "Muscat Driving School",
+        "source": "Kaart Ground Survey 2017",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2432558,
+          23.6102038
+        ]
+      },
+      "id": "way/506825572"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/507034358",
+        "addr:street": "Way 3233",
+        "building": "yes",
+        "name": "Muscat Electricity Distribution Company",
+        "office": "company",
+        "source": "Kaart Ground Survey 2017",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5487158,
+          23.6041184
+        ]
+      },
+      "id": "way/507034358"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/507348481",
+        "addr:street": "Way 2964",
+        "building": "yes",
+        "name": "Noor Muscat",
+        "shop": "supermarket",
+        "source": "Kaart Ground Survey 2017",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5414418,
+          23.6004835
+        ]
+      },
+      "id": "way/507348481"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/507420815",
+        "addr:street": "Ar Rubat Street",
+        "building": "yes",
+        "name": "Dhofar Insurance",
+        "office": "insurance",
+        "source": "Kaart Ground Survey 2017",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0522293,
+          17.0145463
+        ]
+      },
+      "id": "way/507420815"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/507423951",
+        "landuse": "grass",
+        "name": "Salalah al Gharbiyya Roundabout",
+        "source": "Kaart Ground Survey 2017",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0687155,
+          17.0075189
+        ]
+      },
+      "id": "way/507423951"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/507588640",
+        "addr:street": "Al Mujamma Street",
+        "amenity": "hospital",
+        "name": "Directorate General of Health Services Governorate of Muscat",
+        "source": "Kaart Ground Survey 2017",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5462872,
+          23.6127047
+        ]
+      },
+      "id": "way/507588640"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/507647920",
+        "addr:street": "23rd July Street",
+        "building": "yes",
+        "name": "Muscat House",
+        "source": "Kaart Ground Survey 2017",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.1000557,
+          17.0177323
+        ]
+      },
+      "id": "way/507647920"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/507647926",
+        "addr:city": "صلالة",
+        "addr:street": "شارع 23 يوليو",
+        "building": "yes",
+        "name": "Salalah House",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0986372,
+          17.0173872
+        ]
+      },
+      "id": "way/507647926"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/508190176",
+        "addr:street": "A'Sawari Street",
+        "building": "school",
+        "name": "Salalah Private School",
+        "source": "Kaart Ground Survey 2017",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.1572297,
+          17.0443623
+        ]
+      },
+      "id": "way/508190176"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/508212314",
+        "building": "yes",
+        "name": "Sad Salalah",
+        "shop": "car_parts",
+        "source": "Kaart Ground Survey 2017",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.1155854,
+          17.0221004
+        ]
+      },
+      "id": "way/508212314"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/508214157",
+        "building": "school",
+        "name": "Salalah International School",
+        "source": "Kaart Ground Survey 2017",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.1594193,
+          17.0459576
+        ]
+      },
+      "id": "way/508214157"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/508238052",
+        "addr:street": "Al Souq Street",
+        "amenity": "bank",
+        "building": "yes",
+        "name": "Bank of Barode Salalah",
+        "source": "Kaart Ground Survey 2017",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0999799,
+          17.0201177
+        ]
+      },
+      "id": "way/508238052"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/508284437",
+        "addr:street": "Markaz Al Muhafdhah Street",
+        "amenity": "police",
+        "building": "yes",
+        "name": "Salalah Police Station",
+        "source": "Kaart Ground Survey 2017",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.089271,
+          17.0214811
+        ]
+      },
+      "id": "way/508284437"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/508284440",
+        "addr:street": "Markaz Al Muhafadhah Street",
+        "building": "yes",
+        "name": "Salalah Handicraft Center",
+        "source": "Kaart Ground Survey 2017",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0863994,
+          17.0217127
+        ]
+      },
+      "id": "way/508284440"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/547412850",
+        "leisure": "park",
+        "name": "Hilton Salalah",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0156594,
+          16.9809985
+        ]
+      },
+      "id": "way/547412850"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/548588428",
+        "addr:city": "Salalah",
+        "addr:housenumber": "PO Box 870",
+        "addr:postcode": "211",
+        "addr:street": "شارع الخندق",
+        "building": "hotel",
+        "name": "Crowne Plaza Resort Salalah",
+        "website": "crowneplaza.com/salalah",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.1516038,
+          17.0087365
+        ]
+      },
+      "id": "way/548588428"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/565166591",
+        "leisure": "stadium",
+        "lit": "yes",
+        "name": "Sohar Club Stadium",
+        "name:ar": "استاد نادي صحار",
+        "sport": "soccer;basketball;hockey;volleyball;handball",
+        "wikidata": "Q85870175",
+        "wikipedia": "ar:استاد نادي صحار",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.6393016,
+          24.3031908
+        ]
+      },
+      "id": "way/565166591"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/566691932",
+        "leisure": "park",
+        "name": "Ghubrah Beach Park",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4046627,
+          23.6032711
+        ]
+      },
+      "id": "way/566691932"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/567439802",
+        "building": "yes",
+        "name": "Tulip Inn Downtown Muscat",
+        "tourism": "hotel",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5420448,
+          23.5941666
+        ]
+      },
+      "id": "way/567439802"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/588537477",
+        "branch": "معسكر المرتفعة",
+        "branch:en": "Maaskar Al Martafaa",
+        "building": "yes",
+        "building:levels": "2",
+        "name": "Bank Muscat MAM Branch",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2617939,
+          23.5745788
+        ]
+      },
+      "id": "way/588537477"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/598558677",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy",
+        "name": "Muscat Pharmacy",
+        "name:en": "Muscat Pharmacy"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.2479064,
+          26.1837465
+        ]
+      },
+      "id": "node/598558677"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/655453206",
+        "name": "Sur Plaza Hotel",
+        "tourism": "hotel",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.4960797,
+          22.5662395
+        ]
+      },
+      "id": "way/655453206"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/672861797",
+        "addr:city": "Al Khuwair, Muscat",
+        "addr:postcode": "118",
+        "addr:street": "Dohat Al Adab Street",
+        "brand": "Hilton Garden Inn",
+        "brand:wikidata": "Q1162859",
+        "brand:wikipedia": "en:Hilton Garden Inn",
+        "building": "yes",
+        "contact:facebook": "https://www.facebook.com/HiltonGardenInnMuscatAlKhuwair",
+        "contact:instagram": "https://www.instagram.com/hiltongardeninnmuscat",
+        "contact:linkedin": "https://www.linkedin.com/company/hiltongardeninnmuscat",
+        "contact:twitter": "https://twitter.com/hiltongi_muscat",
+        "email": "mctak_reservations@hilton.com",
+        "fax": "+968 2252 2000",
+        "internet_access": "yes",
+        "internet_access:fee": "no",
+        "name": "Hilton Garden Inn Muscat Al Khuwair",
+        "name:ar": "هيلتون جاردن إن مسقط الخوير",
+        "operator": "Hilton",
+        "phone": "+968-22-515555",
+        "rooms": "232",
+        "stars": "4",
+        "tourism": "hotel",
+        "website": "https://www.hilton.com/en/hotels/mctakgi-hilton-garden-inn-muscat-al-khuwair/",
+        "wheelchair": "yes",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4204645,
+          23.5940173
+        ]
+      },
+      "id": "way/672861797"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/754936352",
+        "building": "yes",
+        "internet_access": "wlan",
+        "internet_access:fee": "no",
+        "name": "Sur Grand Hotel",
+        "phone": "+968 25 240000",
+        "tourism": "hotel",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.481082,
+          22.6010183
+        ]
+      },
+      "id": "way/754936352"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/803687384",
+        "amenity": "school",
+        "name": "Pakistan school Sohar",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.6925705,
+          24.2773243
+        ]
+      },
+      "id": "way/803687384"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/830305286",
+        "barrier": "fence",
+        "frequency": "50",
+        "name": "Salalah IWPP",
+        "power": "substation",
+        "voltage": "132000",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.4922962,
+          17.0404459
+        ]
+      },
+      "id": "way/830305286"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/839844483",
+        "addr:city": "Ruwi, Muscat",
+        "brand": "Sheraton",
+        "building": "hotel",
+        "building:levels": "13",
+        "height": "57",
+        "name": "Sheraton Hotel Muscat",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5520535,
+          23.5973968
+        ]
+      },
+      "id": "way/839844483"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/956045411",
+        "building": "yes",
+        "building:colour": "brown",
+        "building:levels": "1",
+        "building:use": "cultural",
+        "height": "5.5",
+        "name": "Sohar gate",
+        "name:ar": "بوابة صحار",
+        "roof:colour": "brown",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.828252,
+          24.2303827
+        ]
+      },
+      "id": "way/956045411"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/966690182",
+        "amenity": "police",
+        "barrier": "wall",
+        "name": "Sohar police station",
+        "operator": "مركز شرطة صحار",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.6997734,
+          24.3408573
+        ]
+      },
+      "id": "way/966690182"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/980196507",
+        "name": "Salalah Grand Mall",
+        "name:ar1": "صلاله جراند مول",
+        "name:en": "Salalah Grand Mall",
+        "shop": "mall",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.1640153,
+          17.0349058
+        ]
+      },
+      "id": "way/980196507"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/986177879",
+        "amenity": "bank",
+        "building": "yes",
+        "name": "Bank Muscat",
+        "name:ar": "بنك مسقط",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.3297172,
+          23.8581734
+        ]
+      },
+      "id": "way/986177879"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/988231132",
+        "amenity": "bank",
+        "atm": "yes",
+        "building": "yes",
+        "name": "Sohar International bank",
+        "name:ar": "بنك صحار الدولي",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.4211996,
+          23.8176091
+        ]
+      },
+      "id": "way/988231132"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1020194531",
+        "internet_access": "wlan",
+        "name": "Sohar Beach",
+        "name:en": "Sohar Beach",
+        "operator": "swiss-belhotel",
+        "tourism": "hotel"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.7194826,
+          24.4051448
+        ]
+      },
+      "id": "node/1020194531"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1023718688",
+        "amenity": "bank",
+        "atm": "yes",
+        "building": "yes",
+        "name": "Bank Muscat",
+        "operator": "Bank Muscat",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2414952,
+          23.5926449
+        ]
+      },
+      "id": "way/1023718688"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1025251222",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Sur Clinic",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.517638,
+          22.5805284
+        ]
+      },
+      "id": "way/1025251222"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1025251814",
+        "amenity": "police",
+        "name": "Sur Police Station",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.5273038,
+          22.575163
+        ]
+      },
+      "id": "way/1025251814"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1052376817",
+        "leisure": "park",
+        "name": "Salalah Gardens Mall Park",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0657468,
+          17.0232865
+        ]
+      },
+      "id": "way/1052376817"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1054341362",
+        "name": "MAN SERVICE SALALAH",
+        "name:ar": "وكالة مان صلاله",
+        "operator": "Saud Bahwan",
+        "shop": "car",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0450395,
+          17.0212995
+        ]
+      },
+      "id": "way/1054341362"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1079069368",
+        "leisure": "park",
+        "name": "Muscat Grand Mall Garden",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4127517,
+          23.5892788
+        ]
+      },
+      "id": "way/1079069368"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1079069369",
+        "building": "yes",
+        "building:levels": "3",
+        "name": "Muscat Grand Mall (extension)",
+        "shop": "mall",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4139304,
+          23.5901333
+        ]
+      },
+      "id": "way/1079069369"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1086495799",
+        "amenity": "hospital",
+        "layer": "-1",
+        "name": "Sultan Qaboos Hospital Salalah",
+        "name:ar": "مستشفى السلطان قابوس صلاله",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0527768,
+          17.0072348
+        ]
+      },
+      "id": "way/1086495799"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1093068924",
+        "amenity": "bank",
+        "atm": "yes",
+        "building": "yes",
+        "name": "Sohar International bank",
+        "name:ar": "بنك صحار الدولي",
+        "phone": "‏‪24 730000‬‏",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.6327072,
+          23.7429904
+        ]
+      },
+      "id": "way/1093068924"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1098668369",
+        "landuse": "construction",
+        "name": "Muscat Mandarin Oriental",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4572633,
+          23.6132738
+        ]
+      },
+      "id": "way/1098668369"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1099348165",
+        "name": "Sohar Solar Qabas",
+        "operator": "Oman Shell",
+        "plant:method": "photovoltaic",
+        "plant:output:electricity": "25 MW",
+        "plant:source": "solar",
+        "power": "plant",
+        "start_date": "2021-01-19",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.5304858,
+          24.445551
+        ]
+      },
+      "id": "way/1099348165"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1104004077",
+        "access": "customers",
+        "leisure": "pitch",
+        "name": "W Muscat Tennis Court",
+        "sport": "tennis",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4673865,
+          23.6170475
+        ]
+      },
+      "id": "way/1104004077"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1115936184",
+        "building": "hotel",
+        "internet_access": "wlan",
+        "internet_access:fee": "customers",
+        "name": "Muscat Express",
+        "phone": "+96822553303",
+        "tourism": "hotel",
+        "website": "https://muscatexpresshotel.com/",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.399689,
+          23.5928232
+        ]
+      },
+      "id": "way/1115936184"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1158421582",
+        "amenity": "events_venue",
+        "building": "yes",
+        "name": "Dhofar Ballroom at Crowne Plaza Resort Salalah",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.1528144,
+          17.0088618
+        ]
+      },
+      "id": "way/1158421582"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1158421583",
+        "fee": "no",
+        "leisure": "resort",
+        "name": "Crowne Plaza Resort Salalah",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.1518243,
+          17.0085287
+        ]
+      },
+      "id": "way/1158421583"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1189441954",
+        "aeroway": "aerodrome",
+        "landuse": "military",
+        "military": "airfield",
+        "name": "RAFO Salalah",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0858722,
+          17.0295581
+        ]
+      },
+      "id": "way/1189441954"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1204791257",
+        "highway": "track",
+        "name": "To Shipwreck Salalah",
+        "oneway": "no",
+        "surface": "pebblestone",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          53.8957231,
+          16.9085125
+        ]
+      },
+      "id": "way/1204791257"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1220073611",
+        "addr:city": "Muscat",
+        "addr:postcode": "111",
+        "addr:street": "Al Nahdah St",
+        "brand": "DoubleTree",
+        "brand:wikidata": "Q2504643",
+        "brand:wikipedia": "en:DoubleTree",
+        "building": "yes",
+        "contact:facebook": "https://www.facebook.com/profile.php?id=100091716741176",
+        "contact:instagram": "https://www.instagram.com/doubletreebyhiltonmuscat/",
+        "email": "mctqu_reservations@hilton.com",
+        "internet_access": "wlan",
+        "name": "DoubleTree by Hilton Muscat Qurum",
+        "operator": "Hilton",
+        "phone": "+968 22 540000",
+        "rooms": "122",
+        "stars": "4",
+        "tourism": "hotel",
+        "website": "https://www.hilton.com/en/hotels/mctqudi-doubletree-muscat-qurum/",
+        "wheelchair": "yes",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4973217,
+          23.6103965
+        ]
+      },
+      "id": "way/1220073611"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1223218705",
+        "addr:housenumber": "130",
+        "addr:street": "Al Anwar Street Azaiba Muscat OM",
+        "brand": "Swiss-Belinn",
+        "brand:wikidata": "Q115348139",
+        "building": "yes",
+        "internet_access": "wlan",
+        "mapillary": "1780553375439517",
+        "name": "Swiss-Belinn Airport Muscat",
+        "name:en": "Swiss-Belinn Airport Muscat",
+        "phone": "+968 24 908800",
+        "tourism": "hotel",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.3486446,
+          23.5943809
+        ]
+      },
+      "id": "way/1223218705"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1237728921",
+        "addr:city": "Muscat",
+        "addr:housenumber": "1169, Alkhoud",
+        "addr:postcode": "132",
+        "addr:street": "شارع السلام",
+        "amenity": "college",
+        "name": "Ellesmere Muscat International School",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.1881307,
+          23.6444001
+        ]
+      },
+      "id": "way/1237728921"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1262604029",
+        "addr:street": "شارع الغبرة",
+        "building:levels": "8",
+        "building:part": "office",
+        "internet_access": "wlan",
+        "name": "Muscat Grand Mall",
+        "name:ar": "مسقط جراند مول (مجمع تلال السكني)م",
+        "name:en": "Muscat Grand Mall",
+        "opening_hours": "9:00 - 24:00",
+        "website": "http://www.muscatgrandmall.com",
+        "wheelchair": "yes",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4125679,
+          23.5886568
+        ]
+      },
+      "id": "way/1262604029"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1273598307",
+        "addr:city": "Muscat",
+        "addr:postcode": "133",
+        "addr:street": "Sultan Qaboos St",
+        "category": "Hotel",
+        "description": "Golden Tulip Muscat hotel offers 175 modern rooms blending contemporary style with Omani charm. Each room features plush amenities ensuring a comfortable stay.",
+        "image": "https://media.iceportal.com/166408/photos/78213636_XXL.jpg",
+        "name": "Golden Tulip Muscat",
+        "name:ar": "جولدن توليب مسقط",
+        "source": "https://muscat.goldentulip.com/en-us/;survey",
+        "website": "https://muscat.goldentulip.com/en-us/",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4133646,
+          23.5943318
+        ]
+      },
+      "id": "way/1273598307"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1325600093",
+        "name": "Crowne Plaza Sohar",
+        "name:en": "Crowne Plaza Sohar",
+        "stars": "5",
+        "tourism": "hotel"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.5899059,
+          24.4096083
+        ]
+      },
+      "id": "node/1325600093"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1328521849",
+        "amenity": "bank",
+        "atm": "yes",
+        "name": "BankMuscat",
+        "name:ar": "بنك مسقط الفرع الرئيسي"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.29358,
+          23.5786095
+        ]
+      },
+      "id": "node/1328521849"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1328521852",
+        "name": "BankMuscat (Kimji's Mart)",
+        "shop": "convenience"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2932962,
+          23.5791604
+        ]
+      },
+      "id": "node/1328521852"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1343061799",
+        "amenity": "school",
+        "name": "Royal Grammar School Guildford Muscat",
+        "name:ar": "مدرسة ار جي اس جي العالمية",
+        "operator": "Royal Grammar School Guildford",
+        "operator:type": "private",
+        "website": "https://rgsgm.com/",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2024416,
+          23.6337697
+        ]
+      },
+      "id": "way/1343061799"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1343061800",
+        "building": "school",
+        "name": "Royal Grammar School Guildford Muscat Building",
+        "name:ar": "مبنى مدرسة ار جي اس جي العالمية",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2026511,
+          23.6340187
+        ]
+      },
+      "id": "way/1343061800"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1390657577",
+        "amenity": "school",
+        "barrier": "wall",
+        "name": "Cheltenham Muscat",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2088534,
+          23.5900531
+        ]
+      },
+      "id": "way/1390657577"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1445448760",
+        "aeroway": "aerodrome",
+        "iata": "SUH",
+        "icao": "OOSR",
+        "name": "Sur Airport",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.4771355,
+          22.5371586
+        ]
+      },
+      "id": "way/1445448760"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1601863679",
+        "name": "Salalah Hotel",
+        "tourism": "hotel"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0961613,
+          17.0194818
+        ]
+      },
+      "id": "node/1601863679"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1735262185",
+        "amenity": "atm",
+        "name": "Bank Muscat",
+        "operator": "Bank Muscat"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2473611,
+          23.614021
+        ]
+      },
+      "id": "node/1735262185"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1882928087",
+        "name": "Sohar Aluminium",
+        "name:en": "Sohar Aluminium",
+        "place": "hamlet"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.5463719,
+          24.42011
+        ]
+      },
+      "id": "node/1882928087"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2400225703",
+        "amenity": "bank",
+        "atm": "yes",
+        "name": "Bank Muscat"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5473422,
+          23.6017191
+        ]
+      },
+      "id": "node/2400225703"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2400225710",
+        "amenity": "bank",
+        "atm": "yes",
+        "name": "Bank Muscat"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5482622,
+          23.5998782
+        ]
+      },
+      "id": "node/2400225710"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2400225711",
+        "amenity": "pharmacy",
+        "name": "Muscat Pharmacy"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5447002,
+          23.5940062
+        ]
+      },
+      "id": "node/2400225711"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2487449508",
+        "name": "Salalah Gardens Residences",
+        "tourism": "hotel"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0647904,
+          17.0229494
+        ]
+      },
+      "id": "node/2487449508"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2502419793",
+        "amenity": "atm",
+        "name": "Bank Muscat",
+        "name:ar": "بنك مسقط",
+        "operator": "Bank Muscat"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2190237,
+          23.6148628
+        ]
+      },
+      "id": "node/2502419793"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2502421088",
+        "amenity": "atm",
+        "cash_in": "no",
+        "check_date": "2024-06-27",
+        "name": "Bank Muscat",
+        "name:ar": "بنك مسقط",
+        "operator": "Bank Muscat"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2178601,
+          23.6019778
+        ]
+      },
+      "id": "node/2502421088"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2522807720",
+        "amenity": "bank",
+        "atm": "yes",
+        "name": "Sohar Bank",
+        "name:ar": "بنك صحار"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4983814,
+          23.48453
+        ]
+      },
+      "id": "node/2522807720"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2558519952",
+        "addr:city": "Mawaleh South",
+        "amenity": "bank",
+        "atm": "yes",
+        "name": "Bank Muscat"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2340369,
+          23.6117532
+        ]
+      },
+      "id": "node/2558519952"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2559746856",
+        "amenity": "bank",
+        "atm": "yes",
+        "name": "Bank Muscat",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4007596,
+          23.5560311
+        ]
+      },
+      "id": "node/2559746856"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2611183206",
+        "addr:city": "Salalah",
+        "internet_access": "yes",
+        "internet_access:fee": "no",
+        "name": "Beach Resort Salalah",
+        "operator": "Beach Spa Tourism Company L.L.C",
+        "phone": "+96823236170",
+        "toilets:wheelchair": "yes",
+        "tourism": "hotel",
+        "website": "https://www.beachresortsalalah.com/",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.157775,
+          17.0089085
+        ]
+      },
+      "id": "node/2611183206"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2628381126",
+        "amenity": "restaurant",
+        "cuisine": "indian",
+        "name": "Sur Beach Restaurant"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.5263289,
+          22.5680533
+        ]
+      },
+      "id": "node/2628381126"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2628381127",
+        "amenity": "restaurant",
+        "cuisine": "local;seafood",
+        "internet_access": "wlan",
+        "name": "Sur Sea Restaurant"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.5261859,
+          22.5682376
+        ]
+      },
+      "id": "node/2628381127"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2846226696",
+        "amenity": "atm",
+        "name": "Bank Muscat ATM",
+        "operator": "Bank Muscat"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5424084,
+          23.6155913
+        ]
+      },
+      "id": "node/2846226696"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3127358683",
+        "amenity": "atm",
+        "name": "Bank Muscat"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2489533,
+          23.5993901
+        ]
+      },
+      "id": "node/3127358683"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3212210622",
+        "amenity": "bank",
+        "atm": "yes",
+        "name": "Bank Muscat"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.252277,
+          23.5589754
+        ]
+      },
+      "id": "node/3212210622"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3268695035",
+        "amenity": "restaurant",
+        "name": "Cave Sur",
+        "phone": "+96897695910"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.5146119,
+          22.5791581
+        ]
+      },
+      "id": "node/3268695035"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3268697114",
+        "amenity": "fast_food",
+        "name": "Sama Sur"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.5149642,
+          22.5794165
+        ]
+      },
+      "id": "node/3268697114"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3335279393",
+        "harbour": "yes",
+        "name": "Sohar Port and Freezone",
+        "name:en": "Sohar Port and Freezone"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.6283788,
+          24.5104271
+        ]
+      },
+      "id": "node/3335279393"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3359029770",
+        "addr:city": "Ghala",
+        "addr:postcode": "130",
+        "addr:street": "Sultan Qaboos Grand Mosque Signal",
+        "name": "Muscat Copy Center - Zuhoor Al Safia",
+        "note": "Color and B&W prints, Scan Copy of all sizes from A0, A1 to A4. Photography prints are also done in all sizes. Auto-cad and Maps are also printed",
+        "phone": "+968 9900 3051",
+        "shop": "copyshop",
+        "website": "www.zuhooralsafia.com"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.3808529,
+          23.5812226
+        ]
+      },
+      "id": "node/3359029770"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3440390741",
+        "amenity": "bank",
+        "atm": "yes",
+        "name": "Bank Muscat",
+        "operator": "Bank Muscat"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.165823,
+          23.5925217
+        ]
+      },
+      "id": "node/3440390741"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3470838246",
+        "amenity": "atm",
+        "name": "ATM Bank Muscat",
+        "operator": "Bank Muscat"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.165649,
+          23.5843479
+        ]
+      },
+      "id": "node/3470838246"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3513913493",
+        "amenity": "atm",
+        "name": "Bank Muscat",
+        "name:ar": "صراف بنك مسقط"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.1107526,
+          17.0181601
+        ]
+      },
+      "id": "node/3513913493"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3700225356",
+        "name": "Muscat International Hotel",
+        "tourism": "hotel"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.091529,
+          17.0148189
+        ]
+      },
+      "id": "node/3700225356"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3700225358",
+        "amenity": "bank",
+        "name": "Bank Muscat"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0923753,
+          17.0210369
+        ]
+      },
+      "id": "node/3700225358"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3702551149",
+        "amenity": "atm",
+        "drive_through": "yes",
+        "name": "Bank Muscat",
+        "operator": "بنك مسقط"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.5083129,
+          22.577813
+        ]
+      },
+      "id": "node/3702551149"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3712994749",
+        "amenity": "bank",
+        "atm": "yes",
+        "name": "Bank Muscat",
+        "opening_hours": "08:00-13:30",
+        "operator": "Bank Muscat"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.1705783,
+          22.8373726
+        ]
+      },
+      "id": "node/3712994749"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3725253763",
+        "amenity": "atm",
+        "name": "Muscat ATM"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.8322472,
+          23.4725537
+        ]
+      },
+      "id": "node/3725253763"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3731694484",
+        "addr:city": "بوشر",
+        "addr:street": "شارع السلطان قابوس",
+        "amenity": "bank",
+        "atm": "yes",
+        "name": "Bank Muscat",
+        "name:ar": "بنك مسقط",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4253706,
+          23.5965561
+        ]
+      },
+      "id": "node/3731694484"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3731704906",
+        "addr:city": "بوشر، الخوير",
+        "addr:street": "شارع السلطان قابوس",
+        "name": "Muscat Insurance Company S.A.O.C.",
+        "office": "insurance"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4285209,
+          23.5966198
+        ]
+      },
+      "id": "node/3731704906"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3731707230",
+        "addr:city": "بوشر، الخوير",
+        "addr:street": "شارع السلطان قابوس",
+        "name": "Oman United Insurance Company S.A.O.G.",
+        "name:ar": "الشركة العمانية المتحدة للتأمين",
+        "office": "insurance",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4297873,
+          23.5965676
+        ]
+      },
+      "id": "node/3731707230"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3731718744",
+        "addr:street": "شارع السلطان قابوس",
+        "name": "Dhofar insurance Company S.A.O.G",
+        "office": "insurance",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4383753,
+          23.596701
+        ]
+      },
+      "id": "node/3731718744"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3733375751",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy",
+        "name": "Muscat Pharmacy",
+        "name:ar": "صيدلة مسقط",
+        "opening_hours": "24/7"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4552321,
+          23.607745
+        ]
+      },
+      "id": "node/3733375751"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3805669650",
+        "name": "Wyndham Garden Salalah",
+        "phone": "+96823275500",
+        "tourism": "hotel",
+        "website": "https://www.wyndhamhotels.com/"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.736793,
+          16.9569209
+        ]
+      },
+      "id": "node/3805669650"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3813048588",
+        "amenity": "atm",
+        "name": "Bank Muscat",
+        "operator": "صراف بنك مسقط"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2236688,
+          23.6407835
+        ]
+      },
+      "id": "node/3813048588"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4111923890",
+        "name": "Muscat Hills Golf Club House",
+        "tourism": "attraction"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.3071397,
+          23.5671758
+        ]
+      },
+      "id": "node/4111923890"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4119398789",
+        "amenity": "bank",
+        "name": "Sohar Bank"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.199415,
+          23.6326053
+        ]
+      },
+      "id": "node/4119398789"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4270839990",
+        "addr:postcode": "00968",
+        "name": "ruwi muscat",
+        "shop": "hairdresser"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5425434,
+          23.5989633
+        ]
+      },
+      "id": "node/4270839990"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4270886889",
+        "addr:postcode": "00968",
+        "amenity": "cafe",
+        "name": "ruwi muscat"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5426483,
+          23.5987753
+        ]
+      },
+      "id": "node/4270886889"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4270886890",
+        "addr:postcode": "00968",
+        "name": "ruwi muscat",
+        "shop": "bakery"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5427013,
+          23.5985574
+        ]
+      },
+      "id": "node/4270886890"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4301483893",
+        "addr:street": "Salalah",
+        "email": "fawasbai@gmail.com",
+        "name": "SHAJRAH AL DHAR FOOD STUFF Salalah",
+        "opening_hours": "24/7",
+        "phone": "93532122",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0863769,
+          17.013441
+        ]
+      },
+      "id": "node/4301483893"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4310363067",
+        "name": "Exova Muscat",
+        "office": "company"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.3596186,
+          23.5708783
+        ]
+      },
+      "id": "node/4310363067"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4318329391",
+        "name": "Yoko Sizzlers Gallery Muscat",
+        "tourism": "artwork"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.44639,
+          23.58822
+        ]
+      },
+      "id": "node/4318329391"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4318364893",
+        "addr:street": "ash Shira'a Street",
+        "amenity": "bank",
+        "name": "BankMuscat",
+        "name:ar": "بنك مسقط",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.406114,
+          23.5906116
+        ]
+      },
+      "id": "node/4318364893"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4318364894",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Nahla Tech - Muscat Partner",
+        "name:en": "N Alkhuwair"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.426902,
+          23.593879
+        ]
+      },
+      "id": "node/4318364894"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4324609694",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy",
+        "name": "Muscat Pharmacy",
+        "name:ar": "صيدلية مسقط"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.449471,
+          23.594957
+        ]
+      },
+      "id": "node/4324609694"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4329427690",
+        "name": "Toyota Sohar",
+        "name:en": "Toyota Sohar",
+        "shop": "car_parts"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.7461574,
+          24.3259704
+        ]
+      },
+      "id": "node/4329427690"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4332493691",
+        "amenity": "restaurant",
+        "name": "Ocean Blue Beach House at Crowne Plaza Resort Salalah",
+        "opening_hours": "PH,Mo-Su 07:30-23:00"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.1521289,
+          17.0079159
+        ]
+      },
+      "id": "node/4332493691"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4373194899",
+        "amenity": "bank",
+        "name": "Bank Sohar",
+        "name:en": "Bank Sohar"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.7314805,
+          24.351335
+        ]
+      },
+      "id": "node/4373194899"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4373195514",
+        "name": "Sohar Arts",
+        "name:en": "Sohar Arts",
+        "tourism": "artwork"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.7336937,
+          24.35039
+        ]
+      },
+      "id": "node/4373195514"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4373195598",
+        "amenity": "atm",
+        "name": "Bank Sohar ATM & CDM",
+        "name:en": "Bank Sohar ATM & CDM"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.7315373,
+          24.3512339
+        ]
+      },
+      "id": "node/4373195598"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4373246992",
+        "amenity": "bank",
+        "name": "Bank Muscat",
+        "name:en": "Bank Muscat"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.7317248,
+          24.3507986
+        ]
+      },
+      "id": "node/4373246992"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4373247091",
+        "amenity": "atm",
+        "name": "Bank Muscat ATM & CDM",
+        "name:en": "Bank Muscat ATM & CDM"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.7316925,
+          24.350935
+        ]
+      },
+      "id": "node/4373247091"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4399044089",
+        "amenity": "school",
+        "name": "Sohar International School",
+        "name:en": "Sohar International School"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.8011574,
+          24.2633688
+        ]
+      },
+      "id": "node/4399044089"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4401622727",
+        "name": "Salalah Plaza Hotel",
+        "tourism": "hotel"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.039212,
+          17.0041002
+        ]
+      },
+      "id": "node/4401622727"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4414434289",
+        "brand": "Kempinski",
+        "brand:wikidata": "Q671990",
+        "internet_access": "yes",
+        "name": "Kempinski The Wave Muscat",
+        "name:ar": "فندق كمبينسكي مسقط",
+        "name:en": "Kempinski Muscat",
+        "operator": "Kempinski",
+        "stars": "5",
+        "tourism": "hotel"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2725408,
+          23.6274437
+        ]
+      },
+      "id": "node/4414434289"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4416580722",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Salalah Al Jadidah Health Centre"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0901492,
+          17.0184281
+        ]
+      },
+      "id": "node/4416580722"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4467077890",
+        "name": "Wadi near Sohar",
+        "name:en": "Wadi near Sohar",
+        "tourism": "camp_site"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.3327946,
+          24.4618921
+        ]
+      },
+      "id": "node/4467077890"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4486734789",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Muscat Int'l Airport - Old Terminal-1",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2918177,
+          23.5857915
+        ]
+      },
+      "id": "node/4486734789"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4506485397",
+        "amenity": "bank",
+        "name": "Bank Sohar, Ruwi",
+        "name:ar": "Bank Sohar, Ruwi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5468624,
+          23.6007814
+        ]
+      },
+      "id": "node/4506485397"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4512979391",
+        "amenity": "school",
+        "name": "Sohar international high school",
+        "name:en": "Sohar international high school"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.7077334,
+          24.3732935
+        ]
+      },
+      "id": "node/4512979391"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4541865295",
+        "amenity": "restaurant",
+        "name": "Burj Salalah Restaurant",
+        "takeaway": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0664757,
+          17.0207715
+        ]
+      },
+      "id": "node/4541865295"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4551799889",
+        "name": "Sur Corniche",
+        "name:ar": "Joel House Sur",
+        "tourism": "guest_house"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.4691925,
+          22.6090117
+        ]
+      },
+      "id": "node/4551799889"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4617766389",
+        "name": "Ayjah / Sur",
+        "tourism": "viewpoint"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.5397199,
+          22.5620752
+        ]
+      },
+      "id": "node/4617766389"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4620336497",
+        "amenity": "clinic",
+        "healthcare": "clinic",
+        "name": "Cosmesurge",
+        "name:ar": "Cosmesurge",
+        "name:en": "Cosmesurge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.3704779,
+          23.6022434
+        ]
+      },
+      "id": "node/4620336497"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4640566299",
+        "air_conditioning": "yes",
+        "check_date": "2025-11-04",
+        "check_date:internet_access": "2025-11-04",
+        "internet_access": "wlan",
+        "name": "Salalah Rotana Hotel",
+        "name:ar": "Salalah Rotana Hotel",
+        "tourism": "hotel",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.2961933,
+          17.030731
+        ]
+      },
+      "id": "node/4640566299"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4688093957",
+        "addr:city": "Muscat",
+        "addr:street": "Darsait",
+        "amenity": "pharmacy",
+        "name": "Muscat Pharmacy",
+        "operator": "Muscat Pharmacy",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5412416,
+          23.6161749
+        ]
+      },
+      "id": "node/4688093957"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4697355691",
+        "addr:street": "yanqal road",
+        "amenity": "school",
+        "name": "pakistan school sohar",
+        "name:en": "pakistan school sohar"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.6922941,
+          24.2776707
+        ]
+      },
+      "id": "node/4697355691"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4712677489",
+        "addr:street": "67 Street",
+        "name": "Sohar Municipality Water department",
+        "name:en": "Sohar Municipality Water department",
+        "office": "government",
+        "opening_hours": "Su-Th 08:00-13:00"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.6894283,
+          24.3438114
+        ]
+      },
+      "id": "node/4712677489"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4717603595",
+        "addr:street": "Al Farahidi Street",
+        "name": "Muscat bakery",
+        "name:ar": "Muscat bakery",
+        "shop": "supermarket",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5364751,
+          23.6049321
+        ]
+      },
+      "id": "node/4717603595"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4727821713",
+        "attraction": "animal",
+        "name": "Animal Enclosure"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.7587978,
+          22.1030648
+        ]
+      },
+      "id": "node/4727821713"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4728705002",
+        "attraction": "animal",
+        "name": "Animal enclosure"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.7594232,
+          22.1030367
+        ]
+      },
+      "id": "node/4728705002"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4729607318",
+        "internet_access": "yes",
+        "name": "Sur Hotel",
+        "tourism": "hotel",
+        "website": "https://surhotel.net/"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.526555,
+          22.5684463
+        ]
+      },
+      "id": "node/4729607318"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4731108721",
+        "amenity": "school",
+        "name": "Pakistan School Muscat"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5340697,
+          23.6078462
+        ]
+      },
+      "id": "node/4731108721"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4731118221",
+        "amenity": "bank",
+        "name": "Bank Muscat",
+        "name:ar": "Bank Muscat"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5439158,
+          23.6041977
+        ]
+      },
+      "id": "node/4731118221"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4732306873",
+        "name": "Boutique Muscat",
+        "shop": "clothes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2661343,
+          23.6290195
+        ]
+      },
+      "id": "node/4732306873"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4740256524",
+        "addr:street": "Al Wadi Wadi Kabir Road",
+        "name": "Haffaf Muscat",
+        "name:ar": "Haffaf Muscat",
+        "name:en": "Haffaf Muscat",
+        "shop": "hardware"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5616137,
+          23.5980583
+        ]
+      },
+      "id": "node/4740256524"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4742688835",
+        "addr:street": "Airport Road",
+        "name": "SPMP Sohar offices",
+        "name:en": "SPMP Sohar offices",
+        "office": "government"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.6063742,
+          24.4188388
+        ]
+      },
+      "id": "node/4742688835"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4832052223",
+        "contact:website": "http://salalah.anantara.com/",
+        "fixme": "needs detailed mapping",
+        "internet_access": "wlan",
+        "internet_access:fee": "yes",
+        "internet_access:ssid": "WiFi@Anantara",
+        "name": "Al Baleed Resort Salalah by Anantara",
+        "operator": "Anantara",
+        "smoking": "outside",
+        "spa": "yes",
+        "stars": "5",
+        "toilets:wheelchair": "yes",
+        "tourism": "hotel",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.1438685,
+          17.0079614
+        ]
+      },
+      "id": "node/4832052223"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4859022322",
+        "name": "gate sohar port",
+        "name:en": "gate sohar port",
+        "tourism": "information"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.5956584,
+          24.4941155
+        ]
+      },
+      "id": "node/4859022322"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4859028321",
+        "name": "Crowne Plaza Sohar",
+        "name:en": "Crowne Plaza Sohar",
+        "tourism": "hotel"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.5900959,
+          24.4100131
+        ]
+      },
+      "id": "node/4859028321"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4859353622",
+        "name": "Gate sohar",
+        "name:en": "Gate sohar",
+        "tourism": "information"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.595366,
+          24.4944051
+        ]
+      },
+      "id": "node/4859353622"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4859353623",
+        "name": "Crowne plaza Sohar",
+        "name:en": "Crowne plaza Sohar",
+        "tourism": "hotel"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.5898127,
+          24.4096566
+        ]
+      },
+      "id": "node/4859353623"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4908547197",
+        "name": "National Survey Authority",
+        "office": "government",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5471626,
+          23.611205
+        ]
+      },
+      "id": "node/4908547197"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4952825821",
+        "amenity": "bank",
+        "name": "Bank Muscat HQ",
+        "website": "http://bankmuscat.om"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.293772,
+          23.5791955
+        ]
+      },
+      "id": "node/4952825821"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4953628110",
+        "addr:street": "Way 3504",
+        "amenity": "cafe",
+        "name": "Rawabi Muscat National Coffee Shop",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4248685,
+          23.5947354
+        ]
+      },
+      "id": "node/4953628110"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4953736058",
+        "amenity": "restaurant",
+        "cuisine": "falafel;shawarma;egyptian",
+        "name": "Felfela Muscat",
+        "name:ar": "فلفلة مسقط",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.42142,
+          23.5965059
+        ]
+      },
+      "id": "node/4953736058"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4953780390",
+        "name": "Muscat Bakery",
+        "name:ar": "مخبز مسقط",
+        "shop": "bakery",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5625876,
+          23.5879649
+        ]
+      },
+      "id": "node/4953780390"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4953804269",
+        "addr:street": "an Nama Street",
+        "name": "Muscat Sky Line",
+        "shop": "yes",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5662198,
+          23.5922692
+        ]
+      },
+      "id": "node/4953804269"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4953808990",
+        "addr:street": "al Sinayya Street",
+        "name": "Amwaj Muscat Al Wataniya",
+        "shop": "yes",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5648404,
+          23.5934607
+        ]
+      },
+      "id": "node/4953808990"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4955225975",
+        "addr:street": "شارع سوق الخوير",
+        "amenity": "bank",
+        "name": "Bank Muscat",
+        "name:ar": "بنك مسقط",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4280692,
+          23.5912293
+        ]
+      },
+      "id": "node/4955225975"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4955261854",
+        "addr:street": "Way 4149",
+        "amenity": "restaurant",
+        "name": "Pizza Muscat",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4272339,
+          23.5907083
+        ]
+      },
+      "id": "node/4955261854"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4955381945",
+        "addr:street": "Street 3305",
+        "name": "GIG Gulf Insurance Group - Al Khuwair",
+        "office": "insurance",
+        "phone": "+96880070292",
+        "website": "https://www.giggulf.om/"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4478839,
+          23.5938044
+        ]
+      },
+      "id": "node/4955381945"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4955382440",
+        "amenity": "bank",
+        "name": "Bank Muscat",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4978482,
+          23.6142774
+        ]
+      },
+      "id": "node/4955382440"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4955429715",
+        "addr:street": "شارع الخليل",
+        "name": "Muscat Beauty Centre",
+        "shop": "beauty",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4245422,
+          23.5862143
+        ]
+      },
+      "id": "node/4955429715"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4955489168",
+        "addr:street": "Al Khuwair Street",
+        "name": "Muscat Insurance Company",
+        "office": "insurance",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4293068,
+          23.596486
+        ]
+      },
+      "id": "node/4955489168"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4955506964",
+        "amenity": "car_rental",
+        "name": "Muscat Caravan",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4254323,
+          23.5856864
+        ]
+      },
+      "id": "node/4955506964"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4955546683",
+        "amenity": "atm",
+        "currency:OMR": "yes",
+        "name": "Sohar International",
+        "operator": "Sohar International",
+        "source": "local knowledge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4284676,
+          23.5911473
+        ]
+      },
+      "id": "node/4955546683"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4955664506",
+        "addr:street": "Way 4305",
+        "name": "Erleel Muscat",
+        "shop": "shoes",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4288247,
+          23.5915905
+        ]
+      },
+      "id": "node/4955664506"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4955713056",
+        "addr:street": "Way 2327",
+        "amenity": "cafe",
+        "name": "Muscat Beach Coffee Shop",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4572026,
+          23.5929687
+        ]
+      },
+      "id": "node/4955713056"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4955747875",
+        "addr:street": "Souq Al Mal Street",
+        "amenity": "restaurant",
+        "name": "Pizza Muscat",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.550764,
+          23.5920451
+        ]
+      },
+      "id": "node/4955747875"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4957222002",
+        "addr:street": "Way 6511",
+        "name": "Muscat Safety & Security Products",
+        "shop": "yes",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.55854,
+          23.5876843
+        ]
+      },
+      "id": "node/4957222002"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4957222003",
+        "addr:street": "Way 6511",
+        "name": "Muscat Oilfield Enterprises",
+        "shop": "yes",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5584997,
+          23.5877422
+        ]
+      },
+      "id": "node/4957222003"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4957231828",
+        "addr:street": "شارع الحديقة",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy",
+        "name": "Muscat Pharmacy",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4299751,
+          23.5910973
+        ]
+      },
+      "id": "node/4957231828"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4957242841",
+        "addr:street": "Al Khuwayr Al Janubiyyah Street",
+        "name": "Muscat Ladies",
+        "shop": "beauty",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4360427,
+          23.5817969
+        ]
+      },
+      "id": "node/4957242841"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4957309422",
+        "amenity": "bank",
+        "name": "Bank Muscat",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5135812,
+          23.6080658
+        ]
+      },
+      "id": "node/4957309422"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4957401299",
+        "addr:street": "Way 6509",
+        "name": "Muscat International Laundry & Dry Cleaning",
+        "shop": "laundry",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5559844,
+          23.587834
+        ]
+      },
+      "id": "node/4957401299"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4957434638",
+        "addr:street": "Al Inshirah Street",
+        "name": "Muscat Music",
+        "shop": "music",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4594277,
+          23.6091018
+        ]
+      },
+      "id": "node/4957434638"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4957657670",
+        "addr:street": "Al Baladiya Street",
+        "name": "Lotus Muscat",
+        "shop": "building_materials",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.548326,
+          23.5856005
+        ]
+      },
+      "id": "node/4957657670"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4957657711",
+        "addr:street": "Al Baladiya Street",
+        "name": "Muscat Lightings",
+        "shop": "lighting",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5502582,
+          23.5871046
+        ]
+      },
+      "id": "node/4957657711"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4961900384",
+        "addr:street": "Way 3017",
+        "amenity": "dentist",
+        "name": "Muscat Dental Specialists",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4455117,
+          23.6008485
+        ]
+      },
+      "id": "node/4961900384"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4962134556",
+        "addr:street": "شارع المعرفة",
+        "name": "Muscat Crown Jewel",
+        "shop": "yes",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4061244,
+          23.5897986
+        ]
+      },
+      "id": "node/4962134556"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4962195924",
+        "addr:street": "Way 6108",
+        "name": "Muscat Shoes",
+        "shop": "shoes",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5486018,
+          23.5833245
+        ]
+      },
+      "id": "node/4962195924"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4962195945",
+        "addr:street": "Way 6141",
+        "amenity": "post_office",
+        "name": "Muscat Post Office",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5479267,
+          23.5847393
+        ]
+      },
+      "id": "node/4962195945"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4962207377",
+        "addr:street": "شارع الشراع",
+        "amenity": "cafe",
+        "name": "Barka Factory for Omani Halwa",
+        "name:ar": "مصنع بركا للحلوى العمانية",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4051248,
+          23.5896256
+        ]
+      },
+      "id": "node/4962207377"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4962229528",
+        "addr:street": "شارع المرافع",
+        "name": "Dhofar Insurance Co",
+        "name:ar": "شركة ظفار للتأمين",
+        "office": "insurance",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4040763,
+          23.5906487
+        ]
+      },
+      "id": "node/4962229528"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4962256071",
+        "addr:street": "Souq Ruwi Street",
+        "name": "Yaqoot Muscat United",
+        "shop": "electronics",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5456924,
+          23.5845248
+        ]
+      },
+      "id": "node/4962256071"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4962256097",
+        "addr:street": "Al Baladiya Street",
+        "name": "Muscat Ceramic Center",
+        "shop": "tiles",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5458455,
+          23.5849966
+        ]
+      },
+      "id": "node/4962256097"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4962312443",
+        "addr:street": "Way 2135",
+        "amenity": "bank",
+        "name": "Bank Muscat",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4544277,
+          23.6015046
+        ]
+      },
+      "id": "node/4962312443"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4962335910",
+        "addr:street": "Way 3816",
+        "name": "Vision Insurance",
+        "office": "insurance",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4036553,
+          23.5937322
+        ]
+      },
+      "id": "node/4962335910"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4962352302",
+        "addr:street": "Al Baladiya Street",
+        "name": "JV Muscat International",
+        "shop": "electrical",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5495418,
+          23.5861057
+        ]
+      },
+      "id": "node/4962352302"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4962365422",
+        "addr:street": "Al Baladiya Street",
+        "amenity": "bank",
+        "name": "Bank Muscat",
+        "name:ar": "بنك مسقط صراف وايداع",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5509995,
+          23.5871511
+        ]
+      },
+      "id": "node/4962365422"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4962713174",
+        "addr:street": "Al Fursan Street",
+        "name": "Muscat Pearl",
+        "shop": "car_repair",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5492298,
+          23.5915997
+        ]
+      },
+      "id": "node/4962713174"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4962748105",
+        "addr:street": "Way 4301",
+        "name": "Muscat Silver Heart",
+        "shop": "car_parts",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5508791,
+          23.5888458
+        ]
+      },
+      "id": "node/4962748105"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4962784276",
+        "addr:street": "Souq Ruwi Street",
+        "amenity": "bank",
+        "name": "Bank Sohar",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.545555,
+          23.5854053
+        ]
+      },
+      "id": "node/4962784276"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4962812589",
+        "addr:street": "Souq Ruwi Street",
+        "amenity": "bank",
+        "name": "Bank Muscat",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5456358,
+          23.586663
+        ]
+      },
+      "id": "node/4962812589"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4962838008",
+        "addr:street": "Way 3673",
+        "name": "Rozenat Muscat",
+        "shop": "yes",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.3850273,
+          23.6007745
+        ]
+      },
+      "id": "node/4962838008"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4962874873",
+        "addr:street": "Souq Ruwi Street",
+        "name": "Suroor Gulf Commercial Water Technologies",
+        "shop": "yes",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5458449,
+          23.5854874
+        ]
+      },
+      "id": "node/4962874873"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4962874891",
+        "addr:street": "Souq Ruwi Street",
+        "amenity": "pharmacy",
+        "name": "Muscat Pharmacy",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5458738,
+          23.5861405
+        ]
+      },
+      "id": "node/4962874891"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4962903570",
+        "addr:street": "Souq Ruwi Street",
+        "name": "Muscat Trading",
+        "shop": "yes",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5458249,
+          23.5889347
+        ]
+      },
+      "id": "node/4962903570"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4962903571",
+        "addr:street": "Souq Ruwi Street",
+        "name": "Muscat Fashions",
+        "shop": "clothes",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5457947,
+          23.5889977
+        ]
+      },
+      "id": "node/4962903571"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4962930369",
+        "addr:street": "Souq Ruwi Street",
+        "name": "Naseen Muscat International",
+        "shop": "yes",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5453491,
+          23.5901547
+        ]
+      },
+      "id": "node/4962930369"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4962930373",
+        "addr:street": "Souq Ruwi Street",
+        "name": "Naseem Muscat International",
+        "shop": "convenience",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5451636,
+          23.5903508
+        ]
+      },
+      "id": "node/4962930373"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4964123393",
+        "addr:street": "Al Qareen Street",
+        "name": "Greater Muscat",
+        "shop": "gift",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5447686,
+          23.5882584
+        ]
+      },
+      "id": "node/4964123393"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4964364760",
+        "addr:street": "Souq Ruwi Street",
+        "name": "Muscat International Fashion",
+        "shop": "clothes",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.544631,
+          23.5926958
+        ]
+      },
+      "id": "node/4964364760"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4964395303",
+        "addr:street": "Al Qareen Street",
+        "name": "Hala Muscat",
+        "shop": "grocery",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5431796,
+          23.5911533
+        ]
+      },
+      "id": "node/4964395303"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4964636599",
+        "addr:street": "Al Qareen Street",
+        "name": "Methax Sur Contracting",
+        "shop": "houseware",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5429684,
+          23.5898282
+        ]
+      },
+      "id": "node/4964636599"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4964697771",
+        "addr:street": "Way 1717",
+        "leisure": "fitness_centre",
+        "name": "Muscat Gymnastics",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2441376,
+          23.6093816
+        ]
+      },
+      "id": "node/4964697771"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4964697772",
+        "addr:street": "Way 1717",
+        "name": "Al Salamah Insurance Services",
+        "office": "insurance",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2440619,
+          23.6093742
+        ]
+      },
+      "id": "node/4964697772"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4964760187",
+        "addr:street": "Way 4189",
+        "name": "Sahra Muscat",
+        "shop": "coffee",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5416924,
+          23.5878587
+        ]
+      },
+      "id": "node/4964760187"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4964864118",
+        "addr:street": "Al Qareen Street",
+        "name": "Ahlam Muscat Trading",
+        "shop": "yes",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5434121,
+          23.5881669
+        ]
+      },
+      "id": "node/4964864118"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4964864119",
+        "addr:street": "Al Qareen Street",
+        "name": "Ahlam Muscat",
+        "shop": "grocery",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5434934,
+          23.5881592
+        ]
+      },
+      "id": "node/4964864119"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4964878599",
+        "addr:street": "Street 2237",
+        "amenity": "pharmacy",
+        "name": "Muscat Pharmacy",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4909208,
+          23.6244847
+        ]
+      },
+      "id": "node/4964878599"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4964936858",
+        "addr:street": "Way 3922",
+        "amenity": "pharmacy",
+        "name": "Muscat Pharmacy & Stores",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5444996,
+          23.5938997
+        ]
+      },
+      "id": "node/4964936858"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4964936902",
+        "addr:street": "Al Qareen Street",
+        "name": "Reem Barka",
+        "shop": "yes",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5432393,
+          23.5917378
+        ]
+      },
+      "id": "node/4964936902"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4965023833",
+        "addr:street": "Way 3706",
+        "name": "Muscat Bakery",
+        "shop": "bakery",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.3961032,
+          23.5813932
+        ]
+      },
+      "id": "node/4965023833"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4966207684",
+        "addr:street": "Way 6420",
+        "craft": "watchmaker",
+        "name": "Lulu Muscat Watches",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.3520515,
+          23.5763189
+        ]
+      },
+      "id": "node/4966207684"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4966248342",
+        "addr:street": "Way 2706",
+        "name": "Takaful Oman Insurance Saog",
+        "office": "insurance",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5495058,
+          23.6000081
+        ]
+      },
+      "id": "node/4966248342"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4966258398",
+        "addr:street": "Way 2706",
+        "amenity": "bank",
+        "name": "Bank Sohar",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5482197,
+          23.6024893
+        ]
+      },
+      "id": "node/4966258398"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4966382177",
+        "addr:street": "Al Washall Street",
+        "name": "Bahar Sur Trading Electronic Repairing",
+        "shop": "yes",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5535604,
+          23.6064192
+        ]
+      },
+      "id": "node/4966382177"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4966458777",
+        "addr:street": "Ruwi Souq Street",
+        "name": "Muscat Mist",
+        "shop": "building_materials",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.548142,
+          23.591035
+        ]
+      },
+      "id": "node/4966458777"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4966486324",
+        "addr:street": "Way 2706",
+        "name": "Oman Qatar Insurance Company",
+        "office": "insurance",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5485279,
+          23.5993399
+        ]
+      },
+      "id": "node/4966486324"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4966486326",
+        "addr:street": "Way 2706",
+        "amenity": "bank",
+        "name": "Sohar International Bank",
+        "name:ar": "بنك صحار الدولي",
+        "operator": "Sohar International Bank",
+        "source": "local knowledge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.549537,
+          23.5997844
+        ]
+      },
+      "id": "node/4966486326"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4966509163",
+        "addr:street": "Way 4376",
+        "name": "Muscat Bakery",
+        "shop": "bakery",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5461617,
+          23.5890993
+        ]
+      },
+      "id": "node/4966509163"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4966540527",
+        "addr:street": "Markaz Mutrah at Tijari Street",
+        "name": "Dhofar Insurance Co.",
+        "office": "insurance",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5466122,
+          23.6019123
+        ]
+      },
+      "id": "node/4966540527"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4966542278",
+        "addr:street": "سكة 2732",
+        "name": "Arabia Falcon Insurance Co.",
+        "name:ar": "العربية فالكون للتأمين",
+        "office": "insurance",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.548305,
+          23.5976249
+        ]
+      },
+      "id": "node/4966542278"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4966542290",
+        "addr:street": "Way 2706",
+        "name": "Gulf Insurance",
+        "office": "insurance",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5482965,
+          23.5999386
+        ]
+      },
+      "id": "node/4966542290"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4966687134",
+        "addr:street": "Way 4359",
+        "amenity": "pharmacy",
+        "name": "Muscat Pharmacy",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5460725,
+          23.5885202
+        ]
+      },
+      "id": "node/4966687134"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4966731044",
+        "addr:street": "4911 Way",
+        "name": "The New India Assurance",
+        "shop": "yes",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5360402,
+          23.5866584
+        ]
+      },
+      "id": "node/4966731044"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4966731075",
+        "name": "Muscat Cold Stores",
+        "shop": "convenience",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5417899,
+          23.5894249
+        ]
+      },
+      "id": "node/4966731075"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4966769938",
+        "addr:street": "Al Jami Street",
+        "name": "The New India Assurance",
+        "office": "insurance",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5442315,
+          23.5941309
+        ]
+      },
+      "id": "node/4966769938"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4966769940",
+        "addr:street": "Al Jami Street",
+        "amenity": "bank",
+        "name": "Bank Muscat",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5443397,
+          23.5941357
+        ]
+      },
+      "id": "node/4966769940"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4966804368",
+        "addr:street": "Way 3713",
+        "name": "Muscat Parts Centre",
+        "shop": "car_parts",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5468186,
+          23.5912111
+        ]
+      },
+      "id": "node/4966804368"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4966804369",
+        "addr:street": "Way 3713",
+        "amenity": "pharmacy",
+        "name": "Sohar Pharmacy",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5468507,
+          23.5911653
+        ]
+      },
+      "id": "node/4966804369"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4966839014",
+        "addr:street": "Way 2706",
+        "name": "Muscat Insurance Company",
+        "office": "insurance",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5504696,
+          23.5979893
+        ]
+      },
+      "id": "node/4966839014"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4966900520",
+        "addr:street": "Wadi al Bahais Street",
+        "name": "Muscat Silver",
+        "shop": "yes",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.1890215,
+          23.6778276
+        ]
+      },
+      "id": "node/4966900520"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4966914820",
+        "addr:street": "Way 2998",
+        "name": "Muscat Global Travel & Tourism",
+        "shop": "travel_agency",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5457826,
+          23.595497
+        ]
+      },
+      "id": "node/4966914820"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4966933457",
+        "addr:street": "Wadi al Bahais Street",
+        "amenity": "pharmacy",
+        "name": "Muscat",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.1852896,
+          23.6827938
+        ]
+      },
+      "id": "node/4966933457"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4966983543",
+        "addr:street": "Al Farahidi Street",
+        "name": "Muscat Electronics",
+        "shop": "electronics",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5408898,
+          23.5953623
+        ]
+      },
+      "id": "node/4966983543"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4967030836",
+        "name": "Oman Insurance Company",
+        "office": "insurance",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5380102,
+          23.5998996
+        ]
+      },
+      "id": "node/4967030836"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4967045897",
+        "addr:street": "Al Burj Street",
+        "name": "Muscat Bakery Markets",
+        "shop": "bakery",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5403557,
+          23.6032142
+        ]
+      },
+      "id": "node/4967045897"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4967048386",
+        "amenity": "pharmacy",
+        "name": "Muscat",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5231968,
+          23.5876556
+        ]
+      },
+      "id": "node/4967048386"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4967052923",
+        "addr:street": "Al Iskan Street",
+        "name": "Suroor Digital Technology and Services",
+        "shop": "printing",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5424247,
+          23.6020467
+        ]
+      },
+      "id": "node/4967052923"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4968634559",
+        "amenity": "cafe",
+        "name": "Muscat Cafe",
+        "name:ar": "مسقط كافية",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5424646,
+          23.602798
+        ]
+      },
+      "id": "node/4968634559"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4968638505",
+        "addr:street": "al Ata'a Street",
+        "name": "Modern Projects of Muscat",
+        "shop": "hardware",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2240487,
+          23.594434
+        ]
+      },
+      "id": "node/4968638505"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4968687075",
+        "addr:street": "Way 7635",
+        "name": "Muscat Galaxy Shopping",
+        "shop": "yes",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5976399,
+          23.5941657
+        ]
+      },
+      "id": "node/4968687075"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4968708190",
+        "name": "Muscat Bakery",
+        "shop": "bakery",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2373921,
+          23.6259601
+        ]
+      },
+      "id": "node/4968708190"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4968727866",
+        "addr:street": "Wadi al Bahais Street",
+        "fixme": "name",
+        "name": "The New Media Assurance Co.",
+        "office": "company",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.1868982,
+          23.6808326
+        ]
+      },
+      "id": "node/4968727866"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4968727871",
+        "addr:street": "Wadi al Bahais Street",
+        "amenity": "bank",
+        "name": "Bank Muscat",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.1866693,
+          23.6816776
+        ]
+      },
+      "id": "node/4968727871"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4968807175",
+        "name": "Muscat Commercial Market",
+        "shop": "supermarket",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0747655,
+          17.0072945
+        ]
+      },
+      "id": "node/4968807175"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4968856731",
+        "amenity": "pharmacy",
+        "name": "Muscat Pharmacy",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2324667,
+          23.6320791
+        ]
+      },
+      "id": "node/4968856731"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4968935500",
+        "name": "Muscat City Gifts",
+        "shop": "yes",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5343463,
+          23.6029285
+        ]
+      },
+      "id": "node/4968935500"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4969094079",
+        "addr:street": "Al Bahri Road",
+        "name": "Muscat Silver Centre",
+        "shop": "jewelry",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5639036,
+          23.6204872
+        ]
+      },
+      "id": "node/4969094079"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4969095229",
+        "addr:street": "Al Bahri Road",
+        "amenity": "bank",
+        "name": "Bank Muscat",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5662255,
+          23.6206395
+        ]
+      },
+      "id": "node/4969095229"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4969148761",
+        "addr:street": "Hai Al Hil A' Jadeed Street",
+        "amenity": "marketplace",
+        "name": "Muscat Shopping",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2271591,
+          23.6208409
+        ]
+      },
+      "id": "node/4969148761"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4969171298",
+        "name": "Faker Salalah Commercial Market",
+        "shop": "convenience",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0332919,
+          17.0397366
+        ]
+      },
+      "id": "node/4969171298"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4969186384",
+        "amenity": "pharmacy",
+        "name": "Muscat",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5424607,
+          23.6035202
+        ]
+      },
+      "id": "node/4969186384"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4969201724",
+        "amenity": "bank",
+        "name": "Bank Muscat",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5577378,
+          23.6235124
+        ]
+      },
+      "id": "node/4969201724"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4969218458",
+        "amenity": "restaurant",
+        "name": "Khair Salalah",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.062652,
+          17.0058942
+        ]
+      },
+      "id": "node/4969218458"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4969272156",
+        "addr:street": "Al Mina Street",
+        "name": "Jawharat Sur Trading",
+        "shop": "toys",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5503147,
+          23.6220186
+        ]
+      },
+      "id": "node/4969272156"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4969283858",
+        "name": "Swahl Muscat Almasyh Trading",
+        "shop": "yes",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.559302,
+          23.6243365
+        ]
+      },
+      "id": "node/4969283858"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4969313015",
+        "name": "Dar Muscat Decoration",
+        "shop": "interior_decoration",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.1454975,
+          23.5873533
+        ]
+      },
+      "id": "node/4969313015"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4969314329",
+        "name": "Durrat Suroor Shopping",
+        "shop": "yes",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.1455317,
+          23.5879742
+        ]
+      },
+      "id": "node/4969314329"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4970500352",
+        "addr:street": "Tawy al Khadra Street",
+        "amenity": "fast_food",
+        "name": "Muscat Modern Fast Food",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5423005,
+          23.615005
+        ]
+      },
+      "id": "node/4970500352"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4970586288",
+        "name": "Nawras Salalah",
+        "shop": "yes",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.1512254,
+          17.052184
+        ]
+      },
+      "id": "node/4970586288"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4970586318",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy",
+        "name": "Muscat",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.1496216,
+          17.0523906
+        ]
+      },
+      "id": "node/4970586318"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4970603281",
+        "addr:street": "Tawy al Khadra Street",
+        "name": "Al Surboh Al Khalutiah Al Rada",
+        "shop": "hairdresser",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5414651,
+          23.6160843
+        ]
+      },
+      "id": "node/4970603281"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4970663694",
+        "addr:street": "Way 2327",
+        "amenity": "driving_school",
+        "name": "Muscat Drivig School",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5431052,
+          23.6111237
+        ]
+      },
+      "id": "node/4970663694"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4970680741",
+        "name": "Dhofar Insurance Co.",
+        "office": "insurance",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.1940491,
+          23.6255648
+        ]
+      },
+      "id": "node/4970680741"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4970718242",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy",
+        "name": "Muscat Pharmacy",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.1987808,
+          23.6328875
+        ]
+      },
+      "id": "node/4970718242"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4970718264",
+        "name": "Muscat Optical",
+        "name:ar": "نظارات حشمت",
+        "shop": "optician",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.1992412,
+          23.6336221
+        ]
+      },
+      "id": "node/4970718264"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4970726785",
+        "name": "Muscat Bakery Markets",
+        "shop": "bakery",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.1993808,
+          23.6338511
+        ]
+      },
+      "id": "node/4970726785"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4970742977",
+        "addr:street": "Al Khoudh A'Tijiary Street",
+        "name": "Dar Muscat Carpet",
+        "shop": "carpet",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.200919,
+          23.6362049
+        ]
+      },
+      "id": "node/4970742977"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4970752003",
+        "addr:street": "Al Khoudh A'Tijiary Street",
+        "name": "Erleel Muscat",
+        "shop": "shoes",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2010552,
+          23.6364324
+        ]
+      },
+      "id": "node/4970752003"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4970764101",
+        "addr:street": "سكة 3551",
+        "amenity": "restaurant",
+        "name": "Pizza Muscat Restaurant",
+        "name:ar": "مطعم بيتزا مسقط",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2027279,
+          23.637821
+        ]
+      },
+      "id": "node/4970764101"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4970952203",
+        "addr:street": "23rd July Street",
+        "name": "Salalah Mobile",
+        "shop": "mobile_phone",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0873298,
+          17.0134457
+        ]
+      },
+      "id": "node/4970952203"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4970952206",
+        "addr:street": "23rd July Street",
+        "name": "Salalah Mobile",
+        "shop": "mobile_phone",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.087173,
+          17.0133928
+        ]
+      },
+      "id": "node/4970952206"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4971144888",
+        "addr:street": "23rd July Street",
+        "amenity": "bank",
+        "name": "Bank Muscat",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.1000648,
+          17.017663
+        ]
+      },
+      "id": "node/4971144888"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4971179082",
+        "addr:street": "23rd July Street",
+        "amenity": "bank",
+        "name": "Bank Muscat",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0855275,
+          17.0132013
+        ]
+      },
+      "id": "node/4971179082"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4971220389",
+        "addr:street": "23rd July Street",
+        "name": "Salalah Curtains",
+        "shop": "curtain",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0800387,
+          17.0115456
+        ]
+      },
+      "id": "node/4971220389"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4971366739",
+        "addr:street": "Al Ghubira Street",
+        "amenity": "restaurant",
+        "name": "Shabab Salalah Restaurant",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0807816,
+          17.0163795
+        ]
+      },
+      "id": "node/4971366739"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4975723449",
+        "addr:street": "23rd July Street",
+        "name": "Arabia Insurance",
+        "office": "insurance",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0961737,
+          17.017129
+        ]
+      },
+      "id": "node/4975723449"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4975763382",
+        "addr:street": "Al Souq Street",
+        "name": "Insurance Brokers",
+        "office": "insurance",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0979003,
+          17.0188655
+        ]
+      },
+      "id": "node/4975763382"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4975794856",
+        "amenity": "bank",
+        "name": "Bank Muscat",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0921167,
+          17.0224176
+        ]
+      },
+      "id": "node/4975794856"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4975921926",
+        "addr:street": "Al Qoaf Street",
+        "name": "Marketing Travel & Tourism Salalah",
+        "shop": "travel_agency",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.1065849,
+          17.0162918
+        ]
+      },
+      "id": "node/4975921926"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4976222007",
+        "addr:street": "Al Nahdah Street",
+        "name": "Salalah Electronics",
+        "shop": "yes",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0941513,
+          17.0120622
+        ]
+      },
+      "id": "node/4976222007"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4976460422",
+        "addr:street": "A'Salam Street",
+        "name": "Salalah Centre for Cosmetics Products",
+        "shop": "beauty",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0913501,
+          17.0122263
+        ]
+      },
+      "id": "node/4976460422"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4977533694",
+        "addr:street": "Salalah Al Jadida Street",
+        "name": "Salalah Towers Global Trade",
+        "shop": "yes",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0770655,
+          17.0163971
+        ]
+      },
+      "id": "node/4977533694"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4977572173",
+        "name": "Salalah Tourist Adventures",
+        "shop": "travel_agency",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0790393,
+          17.0144019
+        ]
+      },
+      "id": "node/4977572173"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5059718422",
+        "amenity": "bank",
+        "atm": "yes",
+        "name": "Sohar International Customer Collection Point",
+        "name:ar": "نقطة تجميع عملاء صحار الدولية",
+        "opening_hours": "Su-Th 08:00-18:00"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4354972,
+          23.5966877
+        ]
+      },
+      "id": "node/5059718422"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5198502894",
+        "name": "Muscat Bakery",
+        "shop": "bakery"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5530394,
+          23.6104427
+        ]
+      },
+      "id": "node/5198502894"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5349549621",
+        "name": "Taurus Salalah",
+        "tourism": "attraction"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.1144011,
+          17.0246923
+        ]
+      },
+      "id": "node/5349549621"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5451375657",
+        "name": "Salalah commercial market",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.4033747,
+          17.0524151
+        ]
+      },
+      "id": "node/5451375657"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5628227127",
+        "addr:postcode": "111",
+        "internet_access": "wlan",
+        "level": "5",
+        "name": "Aerotel Muscat",
+        "name:en": "Aerotel Muscat",
+        "phone": "+96824356555",
+        "tourism": "hotel",
+        "website": "http://www.myaerotel.com"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2869619,
+          23.60101
+        ]
+      },
+      "id": "node/5628227127"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5654339727",
+        "brand": "InterContinental",
+        "brand:wikidata": "Q1825730",
+        "internet_access": "wlan",
+        "name": "InterContinental Muscat",
+        "opening_hours": "24/7",
+        "stars": "5",
+        "tourism": "hotel"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4649499,
+          23.6161078
+        ]
+      },
+      "id": "node/5654339727"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5846426986",
+        "name": "salalah",
+        "tourism": "guest_house"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0173234,
+          17.0147756
+        ]
+      },
+      "id": "node/5846426986"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5847676887",
+        "internet_access": "wlan",
+        "name": "agadsir residential units salalah",
+        "tourism": "apartment"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0250488,
+          17.0064021
+        ]
+      },
+      "id": "node/5847676887"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5858977985",
+        "name": "Qasr AlSahra tyre Sohar",
+        "name:en": "Qasr AlSahra tyre Sohar",
+        "shop": "tyres"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.6927948,
+          24.3426117
+        ]
+      },
+      "id": "node/5858977985"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6003065086",
+        "amenity": "school",
+        "name": "Sohar international school new campus",
+        "name:en": "Sohar international school new campus"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.6697865,
+          24.3201011
+        ]
+      },
+      "id": "node/6003065086"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6172826769",
+        "name": "Dhofar Insurance Company",
+        "office": "insurance"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.6354585,
+          19.6269795
+        ]
+      },
+      "id": "node/6172826769"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6193258288",
+        "highway": "bus_stop",
+        "name": "Bus from Dubai to Muscat, Ruwi",
+        "name:en": "Bus from Dubai to Muscat, Ruwi",
+        "name:zh": "迪拜到穆斯卡特大巴经停处"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.6077408,
+          24.4422318
+        ]
+      },
+      "id": "node/6193258288"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6238042450",
+        "name": "Radisson Hotel Muscat Panorama",
+        "name:ar": "فندق ليفاتيو مسقط",
+        "tourism": "hotel"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.409092,
+          23.5834892
+        ]
+      },
+      "id": "node/6238042450"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6598402990",
+        "amenity": "bank",
+        "name": "Bank Muscat - Sohar Branch"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.7318,
+          24.35095
+        ]
+      },
+      "id": "node/6598402990"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6598466585",
+        "amenity": "bank",
+        "name": "Sohar International Bank - Sohar Branch"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.7315449,
+          24.3513196
+        ]
+      },
+      "id": "node/6598466585"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6695661285",
+        "name": "Muscat heights view",
+        "tourism": "viewpoint"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4800244,
+          23.594128
+        ]
+      },
+      "id": "node/6695661285"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7041976757",
+        "addr:city": "Sohar, Oman",
+        "addr:postcode": "311",
+        "addr:street": "طريق الباطنة السريع",
+        "email": "Sohar@ofa.com",
+        "leisure": "sports_centre",
+        "name": "Sohar Club Stadium",
+        "name:ar": "استاد نادي صحار",
+        "operator": "Sohar Club",
+        "phone": "2684387",
+        "sport": "soccer;hockey;volleyball;basketball;handball",
+        "website": "https://twitter.com/Soharfc",
+        "wikidata": "Q85870175",
+        "wikipedia": "ar:استاد نادي صحار"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.6392635,
+          24.3032609
+        ]
+      },
+      "id": "node/7041976757"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7054543218",
+        "amenity": "bank",
+        "atm": "yes",
+        "brand": "Bank Muscat",
+        "name": "Bank Muscat"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.198232,
+          22.2230757
+        ]
+      },
+      "id": "node/7054543218"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7063399140",
+        "amenity": "bank",
+        "atm": "yes",
+        "brand": "Bank Muscat",
+        "name": "Bank Muscat"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.6671907,
+          22.606831
+        ]
+      },
+      "id": "node/7063399140"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7111691654",
+        "addr:city": "sohar",
+        "addr:postcode": "311",
+        "building": "office",
+        "leisure": "sports_centre",
+        "name": "Sohar Club",
+        "name:ar": "نادي صحار",
+        "sport": "swimming;soccer;basketball;tennis;chess;volleyball;handball;athletics;hockey;beachvolleyball;bowling",
+        "wikidata": "Q16850383",
+        "wikipedia": "en:Sohar SC"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.7430321,
+          24.3322964
+        ]
+      },
+      "id": "node/7111691654"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7125440991",
+        "addr:full": "Way no.1528,Villa no. 2058 Madina Al Alam, Oman",
+        "addr:street": "سكة 1528",
+        "country": "TW",
+        "diplomatic": "embassy",
+        "email": "omn@mofa.gov.tw",
+        "embassy": "branch_embassy",
+        "fax": "+968-24605402",
+        "name": "Taipei Economic & Cultural Office, Muscat, Oman",
+        "name:zh": "駐阿曼王國台北經濟文化辦事處",
+        "office": "diplomatic",
+        "phone": "+968-24605695",
+        "target": "OM",
+        "website": "https://www.roc-taiwan.org/om_en/index.html"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.468304,
+          23.6069416
+        ]
+      },
+      "id": "node/7125440991"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7131375388",
+        "addr:city": "BARKA",
+        "addr:postcode": "320",
+        "addr:street": "SOUQ",
+        "air_conditioning": "yes",
+        "amenity": "cafe",
+        "branch": "TEA CLUB CAFE MUSANNAH",
+        "cuisine": "coffee_shop;restaurant;cafe;dessert;juice;pasta",
+        "internet_access": "wlan",
+        "internet_access:fee": "no",
+        "internet_access:ssid": "TP-LINK _BF76",
+        "name": "TEA & MORE CAFE BARKA",
+        "opening_hours": "24/7",
+        "outdoor_seating": "yes",
+        "phone": "0069890705148",
+        "website": "https://www.instagram.com/tea_and_more_barka_souq/"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.8881774,
+          23.6944072
+        ]
+      },
+      "id": "node/7131375388"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7228524385",
+        "internet_access": "wlan",
+        "name": "Royal Tulip Muscat",
+        "tourism": "hotel"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4041351,
+          23.5915217
+        ]
+      },
+      "id": "node/7228524385"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7243223073",
+        "leisure": "sports_centre",
+        "name": "Sohar Club Academy for Talents",
+        "phone": "96277745",
+        "sport": "soccer;basketball;horse_riding;karate;handball;volleyball;beachvolleyball;hockey;football",
+        "start_date": "2019"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.7435277,
+          24.3327803
+        ]
+      },
+      "id": "node/7243223073"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7924184884",
+        "amenity": "place_of_worship",
+        "name": "Christ Embassy Muscat",
+        "religion": "christian"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.536416,
+          23.6069217
+        ]
+      },
+      "id": "node/7924184884"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7924184885",
+        "amenity": "place_of_worship",
+        "name": "The Bread of Life Fellowship, Muscat Oman",
+        "religion": "christian"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5364018,
+          23.6070003
+        ]
+      },
+      "id": "node/7924184885"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7924184897",
+        "amenity": "place_of_worship",
+        "name": "Muscat Mar Gregorios Orthodox Church",
+        "religion": "christian"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5362856,
+          23.6065894
+        ]
+      },
+      "id": "node/7924184897"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/8044681828",
+        "name": "Muscat Old Cemetery",
+        "tourism": "attraction"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5989587,
+          23.6115601
+        ]
+      },
+      "id": "node/8044681828"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/8361148899",
+        "name": "Sur Hotel",
+        "tourism": "hotel"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.526482,
+          22.5685198
+        ]
+      },
+      "id": "node/8361148899"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/8583914277",
+        "amenity": "bank",
+        "atm": "yes",
+        "name": "Bank Muscat ATM",
+        "opening_hours": "24/7"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.3558103,
+          23.8716721
+        ]
+      },
+      "id": "node/8583914277"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/8645036573",
+        "amenity": "bank",
+        "name": "BANK MUSCAT ATM"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.1004557,
+          23.66226
+        ]
+      },
+      "id": "node/8645036573"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/8645036574",
+        "amenity": "bank",
+        "name": "BANK SOHAR ATM"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.1003052,
+          23.6623853
+        ]
+      },
+      "id": "node/8645036574"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/8659452574",
+        "amenity": "bank",
+        "name": "Bank Muscat ATM",
+        "name:ar": "صراف بنك مسقط"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.9524894,
+          23.6650897
+        ]
+      },
+      "id": "node/8659452574"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/8841844751",
+        "board_type": "welcome_sign",
+        "information": "board",
+        "name": "Wilayat Barka welcomes you",
+        "name:ar": "وِلايَةُ بَركاء تُرَحِّبْ بِكُم",
+        "tourism": "information"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.9695248,
+          23.6693764
+        ]
+      },
+      "id": "node/8841844751"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/9046044884",
+        "name": "Sohar beach bakery",
+        "name:ar": "مخبز شاطئ صحار",
+        "shop": "bakery"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.3292255,
+          23.8581137
+        ]
+      },
+      "id": "node/9046044884"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/9086798881",
+        "amenity": "bank",
+        "brand": "🏧",
+        "kids_area": "no",
+        "kids_area:fee": "no",
+        "kids_area:indoor": "no",
+        "kids_area:outdoor": "no",
+        "kids_area:supervised": "no",
+        "name": "Bank Muscat ATM",
+        "operator": "Bank Muscat"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.2206836,
+          23.9010413
+        ]
+      },
+      "id": "node/9086798881"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/9112343296",
+        "amenity": "bank",
+        "name": "Bank Muscat ATM"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.5811802,
+          23.754586
+        ]
+      },
+      "id": "node/9112343296"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/9391036228",
+        "amenity": "atm",
+        "name": "Bank Muscat"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.7362384,
+          24.3376372
+        ]
+      },
+      "id": "node/9391036228"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/9394876430",
+        "amenity": "atm",
+        "name": "Bank Muscat ATM"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2354001,
+          23.6119153
+        ]
+      },
+      "id": "node/9394876430"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/9442959116",
+        "amenity": "bank",
+        "name": "Bank Nizwa Barka branch"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.8847402,
+          23.6692123
+        ]
+      },
+      "id": "node/9442959116"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/9443029579",
+        "amenity": "atm",
+        "name": "Bank Muscat ATM"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.8861957,
+          23.6719753
+        ]
+      },
+      "id": "node/9443029579"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/9671471025",
+        "leisure": "park",
+        "name": "Salalah Gardens Mall Park"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.065896,
+          17.0228132
+        ]
+      },
+      "id": "node/9671471025"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/9672892459",
+        "amenity": "atm",
+        "brand": "Bank Muscat",
+        "name": "Bank Muscat ATM",
+        "operator": "Bank Muscat"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.7452673,
+          24.3615374
+        ]
+      },
+      "id": "node/9672892459"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/9676748882",
+        "amenity": "atm",
+        "brand": "Bank Muscat",
+        "name": "Bank Muscat ATM",
+        "operator": "Bank Muscat"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.8529874,
+          24.1311846
+        ]
+      },
+      "id": "node/9676748882"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/10001286960",
+        "name": "Dhofar insurance company",
+        "name:ar": "شركة ظفار للتأمين",
+        "office": "insurance"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.5313173,
+          22.874395
+        ]
+      },
+      "id": "node/10001286960"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/10001286965",
+        "amenity": "cafe",
+        "name": "Muscat grills",
+        "name:ar": "مسقط جريلز",
+        "phone": "94424248"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.5318266,
+          22.8745551
+        ]
+      },
+      "id": "node/10001286965"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/10001286973",
+        "name": "Muscat Mattress",
+        "name:ar": "مراتب مسقط",
+        "phone": "‏‪9447 7104‬‏",
+        "shop": "furniture"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.5350161,
+          22.8755109
+        ]
+      },
+      "id": "node/10001286973"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/10010927932",
+        "attraction": "carousel",
+        "name": "Muscat stud",
+        "name:ar": "مربط مسقط للخيول العربية الأصليه"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.7154415,
+          23.6620004
+        ]
+      },
+      "id": "node/10010927932"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/10058657405",
+        "brand": "W Hotels",
+        "brand:wikidata": "Q7958488",
+        "internet_access": "wlan",
+        "internet_access:fee": "no",
+        "name": "W Muscat",
+        "phone": "+96822120000",
+        "short_name": "W",
+        "stars": "5",
+        "start_date": "2019",
+        "tourism": "hotel",
+        "website": "https://www.marriott.com/en-us/hotels/mctwh-w-muscat/"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4661817,
+          23.616575
+        ]
+      },
+      "id": "node/10058657405"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/10102501415",
+        "bus": "yes",
+        "description": "To city center, 0.5 local currency pay with cash with the driver. 30-60 min / bus, 7*24.",
+        "highway": "bus_stop",
+        "name": "Muscat International Airport - A1",
+        "network": "Mwasalat",
+        "public_transport": "platform",
+        "website": "https://tickets.mwasalat.om/"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2907973,
+          23.6013134
+        ]
+      },
+      "id": "node/10102501415"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/10252473544",
+        "level": "2",
+        "name": "Muscat Duty Free",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2865027,
+          23.6034633
+        ]
+      },
+      "id": "node/10252473544"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/10701478921",
+        "addr:city": "MBD, Ruwi",
+        "addr:postcode": "114",
+        "addr:street": "4203",
+        "description": "Construction Company",
+        "name": "Ibthaj Muscat Trading & Contracting LLC",
+        "office": "company"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5543095,
+          23.5936261
+        ]
+      },
+      "id": "node/10701478921"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/10773036899",
+        "amenity": "restaurant",
+        "cuisine": "italian",
+        "name": "Dolphin Terrazza at Crowne Plaza Resort Salalah",
+        "opening_hours": "PH,Mo-Su 17:30-23:30"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.1522014,
+          17.0080032
+        ]
+      },
+      "id": "node/10773036899"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/10992692456",
+        "amenity": "bank",
+        "name": "Sohar International Bank Headquarters",
+        "name:ar": "المقر الرئيسي لبنك صحار الدولي",
+        "operator": "Sohar International"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.435652,
+          23.5962274
+        ]
+      },
+      "id": "node/10992692456"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11113400665",
+        "addr:city": "Muscat",
+        "addr:housenumber": "Villa 6",
+        "addr:street": "Way no. 48 North Azaibah",
+        "name": "Muscat Desert Adventures Tourism",
+        "phone": "+96824691300",
+        "shop": "travel_agency",
+        "website": "https://www.desertadventures.com/"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.3493083,
+          23.5956851
+        ]
+      },
+      "id": "node/11113400665"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11363321470",
+        "addr:housenumber": "730/D",
+        "addr:postcode": "130",
+        "addr:street": "Way 5510",
+        "internet_access": "wlan",
+        "name": "Viva Hostel Group Muscat",
+        "name:en": "Viva Hostel Group Muscat",
+        "opening_hours": "24/7",
+        "phone": "+96878607016",
+        "tourism": "hostel"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4108519,
+          23.5760863
+        ]
+      },
+      "id": "node/11363321470"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11436627452",
+        "name": "Muscat Pavillion By Architectural Wall Systems",
+        "office": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2972046,
+          23.5757163
+        ]
+      },
+      "id": "node/11436627452"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11597418569",
+        "brand": "Novotel",
+        "brand:wikidata": "Q420545",
+        "name": "Novotel Muscat Airport",
+        "tourism": "hotel"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.3004325,
+          23.5852629
+        ]
+      },
+      "id": "node/11597418569"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11860405290",
+        "name": "Jumeira Muscat Bay",
+        "tourism": "hotel"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.6434186,
+          23.5499083
+        ]
+      },
+      "id": "node/11860405290"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11874547780",
+        "alt_name": "Suri, Sūrī, swry, سوري",
+        "name": "Suri",
+        "name:en": "Suri",
+        "name:es": "Suri",
+        "name:fr": "Suri",
+        "place": "village",
+        "source": "https://www.mindat.org/feature-286231.html"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.9692777,
+          23.6059196
+        ]
+      },
+      "id": "node/11874547780"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11962404446",
+        "amenity": "cafe",
+        "name": "Sur Cafe"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4325274,
+          23.5845351
+        ]
+      },
+      "id": "node/11962404446"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12020599382",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy",
+        "name": "Salalah Pharmacy",
+        "name:ar": "صيدلية صلالة",
+        "name:en": "Salalah Pharmacy"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2432698,
+          23.5908766
+        ]
+      },
+      "id": "node/12020599382"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12064964440",
+        "name": "Muscat Candy",
+        "name:ar": "حلويات مسقط",
+        "name:en": "Muscat Candy",
+        "shop": "confectionery"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.477273,
+          23.4706101
+        ]
+      },
+      "id": "node/12064964440"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12068150742",
+        "amenity": "car_rental",
+        "name": "Mouj Muscat al Thahabi",
+        "name:ar": "موج مسقط الذهبي",
+        "name:en": "Mouj Muscat al Thahabi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.3980776,
+          23.5804033
+        ]
+      },
+      "id": "node/12068150742"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12083348042",
+        "addr:city": "Salalah",
+        "addr:street": "شارع الرباط",
+        "air_conditioning": "yes",
+        "branch": "Coffe Shop - Flower Shop- Chocolate Shop",
+        "contact:facebook": "https://instagram.com/linnechocolate?igshid=15ui89pljesgh",
+        "currency:OMR": "yes",
+        "email": "info@linnechocolate.com",
+        "name": "Linne Chocolate- Salalah Plaza",
+        "opening_hours": "Mo-Su 09:00-00:00",
+        "operator": "Linne Chocolate- Salalah Plaza",
+        "payment:cards": "yes",
+        "payment:cash": "yes",
+        "phone": "+968 94155588",
+        "shop": "chocolate"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.1490828,
+          17.0371658
+        ]
+      },
+      "id": "node/12083348042"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12279031730",
+        "amenity": "fast_food",
+        "cuisine": "gyros",
+        "name": "Felfel muscat"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.40551,
+          23.588646
+        ]
+      },
+      "id": "node/12279031730"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12325389614",
+        "amenity": "atm",
+        "name": "Muscat bank"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5444484,
+          23.5938815
+        ]
+      },
+      "id": "node/12325389614"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12392673055",
+        "addr:city": "مَسْقَط",
+        "addr:city:de": "Maskat",
+        "addr:city:en": "Muscat",
+        "addr:country": "OM",
+        "addr:housenumber": "ا-0431",
+        "addr:postcode": "112",
+        "addr:street": "ممشى شاطئ القرم",
+        "air_conditioning": "yes",
+        "amenity": "nightclub",
+        "contact:email": "vimuscat.om@gmail.com",
+        "contact:facebook": "https://www.facebook.com/profile.php?id=61557887152684",
+        "contact:instagram": "https://www.instagram.com/vimuscat/",
+        "contact:phone": "+968 97677170",
+        "contact:whatsapp": "+968 97677170",
+        "min_age": "21",
+        "name": "VI Muscat",
+        "opening_hours": "Mo-Su 20:00-03:00; PH off",
+        "smoking": "separated",
+        "source:addr": "Conversation with the owner on Telegram",
+        "website": "https://vimuscat.com/"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4629722,
+          23.6169559
+        ]
+      },
+      "id": "node/12392673055"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12465264373",
+        "check_date": "2024-12-31",
+        "name": "Muscat Duty Free",
+        "shop": "department_store"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.286933,
+          23.5979518
+        ]
+      },
+      "id": "node/12465264373"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12630182758",
+        "alt_name": "STS",
+        "man_made": "works",
+        "name": "Special Technical Services LLC ( STS ) - Sohar Workshop",
+        "operator": "Special Technical Services LLC",
+        "product": "pressure_vessels;heat_exchangers"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.5975092,
+          24.4475134
+        ]
+      },
+      "id": "node/12630182758"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12675537901",
+        "addr:housenumber": "PO Box 65",
+        "addr:postcode": "133",
+        "addr:street": "شارع دوحة الأدب",
+        "brand": "Mercure",
+        "brand:wikidata": "Q1709809",
+        "internet_access": "wlan",
+        "name": "Mercure Muscat",
+        "phone": "+96824112200",
+        "tourism": "hotel",
+        "website": "https://all.accor.com/hotel/C339/index.en.shtml"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4165736,
+          23.5888954
+        ]
+      },
+      "id": "node/12675537901"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12692336274",
+        "addr:city": "Muscat",
+        "addr:street": "Way 3517, Al Khuwair",
+        "amenity": "restaurant",
+        "cuisine": "indian;thai;noodle;steak_house;seafood",
+        "name": "Imperial Kitchen - Muscat",
+        "name:ar": "المطبخ الإمبراطوري - مسقط",
+        "opening_hours": "Mo-Su 11:00-00:00",
+        "phone": "+968 7687 6768",
+        "website": "https://imperialkitchenmuscat.com/"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4236913,
+          23.5954233
+        ]
+      },
+      "id": "node/12692336274"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12810890700",
+        "healthcare": "alternative",
+        "healthcare:speciality": "ayurveda",
+        "name": "Balance Muscat Ayurveda and Yoga Center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.441318,
+          23.594252
+        ]
+      },
+      "id": "node/12810890700"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12819524002",
+        "addr:street": "Way 3307, bldg. 30 Alkhuwair,",
+        "brand": "Lamborghini",
+        "brand:wikidata": "Q35886",
+        "name": "Lamborghini Muscat",
+        "phone": "+968 24472695",
+        "shop": "car"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4461297,
+          23.5969157
+        ]
+      },
+      "id": "node/12819524002"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12850981790",
+        "addr:city": "Muscat",
+        "addr:postcode": "101",
+        "addr:street": "Dauhat Al Adab St",
+        "amenity": "restaurant",
+        "cuisine": "barbecue",
+        "name": "Meat Moot Muscat",
+        "opening_hours": "Mo-Su 12:00-23:30",
+        "phone": "+96893222107",
+        "website": "https://meatmoot.com.tr/menu/muscatmenu/"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4065972,
+          23.5726567
+        ]
+      },
+      "id": "node/12850981790"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12954038003",
+        "name": "Salalah Royal Hotel Suites",
+        "tourism": "hotel"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0939651,
+          17.0185978
+        ]
+      },
+      "id": "node/12954038003"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12954086001",
+        "addr:street": "Al Maaridh Street Ghala Heights Complex Adjacent to Sultan Qaboos St.",
+        "name": "Mövenpick Hotel & Apartments Ghala Muscat",
+        "tourism": "hotel"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.3594144,
+          23.5884303
+        ]
+      },
+      "id": "node/12954086001"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12954158201",
+        "addr:street": "شارع السلطان قابوس",
+        "name": "Golden Tulip Muscat",
+        "tourism": "hotel"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4132089,
+          23.5943836
+        ]
+      },
+      "id": "node/12954158201"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12979272296",
+        "addr:city": "مرتفعات المطار",
+        "addr:housenumber": "1",
+        "addr:place": "حي العرفان",
+        "addr:postcode": "111",
+        "email": "altareqproperty@outlook.com",
+        "internet_access": "wlan",
+        "internet_access:fee": "no",
+        "name": "Luxury 1BHK with Balcony - Muscat Hills",
+        "operator": "ALTAREQ PROPERTY",
+        "phone": "+96899847744",
+        "rooms": "1",
+        "tourism": "apartment",
+        "website": "https://www.booking.com/hotel/om/the-peace.en-gb.html?label=gen173nr-1BCAsorwFCCXRoZS1wZWFjZUgzWARorwGIAQGYAQm4ARjIAQzYAQHoAQGIAgGoAgS4Arumo8MGwAIB0gIkYTZkMmJjYjAtMzU2My00ZTQxLWE3Y2QtNTA0OWY0YWI3M2U52AIF4AIB&sid=46490420bd76e8d00310d7ca5c19a501&dist=0&kee"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.299257,
+          23.5775335
+        ]
+      },
+      "id": "node/12979272296"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12979272297",
+        "addr:city": "مرتفعات المطار",
+        "addr:housenumber": "1",
+        "addr:place": "حي العرفان",
+        "addr:postcode": "111",
+        "email": "altareqproperty@outlook.com",
+        "internet_access": "wlan",
+        "internet_access:fee": "no",
+        "name": "Luxury 1BHK with Balcony - Muscat Hills",
+        "operator": "ALTAREQ PROPERTY",
+        "phone": "+96899847744",
+        "rooms": "1",
+        "tourism": "apartment",
+        "website": "https://www.booking.com/hotel/om/the-peace.en-gb.html?label=gen173nr-1BCAsorwFCCXRoZS1wZWFjZUgzWARorwGIAQGYAQm4ARjIAQzYAQHoAQGIAgGoAgS4Arumo8MGwAIB0gIkYTZkMmJjYjAtMzU2My00ZTQxLWE3Y2QtNTA0OWY0YWI3M2U52AIF4AIB&sid=46490420bd76e8d00310d7ca5c19a501&dist=0&kee"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.299292,
+          23.577612
+        ]
+      },
+      "id": "node/12979272297"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13027954569",
+        "club": "sport",
+        "name": "Muscat Super Spikers"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5678199,
+          23.5700731
+        ]
+      },
+      "id": "node/13027954569"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13306429602",
+        "amenity": "bank",
+        "name": "Bank Muscat"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.7463525,
+          24.3676706
+        ]
+      },
+      "id": "node/13306429602"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13306435901",
+        "internet_access": "wlan",
+        "name": "Marina Sohar",
+        "phone": "97866338",
+        "tourism": "hotel"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.7428933,
+          24.3723108
+        ]
+      },
+      "id": "node/13306435901"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13390855701",
+        "name": "Muscat International Hotel",
+        "tourism": "hotel"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4356563,
+          23.5944437
+        ]
+      },
+      "id": "node/13390855701"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13404166217",
+        "alt_name": "Muscat Bike Shop",
+        "int_name": "Muscat Bikes",
+        "name": "Muscat Bikes",
+        "name:en": "Muscat Bikes",
+        "phone": "+968 9178 0591",
+        "service:bicycle:repair": "yes",
+        "service:bicycle:retail": "yes",
+        "shop": "bicycle",
+        "website": "https://muscatbike.com/"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.3208746,
+          23.5843879
+        ]
+      },
+      "id": "node/13404166217"
+    }
+  ]
+}
