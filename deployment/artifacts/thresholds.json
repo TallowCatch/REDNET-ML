@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "positive_class": 1,
+  "default_operating_point": "prec_0_95",
+  "default_threshold": 0.5327723842346281,
+  "operating_points": {
+    "best_f1": {
+      "threshold": 0.3926301481609915,
+      "precision": 0.8490566037735849,
+      "recall": 0.8823529411764706,
+      "f1": 0.8653846153846154
+    },
+    "prec_0_9": {
+      "threshold": 0.4809259350429718,
+      "precision": 0.9032258064516129,
+      "recall": 0.5490196078431373,
+      "f1": 0.6829268292682927
+    },
+    "prec_0_95": {
+      "threshold": 0.5327723842346281,
+      "precision": 0.9583333333333334,
+      "recall": 0.45098039215686275,
+      "f1": 0.6133333333333333
+    }
+  },
+  "notes": "Computed using deployment inference probs on runs/fusion/frozen/catboost_timecv4_minpos15/merged_features_debug_cv4_test.csv"
+}

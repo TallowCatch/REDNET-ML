@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "positive_class": 1,
+  "default_threshold": 0.4809259350429718,
+  "default_operating_point": "prec_0_90",
+  "operating_points": {
+    "best_f1": {
+      "threshold": 0.3926301481609915,
+      "precision": 0.8490566037735849,
+      "recall": 0.8823529411764706,
+      "f1": 0.8653846153846154
+    },
+    "prec_0_90": {
+      "threshold": 0.4809259350429718,
+      "precision": 0.9032258064516129,
+      "recall": 0.5490196078431373,
+      "f1": 0.6829268292682927
+    },
+    "prec_0_95": {
+      "threshold": 0.5327723842346281,
+      "precision": 0.9583333333333334,
+      "recall": 0.45098039215686275,
+      "f1": 0.6133333333333333
+    },
+    "rec_0_80": {
+      "threshold": 0.40720981846433374,
+      "precision": 0.86,
+      "recall": 0.8431372549019608,
+      "f1": 0.8514851485148515
+    },
+    "rec_0_90": {
+      "threshold": 0.38093591163782686,
+      "precision": 0.7666666666666667,
+      "recall": 0.9019607843137255,
+      "f1": 0.8288288288288289
+    }
+  },
+  "eval_csv": "runs/fusion/frozen/catboost_timecv4_minpos15/merged_features_debug_cv4_test.csv",
+  "label_col": "hab_label",
+  "notes": "Computed using deployment inference probabilities (run_inference)."
+}

@@ -1,0 +1,22 @@
+[
+    {
+      "month_key": "2023-09",
+      "nflh": 0.2,
+      "chlor_a": 0.8,
+      "kd490": 0.09,
+      "sst": 28.0,
+      "sst_anom": 0.5,
+      "sst_anom_z": 0.0,
+      "sst_clim_rm": 0.0,
+      "fai_mean": 0.1,
+      "ndwi_mean": 0.2,
+      "ndwi_std": 0.05,
+      "rednir_mean": 0.03,
+      "rednir_std": 0.0,
+      "p_frcnn_r50_med": 0.9,
+      "p_frcnn_mb_med": 0.25,
+      "p_ssd_mb_med": 0.55,
+      "p_tab": 0.2
+    }
+  ]
+  
