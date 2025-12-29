@@ -206,7 +206,7 @@ def main():
     features = list(bundle["features"])
     saved_args = bundle.get("args", {})
 
-    outdir = Path(args.outdir) if args.outdir else (run_dir / "shap_ablation")
+    outdir = Path(args.outdir) if args.outdir else (run_dir / "shap_ablation" / args.shap_fold)
     outdir.mkdir(parents=True, exist_ok=True)
 
     def pick_shap_csv(run_dir: Path, split: str, fold: str) -> Path:

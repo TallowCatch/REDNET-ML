@@ -1,0 +1,21 @@
+{
+  "artifact_name": "fusion_catboost_timecv4_minpos15",
+  "created_utc": "2025-12-28T15:08:48.927302+00:00",
+  "source_run_dir": "runs/fusion/frozen/catboost_timecv4_minpos15",
+  "models": [
+    {
+      "name": "fusion_model_cv2.joblib",
+      "role": "ensemble_member"
+    },
+    {
+      "name": "fusion_model_cv3.joblib",
+      "role": "ensemble_member"
+    },
+    {
+      "name": "fusion_model_cv4.joblib",
+      "role": "ensemble_member"
+    }
+  ],
+  "inference_mode": "ensemble_mean",
+  "notes": "Frozen deployment artifact"
+}
