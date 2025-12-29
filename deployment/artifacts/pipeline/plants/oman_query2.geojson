@@ -1,0 +1,495 @@
+{
+  "type": "FeatureCollection",
+  "generator": "overpass-turbo",
+  "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.",
+  "timestamp": "2025-12-29T14:01:00Z",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/260257908",
+        "building": "industrial",
+        "name": "Water Desaliniation Reseach Center",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2232465,
+          23.6571846
+        ]
+      },
+      "id": "way/260257908"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/260711011",
+        "addr:street": "Wadi al Bahais Street",
+        "building": "yes",
+        "name": "Metro Shopping Centre",
+        "source": "Kaart Ground Survey 2017",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.185156,
+          23.6827969
+        ]
+      },
+      "id": "way/260711011"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/368173509",
+        "highway": "unclassified",
+        "name": "محطة تحلية مياه الصرف الصحي",
+        "oneway": "no",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.3387918,
+          22.9875033
+        ]
+      },
+      "id": "way/368173509"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/386838289",
+        "landuse": "industrial",
+        "name": "محطة تحلية المياة والطاقة بالغبرة",
+        "name:en": "Ghubrah Power & Desalination Plant",
+        "name:fa": "نیروگاه و نمک‌زدایی آب غبره",
+        "operator": "Al Ghubrah Power and Desalination Company SAOC",
+        "plant:output:electricity": "190 MW",
+        "plant:source": "gas",
+        "power": "plant",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4137212,
+          23.6018997
+        ]
+      },
+      "id": "way/386838289"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/449632054",
+        "building": "industrial",
+        "name": "Sur Desalination Plant",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.4529725,
+          22.6220753
+        ]
+      },
+      "id": "way/449632054"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/761434596",
+        "amenity": "dentist",
+        "building": "yes",
+        "healthcare": "dentist",
+        "name": "Euro Arabian Specialist Dental Center",
+        "opening_hours": "Sa-We 09:00-21:00",
+        "phone": "+968 9408 0100",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.4975016,
+          22.5928012
+        ]
+      },
+      "id": "way/761434596"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/897718173",
+        "highway": "unclassified",
+        "name": "محطة تحلية مياه الصرف الصحي",
+        "oneway": "no",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.3435253,
+          22.9847507
+        ]
+      },
+      "id": "way/897718173"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1079022886",
+        "building": "yes",
+        "name": "محطة تحلية المياه",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.2667608,
+          25.6716585
+        ]
+      },
+      "id": "way/1079022886"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1236881046",
+        "name": "Sharqiyah Desalination solar farm",
+        "operator": "Total Energies",
+        "plant:method": "photovoltaic",
+        "plant:output:electricity": "17 MW",
+        "plant:source": "solar",
+        "power": "plant",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.6321193,
+          21.9310725
+        ]
+      },
+      "id": "way/1236881046"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3691000225",
+        "addr:city": "salalah",
+        "addr:state": "dhofar",
+        "addr:street": "Robat Street",
+        "amenity": "restaurant",
+        "name": "Maestro Cafe",
+        "outdoor_seating": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0583946,
+          17.0216218
+        ]
+      },
+      "id": "node/3691000225"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4955749329",
+        "addr:street": "Way 3516",
+        "name": "Zero Point",
+        "shop": "yes",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5506368,
+          23.5939366
+        ]
+      },
+      "id": "node/4955749329"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4957529779",
+        "addr:street": "Al Maha Street",
+        "name": "Pro Tech",
+        "shop": "electronics",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4165327,
+          23.5742174
+        ]
+      },
+      "id": "node/4957529779"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4961983622",
+        "amenity": "restaurant",
+        "name": "BIstro 64",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4629206,
+          23.6157712
+        ]
+      },
+      "id": "node/4961983622"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4961983623",
+        "addr:street": "Way 2817",
+        "amenity": "restaurant",
+        "cuisine": "persian",
+        "name": "Cherry Bistro",
+        "opening_hours": "Mo-Su 07:00-24:00",
+        "phone": "+96893311372",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4628908,
+          23.6165668
+        ]
+      },
+      "id": "node/4961983623"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4962229536",
+        "addr:street": "Way 4009",
+        "name": "Metro International",
+        "shop": "yes",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4041314,
+          23.5900996
+        ]
+      },
+      "id": "node/4962229536"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4964395297",
+        "addr:street": "Al Qareen Street",
+        "name": "Aero Space",
+        "shop": "travel_agency",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.5432458,
+          23.5913299
+        ]
+      },
+      "id": "node/4964395297"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4975672243",
+        "name": "Euro Therm",
+        "shop": "yes",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.0794724,
+          17.0125861
+        ]
+      },
+      "id": "node/4975672243"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4975921979",
+        "addr:street": "23rd July Street",
+        "name": "Euro Optical Centre",
+        "shop": "optician",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.1069169,
+          17.0186046
+        ]
+      },
+      "id": "node/4975921979"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5468980000",
+        "addr:city": "Muscat",
+        "addr:postcode": "940",
+        "addr:street": "شارع السعيدية",
+        "email": "oman@euro-divers.com",
+        "name": "Euro-Divers Oman",
+        "operator": "Euro-Divers",
+        "payment:cash": "yes",
+        "payment:credit_cards": "yes",
+        "shop": "scuba_diving"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.6062562,
+          23.5817935
+        ]
+      },
+      "id": "node/5468980000"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5905940285",
+        "addr:street": "شارع المها",
+        "amenity": "cafe",
+        "cuisine": "african",
+        "name": "Kilimanjaro Cafe",
+        "opening_hours": "Mo-Su 09:00-23:59",
+        "phone": "+96897865726"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.4114101,
+          23.5630949
+        ]
+      },
+      "id": "node/5905940285"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6409458586",
+        "amenity": "restaurant",
+        "internet_access": "wlan",
+        "name": "Sombrero;مطعم سنبريرو",
+        "name:ar": "سام بريرو مكسيك"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.1820574,
+          23.6551929
+        ]
+      },
+      "id": "node/6409458586"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6723601486",
+        "amenity": "fast_food",
+        "name": "Star zero fat"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.4504453,
+          24.7462497
+        ]
+      },
+      "id": "node/6723601486"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7973109137",
+        "description": "Media Production and Social Media Management Services and Interior Design",
+        "ele": "Al Salam Tower - Second Floor - Office 22",
+        "image": "https://www.instagram.com/fanoospro/",
+        "name": "FanoosPro"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2039874,
+          23.6404927
+        ]
+      },
+      "id": "node/7973109137"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/10001286968",
+        "name": "Pro house for lightning & building materials",
+        "name:ar": "برو هاوس للإناره ومواد البناء",
+        "phone": "‏‪9556 5448‬‏",
+        "shop": "lighting"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.5318731,
+          22.8745678
+        ]
+      },
+      "id": "node/10001286968"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11963206369",
+        "addr:street": "سكة 3127",
+        "amenity": "restaurant",
+        "cuisine": "arab;chinese;indian;japanese",
+        "name": "Macro Boost",
+        "name:ar": "ماكرو بوست",
+        "opening_hours": "Mo-Su 09:00-00:00",
+        "phone": "+96872277799",
+        "website": "https://www.macroboost.com/"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.2169797,
+          23.6477298
+        ]
+      },
+      "id": "node/11963206369"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11980689682",
+        "amenity": "restaurant",
+        "name": "Macro Boost"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.43174,
+          23.5950431
+        ]
+      },
+      "id": "node/11980689682"
+    }
+  ]
+}
