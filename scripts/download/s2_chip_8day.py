@@ -7,6 +7,7 @@ import numpy as np
 import rasterio
 from rasterio.windows import Window
 from rasterio.transform import xy, Affine
+from rasterio.windows import from_bounds, bounds as win_bounds
 from shapely.geometry import shape, box, mapping, Polygon
 from shapely.ops import unary_union, transform as shp_transform
 from pystac_client import Client
@@ -84,11 +85,10 @@ def search_items_8day(aoi_geom, start, end, max_cloud, collection="sentinel-2-l2
             datetime=f"{w0}/{w1}",
             intersects=mapping(aoi_geom),
             query={"eo:cloud_cover": {"lt": max_cloud}},
-            max_items=200  # generous; we down-select below
+            max_items=200
         )
 
         items = list(q.items())
-        # Sort by cloud cover (ascending); fallback=+inf if missing
         items.sort(key=lambda it: it.properties.get("eo:cloud_cover", float("inf")))
 
         kept = 0
@@ -108,7 +108,7 @@ def search_items_8day(aoi_geom, start, end, max_cloud, collection="sentinel-2-l2
     return picked
 
 # ────────────────────────────────────────────────────────────────────────────────
-# RGB + SCL readers
+# RGB reader
 def read_rgb_window(item, win: Window, out_size: int):
     """Read RGB window as 3xHxW array with simple 2–98% stretch."""
     bands = []
@@ -126,97 +126,126 @@ def read_rgb_window(item, win: Window, out_size: int):
     stack = np.clip((stack - p2) / (p98 - p2 + 1e-6), 0, 1) * 255
     return stack.astype(np.uint8), transform_out, crs
 
-def read_scl(item):
-    if "SCL" not in item.assets:
-        return None
-    with rasterio.open(item.assets["SCL"].href) as r:
-        return r.read(1)
-
-# ────────────────────────────────────────────────────────────────────────────────
-# UTM/CRS helpers for AOI reprojection
-UTM_TILE_PAT = None  # not needed here; we use image CRS directly
-
 # ────────────────────────────────────────────────────────────────────────────────
 # Chipping
 def chip_stream(
     item, aoi_item, size=640, stride=256,
-    scl_water_min_frac=0.01, debug=False,
-    jitter_px=64,            # up to ±64 px random shift
-    extra_scales=(1.0, 0.8)  # also crop at 80% size
+    scl_water_min_frac=0.00, debug=False,
+    jitter_px=64,
+    extra_scales=(1.0, 0.8)
 ):
-    with rasterio.open(item.assets["B03"].href) as r:
-        H, W = r.height, r.width
-        T = r.transform
-        img_poly = raster_poly(T, W, H)
+    """
+    IMPORTANT FIX:
+    Sentinel-2 SCL is typically 20m while B02/B03/B04 are 10m.
+    You cannot slice SCL using B03 row/col indices. We read SCL per-chip using bounds.
+    """
+    # open the 10m reference band once
+    with rasterio.open(item.assets["B03"].href) as r10:
+        H, W = r10.height, r10.width
+        T10 = r10.transform
+        img_poly = raster_poly(T10, W, H)
 
-    clip = aoi_item.intersection(img_poly)
-    if clip.is_empty:
-        if debug: print("  debug: AOI∩image empty")
-        return
+        # open SCL once (if present)
+        scl_ds = None
+        if "SCL" in item.assets:
+            try:
+                scl_ds = rasterio.open(item.assets["SCL"].href)
+            except Exception:
+                scl_ds = None
 
-    scl = read_scl(item)
+        clip = aoi_item.intersection(img_poly)
+        if clip.is_empty:
+            if debug: print("  debug: AOI∩image empty")
+            if scl_ds is not None:
+                scl_ds.close()
+            return
 
-    from rasterio.transform import rowcol
-    xmin, ymin, xmax, ymax = clip.bounds
-    r0, c0 = rowcol(T, xmin, ymax)
-    r1, c1 = rowcol(T, xmax, ymin)
-    rmin, rmax = sorted([max(0, min(H-1, r0)), max(0, min(H-1, r1))])
-    cmin, cmax = sorted([max(0, min(W-1, c0)), max(0, min(W-1, c1))])
+        from rasterio.transform import rowcol
+        xmin, ymin, xmax, ymax = clip.bounds
+        r0, c0 = rowcol(T10, xmin, ymax)
+        r1, c1 = rowcol(T10, xmax, ymin)
+        rmin, rmax = sorted([max(0, min(H-1, r0)), max(0, min(H-1, r1))])
+        cmin, cmax = sorted([max(0, min(W-1, c0)), max(0, min(W-1, c1))])
 
-    # pad to be safe, then make a stride grid
-    pad = size
-    rmin = max(0, rmin - pad); rmax = min(H, rmax + pad)
-    cmin = max(0, cmin - pad); cmax = min(W, cmax + pad)
-    start_r = (rmin // stride) * stride
-    start_c = (cmin // stride) * stride
+        pad = size
+        rmin = max(0, rmin - pad); rmax = min(H, rmax + pad)
+        cmin = max(0, cmin - pad); cmax = min(W, cmax + pad)
+        start_r = (rmin // stride) * stride
+        start_c = (cmin // stride) * stride
 
-    rng = np.random.default_rng()
+        rng = np.random.default_rng()
 
-    def passes_water(r, c, s):
-        if scl is None:
-            return True
-        sub = scl[r:r+s, c:c+s]
-        return (sub.size > 0) and (float((sub == 6).mean()) >= scl_water_min_frac)
+        def passes_water(win10: Window) -> bool:
+            if scl_ds is None:
+                return True
 
-    wrote_local = 0
-    for r_base in range(start_r, max(0, rmax - size + 1) + 1, stride):
-        for c_base in range(start_c, max(0, cmax - size + 1) + 1, stride):
+            # Get chip bounds in CRS units from the 10m window
+            bxmin, bymin, bxmax, bymax = win_bounds(win10, T10)
+
+            # Build a window in the SCL grid from bounds and read at chip resolution
+            try:
+                w_scl = from_bounds(bxmin, bymin, bxmax, bymax, transform=scl_ds.transform)
+                # read resampled to size x size so fraction is comparable
+                scl = scl_ds.read(1, window=w_scl, out_shape=(int(win10.height), int(win10.width)))
+            except Exception:
+                return True  # fail-open rather than drop everything
+
+            if scl.size == 0:
+                return True
+
+            # 6 = WATER, 7/8/9 = CLOUD prob, 10 = THIN_CIRRUS, 11 = SNOW/ICE
+            water_frac = float((scl == 6).mean())
+            return water_frac >= scl_water_min_frac
+
+        wrote_local = 0
+
+        for r_base in range(start_r, max(0, rmax - size + 1) + 1, stride):
+            for c_base in range(start_c, max(0, cmax - size + 1) + 1, stride):
+                for scale in extra_scales:
+                    s = int(round(size * scale))
+                    dr = int(rng.integers(-jitter_px, jitter_px + 1))
+                    dc = int(rng.integers(-jitter_px, jitter_px + 1))
+                    r = max(0, min(H - s, r_base + dr))
+                    c = max(0, min(W - s, c_base + dc))
+
+                    win10 = Window(c, r, s, s)
+                    wpoly = window_poly(T10, win10)
+                    if not wpoly.intersects(clip):
+                        continue
+
+                    if not passes_water(win10):
+                        continue
+
+                    rgb, _, _ = read_rgb_window(item, win10, out_size=size)  # upscale to size
+                    if rgb.max() == 0:
+                        continue
+
+                    wrote_local += 1
+                    yield np.transpose(rgb, (1, 2, 0)), wpoly.bounds
+
+        # fallback: centered chip (also try scales)
+        if wrote_local == 0:
+            cx = (xmin + xmax) * 0.5; cy = (ymin + ymax) * 0.5
+            rr, cc = rowcol(T10, cx, cy)
             for scale in extra_scales:
                 s = int(round(size * scale))
-                dr = int(rng.integers(-jitter_px, jitter_px+1))
-                dc = int(rng.integers(-jitter_px, jitter_px+1))
-                r = max(0, min(H - s, r_base + dr))
-                c = max(0, min(W - s, c_base + dc))
-                win = Window(c, r, s, s)
-                wpoly = window_poly(T, win)
-                if not wpoly.intersects(clip):
-                    continue
-                if not passes_water(r, c, s):
-                    continue
-                rgb, _, _ = read_rgb_window(item, win, out_size=size)  # upscale smaller crops to `size`
-                if rgb.max() == 0:
-                    continue
-                wrote_local += 1
-                yield np.transpose(rgb, (1, 2, 0)), wpoly.bounds
+                r = max(0, min(H - s, rr - s // 2))
+                c = max(0, min(W - s, cc - s // 2))
+                win10 = Window(c, r, s, s)
 
-    # fallback: centered chip (also try scales)
-    if wrote_local == 0:
-        cx = (xmin + xmax) * 0.5; cy = (ymin + ymax) * 0.5
-        rr, cc = rowcol(T, cx, cy)
-        for scale in extra_scales:
-            s = int(round(size * scale))
-            r = max(0, min(H - s, rr - s // 2))
-            c = max(0, min(W - s, cc - s // 2))
-            if not passes_water(r, c, s):
-                continue
-            win = Window(c, r, s, s)
-            rgb, _, _ = read_rgb_window(item, win, out_size=size)
-            if rgb.max() > 0:
-                if debug: print("  debug: forced center chip")
-                yield np.transpose(rgb, (1, 2, 0)), window_poly(T, win).bounds
+                if not passes_water(win10):
+                    continue
 
-    if debug:
-        print(f"  debug chip: wrote_local={wrote_local}")
+                rgb, _, _ = read_rgb_window(item, win10, out_size=size)
+                if rgb.max() > 0:
+                    if debug: print("  debug: forced center chip")
+                    yield np.transpose(rgb, (1, 2, 0)), window_poly(T10, win10).bounds
+
+        if debug:
+            print(f"  debug chip: wrote_local={wrote_local}")
+
+        if scl_ds is not None:
+            scl_ds.close()
 
 # ────────────────────────────────────────────────────────────────────────────────
 # Main
