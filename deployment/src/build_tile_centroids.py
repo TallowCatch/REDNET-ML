@@ -1,97 +1,183 @@
 #!/usr/bin/env python3
 import argparse
-import glob
-import json
+import re
+import sys
 from pathlib import Path
+from datetime import datetime, timedelta, timezone
 
-import numpy as np
 import pandas as pd
+import requests
 
-# Try a bunch of common column names seen in chip index exports
-BBOX_CANDIDATES = [
-    ("lon_min", "lat_min", "lon_max", "lat_max"),
-    ("xmin", "ymin", "xmax", "ymax"),
-    ("min_lon", "min_lat", "max_lon", "max_lat"),
-    ("west", "south", "east", "north"),
-    ("left", "bottom", "right", "top"),
-]
+# Planetary Computer STAC API (Sentinel-2 L2A lives here)
+STAC_SEARCH = "https://planetarycomputer.microsoft.com/api/stac/v1/search"
+COLLECTION = "sentinel-2-l2a"
 
-CENTROID_CANDIDATES = [
-    ("lon", "lat"),
-    ("center_lon", "center_lat"),
-    ("centroid_lon", "centroid_lat"),
-    ("x_center", "y_center"),
-]
+SCENE_RE = re.compile(
+    r'^(S2[ABC])_MSIL2A_(\d{8}T\d{6})_R(\d{3})_T([0-9A-Z]{2}[0-9A-Z]{3})'
+)
 
-TILE_COL_CANDIDATES = ["tile", "chip", "chip_id", "filename", "tile_name"]
+def parse_scene(scene_id: str):
+    """
+    Returns (platform, sensing_dt_utc, rel_orbit, mgrs_tile)
+    Example id:
+      S2A_MSIL2A_20220928T065651_R063_T39QXG_20240730T192859
+    """
+    m = SCENE_RE.match(scene_id)
+    if not m:
+        return None
+    platform = m.group(1)               # S2A/S2B/S2C
+    sensing = m.group(2)                # YYYYMMDDThhmmss
+    rel_orbit = m.group(3)              # R063
+    mgrs = m.group(4)                   # 39QXG (already without leading 'T')
+    dt = datetime.strptime(sensing, "%Y%m%dT%H%M%S").replace(tzinfo=timezone.utc)
+    return platform, dt, rel_orbit, mgrs
 
-def find_first_present(cols, candidates):
-    cols_set = set([c.lower() for c in cols])
-    for cand in candidates:
-        if all(c.lower() in cols_set for c in cand):
-            # return actual-cased column names
-            mapping = {c.lower(): c for c in cols}
-            return tuple(mapping[c.lower()] for c in cand)
+def geom_centroid_lonlat(geom):
+    """
+    geom is GeoJSON geometry. We'll compute centroid from bbox as a robust fallback.
+    """
+    # If STAC provides bbox (it does), use that.
+    # bbox is [minLon, minLat, maxLon, maxLat]
     return None
+
+def fetch_best_item(platform, dt, mgrs, rel_orbit=None, minutes_window=30):
+    """
+    Query STAC by datetime window + MGRS tile + platform.
+    Then choose the item with id that best matches prefix.
+    """
+    start = (dt - timedelta(minutes=minutes_window)).isoformat().replace("+00:00", "Z")
+    end   = (dt + timedelta(minutes=minutes_window)).isoformat().replace("+00:00", "Z")
+
+    # STAC search payload
+    payload = {
+        "collections": [COLLECTION],
+        "datetime": f"{start}/{end}",
+        "limit": 100,
+        "query": {
+            # many catalogs use "platform" = "sentinel-2a" etc; PC often exposes both "platform" and "sat:platform_international_designator"
+            # We'll rely on mgrs tile first; platform filter is a nice-to-have, not required.
+            "mgrs:tile": {"eq": mgrs},
+        }
+    }
+
+    r = requests.post(STAC_SEARCH, json=payload, timeout=60)
+    r.raise_for_status()
+    feats = r.json().get("features", [])
+    if not feats:
+        return None
+
+    # Prefer items whose id starts with the stable prefix:
+    # S2A_MSIL2A_YYYYMMDDThhmmss_R063_T39QXG
+    prefix = f"{platform}_MSIL2A_{dt.strftime('%Y%m%dT%H%M%S')}_R{rel_orbit}_T{mgrs}"
+
+    # Score candidates
+    best = None
+    best_score = -1
+    for it in feats:
+        iid = it.get("id", "")
+        score = 0
+        if iid.startswith(prefix):
+            score += 10
+        # closer time gets higher score
+        props = it.get("properties", {})
+        tstr = props.get("datetime") or props.get("start_datetime") or ""
+        try:
+            tdt = datetime.fromisoformat(tstr.replace("Z", "+00:00"))
+            dt_diff = abs((tdt - dt).total_seconds())
+            score += max(0, 5 - dt_diff / 600)  # within 50 min gives something
+        except Exception:
+            pass
+        # platform hint
+        plat = (props.get("platform") or "").lower()
+        if platform.lower() in plat:
+            score += 1
+
+        if score > best_score:
+            best = it
+            best_score = score
+
+    return best
+
+def centroid_from_item(item):
+    # Prefer bbox
+    bbox = item.get("bbox", None)
+    if bbox and len(bbox) == 4:
+        minx, miny, maxx, maxy = bbox
+        lon = (minx + maxx) / 2.0
+        lat = (miny + maxy) / 2.0
+        return lat, lon
+
+    # Fallback: geometry coordinates bbox-like calc (rarely needed)
+    geom = item.get("geometry", None)
+    if not geom:
+        return None
+    coords = []
+
+    def walk(x):
+        if isinstance(x, (list, tuple)) and len(x) == 2 and all(isinstance(v, (int, float)) for v in x):
+            coords.append(x)
+        elif isinstance(x, (list, tuple)):
+            for y in x:
+                walk(y)
+
+    walk(geom.get("coordinates", []))
+    if not coords:
+        return None
+    lons = [c[0] for c in coords]
+    lats = [c[1] for c in coords]
+    return (min(lats) + max(lats)) / 2.0, (min(lons) + max(lons)) / 2.0
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--chips_glob", required=True, help="Glob for chip_indices_clean.csv files")
+    ap.add_argument("--infer_csv", required=True)
     ap.add_argument("--out_csv", required=True)
     args = ap.parse_args()
 
-    paths = sorted(glob.glob(args.chips_glob))
-    if not paths:
-        raise SystemExit(f"❌ No files matched chips_glob: {args.chips_glob}")
+    df = pd.read_csv(args.infer_csv)
+    if "scene_id" not in df.columns:
+        raise SystemExit("infer_csv must have scene_id")
+    if "tile" not in df.columns:
+        raise SystemExit("infer_csv must have tile")
 
-    frames = []
-    for p in paths:
-        df = pd.read_csv(p)
-        df["_source_file"] = str(p)
-        frames.append(df)
+    # unique tiles
+    tiles = df[["tile", "scene_id"]].drop_duplicates().reset_index(drop=True)
 
-    chips = pd.concat(frames, ignore_index=True)
-    cols = list(chips.columns)
+    out_rows = []
+    missing = 0
 
-    tile_col = None
-    for c in TILE_COL_CANDIDATES:
-        if c in chips.columns:
-            tile_col = c
-            break
-    if tile_col is None:
-        raise SystemExit(f"❌ Could not find a tile column. Tried: {TILE_COL_CANDIDATES}\nColumns: {cols}")
+    for _, row in tiles.iterrows():
+        tile = str(row["tile"])
+        scene_id = str(row["scene_id"])
 
-    # 1) if centroid columns exist, use them
-    cent = find_first_present(cols, CENTROID_CANDIDATES)
-    if cent is not None:
-        lon_c, lat_c = cent
-        out = chips[[tile_col, lat_c, lon_c]].copy()
-        out = out.rename(columns={tile_col: "tile", lat_c: "tile_lat", lon_c: "tile_lon"})
-    else:
-        # 2) else compute centroid from bbox columns
-        bbox = find_first_present(cols, BBOX_CANDIDATES)
-        if bbox is None:
-            # Dump columns to help you immediately see what you have
-            raise SystemExit(
-                "❌ Could not find centroid or bbox columns in chip index files.\n"
-                f"Columns found:\n{json.dumps(cols, indent=2)}\n\n"
-                "Fix: tell me what bbox/coord columns exist in chip_indices_clean.csv "
-                "and I’ll adapt this script in 1 minute."
-            )
-        x0, y0, x1, y1 = bbox
-        out = chips[[tile_col, y0, x0, y1, x1]].copy()
-        out["tile_lat"] = (out[y0].astype(float) + out[y1].astype(float)) / 2.0
-        out["tile_lon"] = (out[x0].astype(float) + out[x1].astype(float)) / 2.0
-        out = out.rename(columns={tile_col: "tile"})
+        parsed = parse_scene(scene_id)
+        if not parsed:
+            missing += 1
+            out_rows.append((tile, scene_id, None, None))
+            continue
 
-    # Keep only unique tile -> centroid (first occurrence wins)
-    out = out.dropna(subset=["tile_lat", "tile_lon"])
-    out = out.drop_duplicates(subset=["tile"]).reset_index(drop=True)
+        platform, dt, rel_orbit, mgrs = parsed
+        item = fetch_best_item(platform, dt, mgrs, rel_orbit=rel_orbit, minutes_window=60)
+        if not item:
+            missing += 1
+            out_rows.append((tile, scene_id, None, None))
+            continue
 
-    out_path = Path(args.out_csv)
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out.to_csv(out_path, index=False)
-    print(f"✅ wrote {out_path} rows={len(out)}")
+        cen = centroid_from_item(item)
+        if not cen:
+            missing += 1
+            out_rows.append((tile, scene_id, None, None))
+            continue
+
+        lat, lon = cen
+        out_rows.append((tile, scene_id, lat, lon))
+
+    out = pd.DataFrame(out_rows, columns=["tile", "scene_id", "tile_lat", "tile_lon"])
+    Path(args.out_csv).parent.mkdir(parents=True, exist_ok=True)
+    out.to_csv(args.out_csv, index=False)
+
+    print(f"✅ wrote {args.out_csv} rows={len(out)} missing_centroids={missing}")
+    if missing > 0:
+        print("⚠️ Some scenes still missing. If it’s all missing, your machine has no internet access to STAC, or the STAC endpoint is blocked.")
 
 if __name__ == "__main__":
     main()
