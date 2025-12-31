@@ -155,6 +155,22 @@ def _finite_nearby(a: np.ndarray, i_lat: int, j_lon: int, max_px: int, mode: str
             m = np.nanmean(box)
             if np.isfinite(m): return float(m)
         return None
+    
+def ocean_biased_lonlat(bounds, tile: str | None, scene_id: str | None, bias_m: float = 500.0):
+    """
+    Move centroid slightly offshore to avoid land-masked MODIS pixels.
+    bias_m: meters pushed seaward (default 500 m)
+    """
+    lon, lat = centroid_lonlat(bounds, tile, scene_id)
+
+    # crude coastline heuristic:
+    # Arabian Peninsula coast → ocean is EAST
+    # If your site is different, we can generalize later
+    meters_per_deg = 111_320.0 * np.cos(np.deg2rad(lat))
+    dlon = bias_m / meters_per_deg
+
+    # push eastward (toward sea)
+    return lon + dlon, lat
 
 def sample_nc(path: Path, varname: str, lon_q: float, lat_q: float,
               px_radius: int = 5, mode: str = "mean") -> float | None:
@@ -212,6 +228,7 @@ def sample_nc(path: Path, varname: str, lon_q: float, lat_q: float,
     finally:
         try: ds.close()
         except Exception: pass
+        
 
 # ────────────────────────────────────────────────────────────────────────────────
 # CSV processing
@@ -283,7 +300,7 @@ def process_csv(chips_csv: Path, modis_root: Path, max_days: int,
         if dt is None:
             out_rows.append(r); continue
 
-        lon, lat = centroid_lonlat(bounds, r.get("tile"), r.get("scene_id"))
+        lon, lat = ocean_biased_lonlat(bounds, r.get("tile"), r.get("scene_id"))
 
         if debug:
             print(f"[debug] CSV={chips_csv}")
