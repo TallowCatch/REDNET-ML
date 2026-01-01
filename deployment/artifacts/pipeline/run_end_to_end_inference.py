@@ -8,7 +8,7 @@ import re
 import subprocess
 import sys
 from pathlib import Path
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timedelta
 
 import joblib
 import numpy as np
@@ -66,6 +66,18 @@ def ensure_chip_id(df: pd.DataFrame, tag: str) -> pd.DataFrame:
     return df
 
 
+def ensure_scene_id(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Your detector pipeline talks in terms of scene_id.
+    To avoid confusion + keep compatibility, ensure scene_id exists
+    (aliases to chip_id if needed).
+    """
+    df = df.copy()
+    if "scene_id" not in df.columns and "chip_id" in df.columns:
+        df["scene_id"] = df["chip_id"]
+    return df
+
+
 def ensure_time_columns(df: pd.DataFrame, month_dt: date) -> pd.DataFrame:
     df = df.copy()
     mk = f"{month_dt.year}-{month_dt.month:02d}"
@@ -79,8 +91,8 @@ def ensure_time_columns(df: pd.DataFrame, month_dt: date) -> pd.DataFrame:
 
 
 def season_of_month(m: int) -> str:
-    return ("winter","winter","spring","spring","spring",
-            "summer","summer","summer","autumn","autumn","autumn","winter")[m-1]
+    return ("winter", "winter", "spring", "spring", "spring",
+            "summer", "summer", "summer", "autumn", "autumn", "autumn", "winter")[m - 1]
 
 
 def add_time_features(df: pd.DataFrame) -> pd.DataFrame:
@@ -95,8 +107,8 @@ def add_time_features(df: pd.DataFrame) -> pd.DataFrame:
     df["month_sin"] = np.sin(ang)
     df["month_cos"] = np.cos(ang)
 
-    df["season"] = df["month_num"].fillna(1).astype(int).clip(1,12).map(season_of_month)
-    for s in ["winter","spring","summer","autumn"]:
+    df["season"] = df["month_num"].fillna(1).astype(int).clip(1, 12).map(season_of_month)
+    for s in ["winter", "spring", "summer", "autumn"]:
         df[f"season_{s}"] = (df["season"] == s).astype(int)
 
     return df
@@ -175,7 +187,7 @@ def safe_fill_missing_features(df: pd.DataFrame, feature_cols: list[str], bundle
 # MODIS download-on-demand (space-safe)
 # ──────────────────────────────────────────────────────────────────────────────
 DATE_RANGE = re.compile(r"(\d{8})[_\-](\d{8})")
-DATE_ONE   = re.compile(r"(\d{8})")
+DATE_ONE = re.compile(r"(\d{8})")
 
 
 def file_mid_date_from_line(line: str) -> date | None:
@@ -269,10 +281,97 @@ def cleanup_tmp_nc(tmp_dir: Path) -> None:
 
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Detector + fusion utilities (run once at end)
+# ──────────────────────────────────────────────────────────────────────────────
+DROP_COLS = [
+    "p_tab",
+    "sst_clim_rm",
+    "sst_anom",
+    "sst_anom_z",
+    "sst_anom_x_chlor_a",
+    "sst_anom_x_nflh",
+    "sst_anom_x_fai_mean",
+    "sst_anom_x_kd490",
+    "sst_anom_x_month_sin",
+    "sst_anom_x_month_cos",
+]
+
+
+def move_detector_scores(det_out_dir: Path, root_dir: Path) -> None:
+    """
+    Moves: det_out_dir/<month>_detector_scores.csv  ->  root_dir/<month>/detector_scores.csv
+    """
+    if not det_out_dir.exists():
+        print(f"⚠️ detector out_dir missing: {det_out_dir} (skipping move)")
+        return
+
+    moved = 0
+    for f in sorted(det_out_dir.glob("*_detector_scores.csv")):
+        m = f.name.replace("_detector_scores.csv", "")
+        dest = root_dir / m
+        if dest.is_dir():
+            target = dest / "detector_scores.csv"
+            print(f"→ moving {f} → {target}")
+            try:
+                f.replace(target)
+                moved += 1
+            except Exception as e:
+                print(f"⚠️ failed move {f} → {target}: {e}")
+        else:
+            print(f"⚠ skipped {f} (no folder {dest})")
+
+    if moved == 0:
+        print("⚠️ no detector score files were moved (check naming / months).")
+
+
+def merge_all_months(root_dir: Path) -> Path | None:
+    """
+    Rebuilds root_dir/inference_all_months.csv from root_dir/<month>/inference.csv
+    """
+    dfs = []
+    for m in sorted(p for p in root_dir.iterdir() if p.is_dir()):
+        f = m / "inference.csv"
+        if f.exists():
+            df = pd.read_csv(f)
+            df["month"] = m.name
+            dfs.append(df)
+
+    if not dfs:
+        print("⚠️ merge_all_months: no per-month inference.csv found.")
+        return None
+
+    out = pd.concat(dfs, ignore_index=True)
+    out_path = root_dir / "inference_all_months.csv"
+    out.to_csv(out_path, index=False)
+    print(f"✓ overwrote {out_path} ({len(out)} rows)")
+    return out_path
+
+
+def drop_unused_cols_per_month(root_dir: Path) -> None:
+    """
+    Drops only the known empty/unneeded columns from each month inference.csv (post-fusion).
+    """
+    for month in sorted(p for p in root_dir.iterdir() if p.is_dir()):
+        csv = month / "inference.csv"
+        if not csv.exists():
+            continue
+
+        df = pd.read_csv(csv)
+        before = len(df.columns)
+
+        df = df.drop(columns=[c for c in DROP_COLS if c in df.columns])
+
+        after = len(df.columns)
+        df.to_csv(csv, index=False)
+        print(f"✓ {month.name}: dropped {before - after} columns")
+
+
+# ──────────────────────────────────────────────────────────────────────────────
 # Main
 # ──────────────────────────────────────────────────────────────────────────────
 def main():
-    ap = argparse.ArgumentParser("End-to-end monthly HAB inference (space-safe, no retrain)")
+    ap = argparse.ArgumentParser("End-to-end monthly HAB inference (space-safe, no retrain) + detectors + fusion")
+
     ap.add_argument("--aoi", required=True)
     ap.add_argument("--start", required=True)
     ap.add_argument("--end", required=True)
@@ -293,6 +392,16 @@ def main():
     ap.add_argument("--stride", default="256")
 
     ap.add_argument("--debug_modis", action="store_true")
+
+    # Detectors + fusion (run once at the end)
+    ap.add_argument("--skip_detectors", action="store_true", help="do not run detectors/fusion at end")
+    ap.add_argument("--detectors_script", default="deployment/src/inference/run_detectors_on_chips.py")
+    ap.add_argument("--fusion_script", default="deployment/src/inference/rerun_fusion_with_detectors.py")
+    ap.add_argument("--det_out_dir", default="detector_scores_by_month",
+                    help="where run_detectors_on_chips.py writes *_detector_scores.csv (relative to CWD)")
+    ap.add_argument("--frcnn_r50", default="runs/detect/frcnn_resnet50/best_resnet.pt")
+    ap.add_argument("--frcnn_mb", default="runs/detect/frcnn_mobilenet/best.pt")
+    ap.add_argument("--ssd_mb", default="runs/detect/ssd_mobilenet/best_ssd.pt")
 
     args = ap.parse_args()
 
@@ -398,6 +507,7 @@ def main():
             continue
 
         df = ensure_chip_id(df, tag=tag)
+        df = ensure_scene_id(df)              # <-- keep detector naming happy
         df = ensure_time_columns(df, month_dt=m)
         df.to_csv(chip_idx_csv, index=False)
 
@@ -434,6 +544,7 @@ def main():
         # reload after append(s)
         df = pd.read_csv(chip_idx_csv)
         df = ensure_chip_id(df, tag=tag)
+        df = ensure_scene_id(df)
         df = ensure_time_columns(df, month_dt=m)
         df = harmonize_modis_columns(df)
         df = add_time_features(df)
@@ -473,10 +584,45 @@ def main():
         print("\n⚠️ No outputs produced.")
         sys.exit(0)
 
+    # Baseline merge (pre-detectors)
     merged = pd.concat(all_months, ignore_index=True)
     merged_csv = out_root / "inference_all_months.csv"
     merged.to_csv(merged_csv, index=False)
     print(f"\n✅ wrote {merged_csv}")
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # Run detectors ONCE, then fuse ONCE, then clean + merge ONCE
+    # ──────────────────────────────────────────────────────────────────────────
+    if args.skip_detectors:
+        return
+
+    det_out_dir = Path(args.det_out_dir)
+
+    # 1) run detectors on all months under out_root
+    run([
+        "python", args.detectors_script,
+        "--root_dir", out_root,
+        "--out_dir", det_out_dir,
+        "--frcnn_r50", args.frcnn_r50,
+        "--frcnn_mb", args.frcnn_mb,
+        "--ssd_mb", args.ssd_mb,
+    ])
+
+    # 2) move detector scores into each month folder
+    move_detector_scores(det_out_dir=det_out_dir, root_dir=out_root)
+
+    # 3) rerun fusion with detectors (updates each month inference.csv)
+    run([
+        "python", args.fusion_script,
+        "--root_dir", out_root,
+        "--model", args.model,
+    ])
+
+    # 4) drop only the empty/unused columns you listed
+    drop_unused_cols_per_month(out_root)
+
+    # 5) rebuild merged inference_all_months.csv from month folders (post-fusion)
+    merge_all_months(out_root)
 
 
 if __name__ == "__main__":
