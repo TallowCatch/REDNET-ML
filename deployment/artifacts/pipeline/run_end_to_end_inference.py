@@ -461,6 +461,10 @@ def main():
 
         month_dir = out_root / tag
         chips_dir = month_dir / "chips"
+        final_csv = month_dir / "inference.csv"
+        if final_csv.exists():
+            print(f"⏭️  {tag} already processed, skipping.")
+            continue
         month_dir.mkdir(parents=True, exist_ok=True)
         chips_dir.mkdir(parents=True, exist_ok=True)
 
