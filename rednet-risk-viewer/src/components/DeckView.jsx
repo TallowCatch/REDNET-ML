@@ -1,64 +1,55 @@
 import DeckGL from "@deck.gl/react";
-import { ScatterplotLayer } from "@deck.gl/layers";
+import { ScatterplotLayer, BitmapLayer } from "@deck.gl/layers";
 import { TileLayer } from "@deck.gl/geo-layers";
-import { BitmapLayer } from "@deck.gl/layers";
 import { useMemo } from "react";
 
-export default function DeckView({ plant, risk }) {
-  const layers = useMemo(() => {
-    const baseMap = new TileLayer({
-      id: "osm-basemap",
-      data: "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png",
+function riskToColor(risk) {
+  if (risk < 0.33) return [34, 197, 94];
+  if (risk < 0.66) return [245, 158, 11];
+  return [239, 68, 68];
+}
+
+export default function DeckView({ plants }) {
+  const layers = useMemo(() => [
+    new TileLayer({
+      id: "osm",
+      data: "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
       minZoom: 0,
       maxZoom: 19,
       tileSize: 256,
+
+      // ✅ THIS WAS MISSING
+      getTileData: ({ url }) => url,
+
       renderSubLayers: (props) => {
         const {
-          bbox: { west, south, east, north },
-        } = props.tile;
+          tile: {
+            bbox: { west, south, east, north },
+          },
+        } = props;
 
         return new BitmapLayer(props, {
-          data: null,
-          image: props.data,
+          image: props.data, // ✅ now this is a URL
           bounds: [west, south, east, north],
         });
       },
-    });
+    }),
 
-    if (!plant) return [baseMap];
-
-    const color =
-      risk < 0.33
-        ? [34, 197, 94]   // green
-        : risk < 0.66
-        ? [245, 158, 11]  // amber
-        : [239, 68, 68];  // red
-
-    const plantLayer = new ScatterplotLayer({
-      id: "plant-risk",
-      data: [plant],
-      getPosition: (d) => [d.lon, d.lat],
-      getRadius: 400 + risk * 1200,
+    new ScatterplotLayer({
+      id: "plants",
+      data: plants ?? [],
+      getPosition: (d) => [Number(d.lon), Number(d.lat)],
+      getRadius: 6000,
       radiusUnits: "meters",
-      getFillColor: color,
-      opacity: 0.85,
-      stroked: false,
-      pickable: false,
-    });
-
-    return [baseMap, plantLayer];
-  }, [plant, risk]);
+      getFillColor: (d) => riskToColor(d.currentRisk),
+      opacity: 0.9,
+    }),
+  ], [plants]);
 
   return (
     <DeckGL
-      initialViewState={{
-        longitude: plant?.lon ?? 59.5,
-        latitude: plant?.lat ?? 22.0,
-        zoom: 7,
-        pitch: 0,
-        bearing: 0,
-      }}
-      controller={true}
+      viewState={{ longitude: 59.5, latitude: 22.5, zoom: 6 }}
+      controller
       layers={layers}
       style={{ position: "absolute", inset: 0 }}
     />
