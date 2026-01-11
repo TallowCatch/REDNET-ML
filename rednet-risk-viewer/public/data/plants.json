@@ -1,0 +1,31 @@
+[
+    {
+      "id": "1236881046",
+      "name": "Sharqiyah Desalination Plant",
+      "lat": 21.9310725,
+      "lon": 59.6321193,
+      "csv": "/data/plant_1236881046.csv"
+    },
+    {
+      "id": "449632054",
+      "name": "Sur Desalination Plant",
+      "lat": 22.622075,
+      "lon": 59.452973,
+      "csv": "/data/plant_449632054.csv"
+    },
+    {
+        "id": "1079022886",
+        "name": "Musandam Desalination Plant",
+        "lat": 25.6716585,
+        "lon": 56.2667608,
+        "csv": "/data/plant_1079022886.csv"
+    },
+    {
+        "id": "386838289",
+        "name": "Ghubrah Desalination Plant",
+        "lat": 23.6018997,
+        "lon": 58.4137212,
+        "csv": "/data/plant_386838289.csv"
+    }
+  ]
+  
