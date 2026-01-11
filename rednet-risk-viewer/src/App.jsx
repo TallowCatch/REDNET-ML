@@ -73,7 +73,10 @@ export default function App() {
     <div style={styles.shell}>
       {/* MAP */}
       <div style={styles.map}>
-        <DeckView plants={plantsAtTime} />
+        <DeckView plants={plantsAtTime} 
+        focusedPlantId={plantId}
+        onPlantClick={setPlantId}
+        />
 
         {/* TOP BAR */}
         <div style={styles.topBar}>

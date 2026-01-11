@@ -1,7 +1,8 @@
 import DeckGL from "@deck.gl/react";
 import { ScatterplotLayer, BitmapLayer } from "@deck.gl/layers";
 import { TileLayer } from "@deck.gl/geo-layers";
-import { useMemo } from "react";
+import { FlyToInterpolator } from "@deck.gl/core";
+import { useMemo, useState } from "react";
 
 function riskToColor(risk) {
   if (risk < 0.33) return [34, 197, 94];
@@ -9,7 +10,37 @@ function riskToColor(risk) {
   return [239, 68, 68];
 }
 
-export default function DeckView({ plants }) {
+export default function DeckView({
+  plants,
+  focusedPlantId,
+  onPlantClick,
+}) {
+  const [hover, setHover] = useState(null);
+
+  // ---------------- MAP VIEW STATE ----------------
+  const viewState = useMemo(() => {
+    const focused = plants?.find(
+      (p) => p.id === focusedPlantId
+    );
+
+    if (!focused) {
+      return {
+        longitude: 59.5,
+        latitude: 22.5,
+        zoom: 6,
+      };
+    }
+
+    return {
+      longitude: Number(focused.lon),
+      latitude: Number(focused.lat),
+      zoom: 8,
+      transitionDuration: 800,
+      transitionInterpolator: new FlyToInterpolator(),
+    };
+  }, [plants, focusedPlantId]);
+
+  // ---------------- LAYERS ----------------
   const layers = useMemo(() => [
     new TileLayer({
       id: "osm",
@@ -17,8 +48,6 @@ export default function DeckView({ plants }) {
       minZoom: 0,
       maxZoom: 19,
       tileSize: 256,
-
-      // ✅ THIS WAS MISSING
       getTileData: ({ url }) => url,
 
       renderSubLayers: (props) => {
@@ -29,7 +58,7 @@ export default function DeckView({ plants }) {
         } = props;
 
         return new BitmapLayer(props, {
-          image: props.data, // ✅ now this is a URL
+          image: props.data,
           bounds: [west, south, east, north],
         });
       },
@@ -43,15 +72,62 @@ export default function DeckView({ plants }) {
       radiusUnits: "meters",
       getFillColor: (d) => riskToColor(d.currentRisk),
       opacity: 0.9,
-    }),
-  ], [plants]);
+      pickable: true,
 
+      onHover: (info) => {
+        if (info.object) {
+          setHover({
+            x: info.x,
+            y: info.y,
+            plant: info.object,
+          });
+        } else {
+          setHover(null);
+        }
+      },
+
+      onClick: (info) => {
+        if (info.object && onPlantClick) {
+          onPlantClick(info.object.id);
+        }
+      },
+    }),
+  ], [plants, onPlantClick]);
+
+  // ---------------- RENDER ----------------
   return (
-    <DeckGL
-      viewState={{ longitude: 59.5, latitude: 22.5, zoom: 6 }}
-      controller
-      layers={layers}
-      style={{ position: "absolute", inset: 0 }}
-    />
+    <>
+      <DeckGL
+        viewState={viewState}
+        controller
+        layers={layers}
+        style={{ position: "absolute", inset: 0 }}
+      />
+
+      {/* HOVER TOOLTIP */}
+      {hover && (
+        <div
+          style={{
+            position: "absolute",
+            left: hover.x + 10,
+            top: hover.y + 10,
+            background: "rgba(15,23,42,0.85)",
+            color: "white",
+            padding: "8px 10px",
+            borderRadius: 10,
+            fontSize: 12,
+            pointerEvents: "none",
+            whiteSpace: "nowrap",
+          }}
+        >
+          <div style={{ fontWeight: 700 }}>
+            {hover.plant.name}
+          </div>
+          <div>
+            Risk: {(hover.plant.currentRisk * 100).toFixed(1)}%
+          </div>
+        </div>
+      )}
+    </>
   );
 }
