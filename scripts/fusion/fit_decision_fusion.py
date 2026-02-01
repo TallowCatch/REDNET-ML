@@ -762,14 +762,21 @@ def _fit_context_tables_train(df_train_aug: pd.DataFrame, ctx_cols):
         sd = float(s.std()) if np.isfinite(s.std()) else 1.0
         global_sd[col] = sd if sd > 0 else 1.0
         tmp = pd.concat([df_train_aug[["region_key", "month_key"]], s.rename(col)], axis=1)
+
         tab = (
             tmp.dropna(subset=[col])
             .groupby(["region_key", "month_key"], as_index=False)[col]
-            .agg(["mean", "std"])
-            .reset_index()
+            .agg(**{f"{col}_rm_mean": "mean", f"{col}_rm_std": "std"})
         )
-        tab.columns = ["region_key", "month_key", f"{col}_rm_mean", f"{col}_rm_std"]
+
         ctx_tables[col] = tab
+        # tab = (
+        #     tmp.dropna(subset=[col])
+        #     .groupby(["region_key", "month_key"], as_index=False)[col]
+        #     .agg(["mean", "std"])
+        #     .reset_index()
+        # )
+        # tab.columns = ["region_key", "month_key", f"{col}_rm_mean", f"{col}_rm_std"]
     return {"tables": ctx_tables, "global_mu": global_mu, "global_sd": global_sd}
 
 def _apply_context(df_aug: pd.DataFrame, ctx_cols, ctx_stats: dict):
@@ -853,6 +860,13 @@ def main():
     ap.add_argument("--max_tries", type=int, default=15)
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--cv_folds", type=int, default=0)
+    ap.add_argument("--cv_region", action="store_true",
+                help="Leave-one-region-out cross validation")
+    ap.add_argument(
+    "--label_col",
+    default="hab_label",
+    help="Binary label column to train/eval on (e.g., hab_label_trusted, hab_label_final2).",
+    )
     ap.add_argument("--cv_time_folds", type=int, default=0)
     ap.add_argument("--coco_json", default="")
     ap.add_argument("--require_overlap", action="store_true")
@@ -933,7 +947,7 @@ def main():
     base[args.id_col] = _normalize_ids(base[args.id_col])
 
     need = {
-        args.id_col, args.group_by, "hab_label", "datetime", "month_key",
+        args.id_col, args.group_by, args.label_col, "datetime", "month_key",
         "fai_mean", "rednir_mean", "ndwi_mean", "kd490", "chlor_a", "nflh", "sst",
         "month_sin", "month_cos", "ndwi_std", "rednir_std",
         "p_frcnn_r50_med", "p_frcnn_mb_med", "p_ssd_mb_med",
@@ -949,11 +963,14 @@ def main():
         args.id_col, args.group_by, "datetime", "month_key",
         "fai_mean", "rednir_mean", "ndwi_mean", "kd490", "chlor_a", "nflh", "sst",
         "month_sin", "month_cos", "ndwi_std", "rednir_std",
-        "hab_label", "p_frcnn_r50_med", "p_frcnn_mb_med", "p_ssd_mb_med",
+        args.label_col, "p_frcnn_r50_med", "p_frcnn_mb_med", "p_ssd_mb_med",
     ]
     if not args.drop_p_tab and "p_tab" in base.columns:
         keep_cols.append("p_tab")
     base = base[[c for c in keep_cols if c in base.columns]].copy()
+    base[args.label_col] = pd.to_numeric(base[args.label_col], errors="coerce").fillna(0).astype(int)
+    base[args.label_col] = (base[args.label_col] > 0).astype(int)
+
 
     base[args.group_by] = base[args.group_by].astype(str).map(_canonical_scene_key)
     base = _attach_month_region_keys_for_base(base, args.id_col, args.group_by)
@@ -1029,8 +1046,8 @@ def main():
 
     # leak check presence/absence (still useful)
     for c in det_names:
-        cov_pos = base.loc[base.hab_label == 1, c].notna().mean()
-        cov_neg = base.loc[base.hab_label == 0, c].notna().mean()
+        cov_pos = base.loc[base[args.label_col] == 1, c].notna().mean()
+        cov_neg = base.loc[base[args.label_col] == 0, c].notna().mean()
         print(f"[leak-check] {c}: coverage pos={cov_pos:.3f}, neg={cov_neg:.3f}")
 
     # intersection-only
@@ -1047,14 +1064,14 @@ def main():
     base.to_csv(outdir / "merged_features_debug_raw.csv", index=False)
 
     X_all = base[feats_base + env_base_cols].apply(pd.to_numeric, errors="coerce").fillna(0.0).values
-    y_all = base["hab_label"].astype(int).values
+    y_all = base[args.label_col].astype(int).values
     groups = base["group_for_cv"].astype(str).values
 
     if args.shuffle_labels:
         rng_dbg = np.random.RandomState(12345)
         perm = rng_dbg.permutation(len(base))
-        base["hab_label"] = base["hab_label"].values[perm]
-        y_all = base["hab_label"].astype(int).values
+        base[args.label_col] = base[args.label_col].values[perm]
+        y_all = base[args.label_col].astype(int).values
         print("[debug] Labels have been RANDOMLY SHUFFLED in the DataFrame for leakage check.")
 
     dataset_tag = Path(args.tabular_csv).stem
@@ -1150,7 +1167,7 @@ def main():
 
         # ---- split TRAIN into fit + calib (robust) ----
         g_train = df_train_aug["group_for_cv"].astype(str).values
-        y_train_full = df_train_aug["hab_label"].astype(int).values
+        y_train_full = df_train_aug[args.label_col].astype(int).values
 
         tr_fit_idx, tr_cal_idx = _make_fit_cal_split(
             df_train_full=df_train_aug,
@@ -1167,14 +1184,14 @@ def main():
             print("[cal] Calibration split unavailable for this fold (too few groups/classes). Calibration will be disabled.")
 
         X_fit = df_fit[feat_cols].values
-        y_fit = df_fit["hab_label"].astype(int).values
+        y_fit = df_fit[args.label_col].astype(int).values
         X_cal = df_cal[feat_cols].values
-        y_cal = df_cal["hab_label"].astype(int).values
+        y_cal = df_cal[args.label_col].astype(int).values
 
         X_train_full = df_train_aug[feat_cols].values
-        y_train_full = df_train_aug["hab_label"].astype(int).values
+        y_train_full = df_train_aug[args.label_col].astype(int).values
         X_test = df_test_aug[feat_cols].values
-        y_test = df_test_aug["hab_label"].astype(int).values
+        y_test = df_test_aug[args.label_col].astype(int).values
 
         # ---- build model ----
         if args.model == "catboost":
@@ -1197,7 +1214,8 @@ def main():
                 learning_rate=args.cb_lr,
                 l2_leaf_reg=args.cb_l2,
                 loss_function="Logloss",
-                eval_metric="AUC",
+                eval_metric="Logloss",
+                custom_metric="AUC",
                 random_seed=final_seed,
                 verbose=False,
                 auto_class_weights="Balanced",
@@ -1321,11 +1339,11 @@ def main():
         df_test_aug.to_csv(outdir / f"merged_features_debug_{tag}_test.csv", index=False)
         print(f"[debug] wrote fold feature dumps for {tag}")
 
-        ids_te = df_test_aug[[args.id_col, args.group_by, "hab_label", "month_key", "region_key"]].copy()
+        ids_te = df_test_aug[[args.id_col, args.group_by, args.label_col, "month_key", "region_key"]].copy()
         auprc, auroc = _eval_and_save(outdir, tag, feat_cols, y_test, p_te, thr_star, ids_te)
 
         # (Optional) train eval too
-        ids_tr = df_train_aug[[args.id_col, args.group_by, "hab_label", "month_key", "region_key"]].copy()
+        ids_tr = df_train_aug[[args.id_col, args.group_by, args.label_col, "month_key", "region_key"]].copy()
         _eval_and_save(outdir, f"{tag}_train", feat_cols, y_train_full, p_tr, thr_star, ids_tr)
 
         joblib.dump(
@@ -1359,7 +1377,7 @@ def main():
 
         month_blocks = []
         target_blocks = int(args.cv_time_folds)
-        pos_by_month = base.groupby("_month_ord")["hab_label"].sum().to_dict()
+        pos_by_month = base.groupby("_month_ord")[args.label_col].sum()
 
         cur = []
         cur_pos = 0
@@ -1384,16 +1402,16 @@ def main():
             if len(tr) == 0:
                 print(f"[cv-time] Skipping fold {fold_id} (no earlier months to train).")
                 continue
-            if (base.loc[tr, "hab_label"].sum() < args.min_pos_per_split or
-                base.loc[te, "hab_label"].sum() < args.min_pos_per_split):
+            if (base.loc[tr, args.label_col].sum() < args.min_pos_per_split or
+                base.loc[te, args.label_col].sum() < args.min_pos_per_split):
                 print(f"[cv-time] Skipping fold {fold_id} (insufficient positives).")
                 continue
 
-            print(f"[CV{fold_id}] (time) train={len(tr)} (pos={int(base.loc[tr,'hab_label'].sum())}) | "
-                  f"test={len(te)} (pos={int(base.loc[te,'hab_label'].sum())})")
+            print(f"[CV{fold_id}] (time) train={len(tr)} (pos={int(base.loc[tr,args.label_col].sum())}) | "
+                  f"test={len(te)} (pos={int(base.loc[te,args.label_col].sum())})")
             auprc, auroc = _fit_predict(tr, te, f"cv{fold_id}")
             summaries.append({"fold": fold_id, "auprc": auprc, "auroc": auroc,
-                              "test_pos": int(base.loc[te, "hab_label"].sum()),
+                              "test_pos": int(base.loc[te, args.label_col].sum()),
                               "test_total": int(len(te))})
 
         if not summaries:
@@ -1409,6 +1427,55 @@ def main():
         }
         df_sum.to_csv(outdir / "summary_cv.csv", index=False)
         print("[cv] Averages:", df_sum.loc["mean"].to_dict())
+
+    elif args.cv_region:
+        print("[cv-region] Leave-one-region-out CV")
+
+        regions = base["region_key"].dropna().unique()
+        print(f"[cv-region] Regions found: {len(regions)}")
+
+        for fold_id, rk in enumerate(regions, 1):
+            te_mask = base["region_key"] == rk
+            tr_mask = ~te_mask
+
+            tr = np.where(tr_mask)[0]
+            te = np.where(te_mask)[0]
+
+            pos_tr = base.loc[tr, args.label_col].sum()
+            pos_te = base.loc[te, args.label_col].sum()
+
+            if pos_tr < args.min_pos_per_split or pos_te < args.min_pos_per_split:
+                print(f"[cv-region] Skipping {rk} (insufficient positives)")
+                continue
+
+            print(f"[CV{fold_id}] region={rk} "
+                f"train={len(tr)} (pos={pos_tr}) | "
+                f"test={len(te)} (pos={pos_te})")
+
+            auprc, auroc = _fit_predict(tr, te, f"region{fold_id}")
+            summaries.append({
+                "fold": rk,
+                "auprc": auprc,
+                "auroc": auroc,
+                "test_pos": int(pos_te),
+                "test_total": int(len(te)),
+            })
+
+        if not summaries:
+            raise SystemExit("[cv-region] No valid region folds.")
+
+        df_sum = pd.DataFrame(summaries)
+        df_sum.loc["mean"] = {
+            "fold": "mean",
+            "auprc": df_sum["auprc"].mean(),
+            "auroc": df_sum["auroc"].mean(),
+            "test_pos": df_sum["test_pos"].sum(),
+            "test_total": df_sum["test_total"].sum(),
+        }
+
+        df_sum.to_csv(outdir / "summary_cv_region.csv", index=False)
+        print("[cv-region] Averages:", df_sum.loc["mean"].to_dict())
+
 
     elif args.cv_folds and args.cv_folds > 1:
         if not HAS_SGF:

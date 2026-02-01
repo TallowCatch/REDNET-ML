@@ -62,25 +62,39 @@ def rank01(s: pd.Series) -> pd.Series:
 def hab_labels_for_group(gdf: pd.DataFrame, init_q: float, q_floor: float,
                          kd_floor: float | None, flh_name: str,
                          return_scores: bool=False) -> pd.DataFrame:
-    out = pd.DataFrame(index=gdf.index)
-    feats = pick_numeric(gdf, [flh_name, "chlor_a", "kd490"])
 
-    # Optional per-feature scores (0..1 quantile ranks)
+    out = pd.DataFrame(index=gdf.index)
+    feats = pick_numeric(gdf, [flh_name, "chlor_a", "kd490", "sst"])
+
+    # --- ignore nflh/flh zeros ---
+    if flh_name in feats:
+        feats[flh_name] = feats[flh_name].mask(feats[flh_name] <= 0)
+
+    # Optional ranking scores
     if return_scores:
         if flh_name in feats:  out[f"{flh_name}_score"] = rank01(feats[flh_name])
         if "chlor_a" in feats: out["chlor_a_score"] = rank01(feats["chlor_a"])
-        if "kd490"   in feats: out["kd490_score"]   = rank01(feats["kd490"])
+        if "kd490" in feats:   out["kd490_score"]   = rank01(feats["kd490"])
+        if "sst" in feats:     out["sst_score"]     = rank01(feats["sst"])
 
     label = pd.Series(0, index=gdf.index, dtype=int)
     made = False
     q = init_q
 
+    # detect season (if present)
+    season = None
+    if "season" in gdf.columns and len(gdf["season"].unique()) == 1:
+        season = gdf["season"].iloc[0]
+
     while q >= q_floor and not made:
         conds = []
+
+        # main productivity signals
         if flh_name in feats:
             thr = quantile_or_none(feats[flh_name], q)
             if thr is not None:
                 conds.append(feats[flh_name] >= thr)
+
         if "chlor_a" in feats:
             thr = quantile_or_none(feats["chlor_a"], q)
             if thr is not None:
@@ -88,28 +102,52 @@ def hab_labels_for_group(gdf: pd.DataFrame, init_q: float, q_floor: float,
 
         if conds:
             pos = np.logical_or.reduce(conds)
+
+            # kd490 water filter
             if "kd490" in feats and kd_floor is not None and np.isfinite(kd_floor):
                 pos = pos & (feats["kd490"] >= kd_floor)
+
+            # --- SST soft constraint ---
+            if "sst" in feats:
+                sst_thr = quantile_or_none(feats["sst"], 0.60)
+
+                if sst_thr is not None:
+                    if season == "winter":
+                        # winter: weak SST constraint
+                        pos = pos & (feats["sst"] >= sst_thr * 0.9)
+                    elif season == "summer":
+                        # summer: relaxed constraint
+                        pos = pos & (feats["sst"] >= sst_thr * 0.8)
+                    else:
+                        pos = pos & (feats["sst"] >= sst_thr)
+
             if int(pos.sum()) > 0:
                 label = pos.astype(int)
                 made = True
+
         q -= 0.02
 
+    # fallback absolute rules
     if not made:
-        # Conservative absolute fallbacks
         conds = []
+
         if flh_name in feats:
-            conds.append(feats[flh_name] >= 0.002)  # nFLH ~ 1e-3..1e-2 W m^-2 um^-1 sr^-1
+            conds.append(feats[flh_name] >= 0.002)
+
         if "chlor_a" in feats:
-            conds.append(feats["chlor_a"] >= 3.0)   # mg m^-3
+            conds.append(feats["chlor_a"] >= 2.5)
+
         if conds:
             pos = np.logical_or.reduce(conds)
+
             if "kd490" in feats and kd_floor is not None and np.isfinite(kd_floor):
                 pos = pos & (feats["kd490"] >= kd_floor)
+
             label = pos.astype(int)
 
     out["hab_label"] = label
     return out
+
 
 # ────────────────────────────────────────────────────────────────────────────────
 def main():
@@ -135,6 +173,8 @@ def main():
     df = pd.read_csv(in_csv)
     df = add_time_fields(df)
     df = maybe_add_centroids(df)
+
+    df = df.drop(columns=[c for c in ["hab_label", "hab_label_heuristic", "hab_label_final"] if c in df.columns], errors="ignore")
 
     # keep only strong-water chips if requested
     if "valid_px" in df.columns and args.min_valid > 0:
@@ -172,9 +212,18 @@ def main():
 
     out.to_csv(out_csv, index=False)
 
-    pos = int(out["hab_label"].sum())
-    total = int(len(out))
+    # hab_label can become a DataFrame if column duplicated; normalize it.
+    hab = out["hab_label"]
+    if isinstance(hab, pd.DataFrame):
+        # keep the last one (your newest label column)
+        hab = hab.iloc[:, -1]
+
+    hab = pd.to_numeric(hab, errors="coerce").fillna(0).astype(int)
+
+    pos = int(hab.sum())
+    total = int(len(hab))
     print(f"✓ Wrote {out_csv}  (positives={pos}, total={total})")
+
 
 if __name__ == "__main__":
     main()

@@ -125,7 +125,7 @@ def main():
 
     # outputs
     out_train_cols = [args.id_col, args.group_by, "datetime", "month_key",
-                      "fai_mean","rednir_mean","ndwi_mean","kd490","chlor_a","nflh",
+                      "fai_mean","rednir_mean","ndwi_mean","kd490","chlor_a","nflh", "sst",
                       "month_sin","month_cos","ndwi_std","rednir_std",
                       "hab_label","hab_label_heuristic","hab_label_final"]
     out_train_cols = [c for c in out_train_cols if c in df.columns]
