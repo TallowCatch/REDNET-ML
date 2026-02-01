@@ -120,23 +120,30 @@ export default function DeckView({
     const layers = [
       // 🌍 Basemap
       new TileLayer({
-        id: 'osm',
-        data: 'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        id: "basemap",
+        data: "https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png",
         tileSize: 256,
-      
-        // 🔑 THIS IS THE MISSING PIECE
-        getTileData: ({ url }) =>
-          load(url, ImageLoader, { imagebitmap: true }),
+        minZoom: 0,
+        maxZoom: 19,
       
         renderSubLayers: (props) => {
           const { west, south, east, north } = props.tile.bbox;
       
-          return new BitmapLayer(props, {
-            image: props.data, // now GUARANTEED ImageBitmap
+          // IMPORTANT: don't pass props as first arg unless you override `data`
+          return new BitmapLayer({
+            id: `${props.id}-bitmap`,
+            image: props.data,                 // tile image
             bounds: [west, south, east, north],
+            data: null,                        // <- CRITICAL FIX
+            pickable: false,
+            parameters: { depthTest: false },
           });
         },
+      
+        onTileError: (err) => console.error("Tile error:", err),
       }),      
+      
+            
 
       // 🟢 Plant core
       new ScatterplotLayer({
