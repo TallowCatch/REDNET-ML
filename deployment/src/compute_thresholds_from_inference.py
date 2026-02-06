@@ -1,4 +1,4 @@
-# deployment/src/compute_thresholds_from_inference_csv.py
+#!/usr/bin/env python3
 from __future__ import annotations
 
 import argparse
@@ -10,12 +10,6 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import precision_recall_curve
 
-from inference import run_inference
-
-
-def load_json(p: Path) -> dict:
-    return json.loads(p.read_text())
-
 
 def safe_name(p: Path) -> str:
     return p.stem.replace(".", "_").replace("/", "_")
@@ -23,12 +17,13 @@ def safe_name(p: Path) -> str:
 
 def pr_points(y: np.ndarray, p: np.ndarray):
     prec, rec, thr = precision_recall_curve(y, p)
-    f1 = 2 * prec * rec / np.clip(prec + rec, 1e-12, None)
     # thr aligns with prec[1:], rec[1:]
+    f1 = 2 * prec * rec / np.clip(prec + rec, 1e-12, None)
     return prec, rec, thr, f1
 
 
 def best_f1_point(prec, rec, thr, f1) -> Dict:
+    # ignore point 0 (no threshold there)
     best_i = int(np.nanargmax(f1[1:])) + 1
     return {
         "threshold": float(thr[best_i - 1]),
@@ -39,10 +34,15 @@ def best_f1_point(prec, rec, thr, f1) -> Dict:
 
 
 def pick_for_precision(prec, rec, thr, f1, target_prec: float) -> Optional[Dict]:
-    idx = np.where(prec[1:] >= target_prec)[0]
-    if len(idx) == 0:
+    """
+    Pick the threshold that achieves precision >= target_prec with MAX recall.
+    """
+    ok = np.where(prec[1:] >= target_prec)[0]
+    if len(ok) == 0:
         return None
-    i = int(idx[0] + 1)  # earliest threshold meeting precision
+    candidates = ok + 1
+    best = candidates[np.nanargmax(rec[candidates])]
+    i = int(best)
     return {
         "threshold": float(thr[i - 1]),
         "precision": float(prec[i]),
@@ -52,11 +52,14 @@ def pick_for_precision(prec, rec, thr, f1, target_prec: float) -> Optional[Dict]
 
 
 def pick_for_recall(prec, rec, thr, f1, target_rec: float) -> Optional[Dict]:
-    idx = np.where(rec[1:] >= target_rec)[0]
-    if len(idx) == 0:
+    """
+    Pick the threshold that achieves recall >= target_rec with MAX precision.
+    """
+    ok = np.where(rec[1:] >= target_rec)[0]
+    if len(ok) == 0:
         return None
-    candidates = idx + 1
-    best = candidates[np.argmax(prec[candidates])]  # best precision among those meeting recall
+    candidates = ok + 1
+    best = candidates[np.nanargmax(prec[candidates])]
     i = int(best)
     return {
         "threshold": float(thr[i - 1]),
@@ -67,37 +70,42 @@ def pick_for_recall(prec, rec, thr, f1, target_rec: float) -> Optional[Dict]:
 
 
 def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--artifacts_dir", required=True)
-    ap.add_argument("--eval_csv", required=True, help="CSV containing raw inputs + label")
-    ap.add_argument("--label_col", default="hab_label")
+    ap = argparse.ArgumentParser("Compute operating thresholds from saved prediction CSVs")
+    ap.add_argument("--pred_glob", required=True, help="glob for prediction csvs (e.g. runs/fusion/.../predictions_cv*.csv)")
+    ap.add_argument("--label_col", default="hab_label", help="label column in prediction CSVs")
+    ap.add_argument("--prob_col", default="hab_prob", help="probability column in prediction CSVs")
 
     ap.add_argument("--precision_targets", default="0.90,0.95",
                     help="comma-separated precision targets (e.g. 0.90,0.95)")
     ap.add_argument("--recall_targets", default="",
                     help="comma-separated recall targets (e.g. 0.80,0.90)")
 
-    ap.add_argument("--default_op", default="prec_0_90",
-                    help="which operating point becomes default_threshold (e.g. prec_0_90, best_f1)")
-    ap.add_argument("--out_json", default=None,
-                    help="Output path. If omitted, writes versioned file next to artifacts as thresholds_<evalstem>.json")
-    ap.add_argument("--write_as_active", action="store_true",
-                    help="If set, ALSO copy result to deployment/artifacts/thresholds.json")
+    ap.add_argument("--default_op", default="rec_0_60",
+                    help="default op key (e.g. rec_0_60, prec_0_90, best_f1)")
+    ap.add_argument("--out_json", required=True, help="output json path (e.g. runs/eval/thresholds_cv.json)")
 
     args = ap.parse_args()
 
-    artifacts_dir = Path(args.artifacts_dir)
-    eval_csv = Path(args.eval_csv)
+    paths = sorted([Path(p) for p in __import__("glob").glob(args.pred_glob)])
+    if not paths:
+        raise SystemExit(f"❌ no files match pred_glob: {args.pred_glob}")
 
-    df = pd.read_csv(eval_csv)
+    df = pd.concat([pd.read_csv(p) for p in paths], ignore_index=True)
+
     if args.label_col not in df.columns:
-        raise SystemExit(f"❌ label_col '{args.label_col}' not found in eval_csv")
+        raise SystemExit(f"❌ label_col '{args.label_col}' not found. columns={list(df.columns)[:60]}")
+    if args.prob_col not in df.columns:
+        raise SystemExit(f"❌ prob_col '{args.prob_col}' not found. columns={list(df.columns)[:60]}")
 
-    y = df[args.label_col].astype(int).values
+    y = pd.to_numeric(df[args.label_col], errors="coerce")
+    y = (y > 0.5).astype(int).to_numpy()
+    p = pd.to_numeric(df[args.prob_col], errors="coerce").to_numpy()
 
-    # run real deployment inference (uses ensemble + calibrator if present)
-    pred_df = run_inference(df, artifacts_dir=artifacts_dir)
-    p = pred_df["prob"].astype(float).values
+    m = np.isfinite(p) & np.isfinite(y)
+    y = y[m]
+    p = p[m]
+    if y.sum() == 0:
+        raise SystemExit("❌ no positive labels in provided predictions (check label_col).")
 
     prec, rec, thr, f1 = pr_points(y, p)
 
@@ -114,11 +122,11 @@ def main():
         key = f"rec_{str(t).replace('.', '_')}"
         ops[key] = pick_for_recall(prec, rec, thr, f1, t)
 
-    # choose default op
+    # default
     default_op = args.default_op
     if default_op not in ops or ops[default_op] is None:
-        # fallback order
-        fallback = ["prec_0_90", "prec_0_95", "best_f1"]
+        # sensible fallback order
+        fallback = ["rec_0_60", "prec_0_90", "best_f1"]
         found = None
         for k in fallback:
             if k in ops and ops[k] is not None:
@@ -134,26 +142,21 @@ def main():
         "default_operating_point": default_op,
         "default_threshold": float(ops[default_op]["threshold"]),
         "operating_points": ops,
-        "notes": f"Computed using deployment inference probs on {eval_csv.as_posix()}",
+        "notes": f"Computed from prediction CSVs: {args.pred_glob}",
+        "n": int(len(y)),
+        "pos": int(y.sum()),
     }
 
-    if args.out_json:
-        out_path = Path(args.out_json)
-    else:
-        out_path = artifacts_dir / f"thresholds_{safe_name(eval_csv)}.json"
-
+    out_path = Path(args.out_json)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(out, indent=2))
-
-    # optionally activate
-    if args.write_as_active:
-        active = artifacts_dir / "thresholds.json"
-        active.write_text(json.dumps(out, indent=2))
-        print(f"✅ wrote active: {active}")
 
     print(f"✅ wrote: {out_path}")
     print("default_operating_point:", out["default_operating_point"])
     print("default_threshold:", out["default_threshold"])
     print("best_f1 threshold:", ops["best_f1"]["threshold"])
+    if "rec_0_60" in ops and ops["rec_0_60"] is not None:
+        print("rec_0_60 threshold:", ops["rec_0_60"]["threshold"])
 
 
 if __name__ == "__main__":
