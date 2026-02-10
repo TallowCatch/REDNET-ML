@@ -35,7 +35,7 @@ def max_score_from_outputs(outputs, score_thresh=0.05):
     scores = outputs[0].get("scores")
     if scores is None or len(scores) == 0:
         return 0.0
-    scores = scores.detach().cpu()
+asds`da    scores = scores.detach().cpu()
     scores = scores[scores >= score_thresh]
     return float(scores.max()) if len(scores) else 0.0
 

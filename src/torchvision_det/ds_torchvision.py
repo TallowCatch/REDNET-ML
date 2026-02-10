@@ -14,7 +14,7 @@ from PIL import Image
 # Project paths
 # -----------------------------------------------------------------------------
 DATA_DIR = Path("data")
-COCO_DIR = DATA_DIR / "labels" / "coco"
+COCO_DIR = Path("training/labels/coco")
 IMG_ROOT = DATA_DIR / "labels" / "detection" / "images"  # has train/val/test
 
 # -----------------------------------------------------------------------------
@@ -118,16 +118,19 @@ class HABDetDataset(Dataset):
         return len(self.ids)
 
     def _load_image(self, file_name: str) -> Image.Image:
-        # Try several layout candidates
         candidates = [
-            Path("data/labels/detection/images") / self.split / file_name,  # expected layout
-            Path("data/labels") / self.split / file_name,                   # your current "val" folder
-            Path("data/chl_tiles/tiles_png") / file_name,                   # raw tile dump, just in case
+            Path("training/labels/detection/images") / self.split / file_name,
+            Path("data/labels/detection/images") / self.split / file_name,
+            Path("data/chl_tiles/tiles_png") / file_name,
         ]
         for p in candidates:
             if p.exists():
                 return Image.open(p).convert("RGB")
-        raise FileNotFoundError(f"Image not found for {file_name}. Tried: " + " | ".join(map(str, candidates)))
+        raise FileNotFoundError(
+            f"Image not found for {file_name}. Tried: "
+            + " | ".join(map(str, candidates))
+        )
+
 
 
 

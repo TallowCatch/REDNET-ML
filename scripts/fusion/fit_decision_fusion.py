@@ -467,6 +467,52 @@ def _merge_on_nearest_date(base, det_df, score_name, max_day_gap: int = 12, use_
         return out, True
     return base, False
 
+def _plot_cb_curve(evals: dict, outpng: Path, metric: str = "Logloss"):
+    """
+    evals from cb.get_evals_result():
+      {"learn": {"Logloss": [...]}, "validation": {"Logloss": [...]}, ...}
+    """
+    plt.close("all")
+    plt.figure(figsize=(6.5, 4.2))
+    for split_name in ["learn", "validation"]:
+        if split_name in evals and metric in evals[split_name]:
+            plt.plot(evals[split_name][metric], label=f"{split_name}:{metric}")
+    plt.xlabel("Iteration")
+    plt.ylabel(metric)
+    plt.title(f"CatBoost learning curve ({metric})")
+    plt.grid(True, linestyle="--", alpha=0.35)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(outpng, dpi=200)
+    plt.close()
+
+def _rf_trees_curve(X_fit, y_fit, X_te, y_te, outpng: Path, steps=(25, 50, 100, 200, 400), seed=42):
+    from sklearn.ensemble import RandomForestClassifier
+    xs, ys = [], []
+    for n in steps:
+        rf = RandomForestClassifier(
+            n_estimators=n,
+            random_state=seed,
+            class_weight="balanced",
+            n_jobs=-1,
+        )
+        rf.fit(X_fit, y_fit)
+        p = rf.predict_proba(X_te)[:, 1]
+        ys.append(average_precision_score(y_te, p) if y_te.sum() > 0 else 0.0)
+        xs.append(n)
+
+    plt.close("all")
+    plt.figure(figsize=(6.0, 4.0))
+    plt.plot(xs, ys, marker="o")
+    plt.xlabel("n_estimators (trees)")
+    plt.ylabel("AUPRC")
+    plt.title("Random Forest: performance vs trees")
+    plt.grid(True, linestyle="--", alpha=0.35)
+    plt.tight_layout()
+    plt.savefig(outpng, dpi=200)
+    plt.close()
+
+
 
 # --------------- thresholding ---------------
 def _pick_threshold_from_policy(
@@ -1179,6 +1225,11 @@ def main():
 
         df_fit = df_train_aug.iloc[tr_fit_idx].copy()
         df_cal = df_train_aug.iloc[tr_cal_idx].copy()
+        print(
+            f"[split:{tag}] fit={len(df_fit)} (pos={(df_fit[args.label_col]==1).sum()}, neg={(df_fit[args.label_col]==0).sum()}) | "
+            f"cal={len(df_cal)} (pos={(df_cal[args.label_col]==1).sum()}, neg={(df_cal[args.label_col]==0).sum()})"
+        )
+
 
         if len(tr_cal_idx) == 0:
             print("[cal] Calibration split unavailable for this fold (too few groups/classes). Calibration will be disabled.")
@@ -1192,6 +1243,13 @@ def main():
         y_train_full = df_train_aug[args.label_col].astype(int).values
         X_test = df_test_aug[feat_cols].values
         y_test = df_test_aug[args.label_col].astype(int).values
+
+        try:
+            _rf_trees_curve(X_fit, y_fit, X_test, y_test, outdir / f"rf_trees_curve_{tag}.png", seed=final_seed)
+            print(f"[rf:{tag}] saved rf_trees_curve_{tag}.png")
+        except Exception as e:
+            print(f"[rf:{tag}] rf curve failed: {e}")
+
 
         # ---- build model ----
         if args.model == "catboost":
@@ -1217,18 +1275,44 @@ def main():
                 eval_metric="Logloss",
                 custom_metric="AUC",
                 random_seed=final_seed,
-                verbose=False,
+                verbose=100, # prints every 100 iterations
                 auto_class_weights="Balanced",
                 od_type="Iter",
                 od_wait=args.cb_early_stop,
             )
 
             if len(y_cal) > 0:
-                cb.fit(X_fit, y_fit, eval_set=(X_cal, y_cal), use_best_model=True)
+                cb.fit(X_fit, y_fit, eval_set=(X_cal, y_cal), verbose=100, use_best_model=True)
             else:
-                cb.fit(X_fit, y_fit)
+                cb.fit(X_fit, y_fit, verbose=100)
 
             model = cb
+
+            # ---- log best iteration + save learning curve ----
+            try:
+                best_iter = cb.get_best_iteration()
+                best_score = cb.get_best_score()  # dict like {'learn':..., 'validation':...}
+                print(f"[catboost:{tag}] best_iter={best_iter} | best_score={best_score}")
+            except Exception as e:
+                print(f"[catboost:{tag}] best_iter unavailable: {e}")
+
+            # Save eval curves if available
+            evals = None
+            try:
+                evals = cb.get_evals_result()  # dict of per-iter metrics
+                (outdir / f"catboost_evals_{tag}.json").write_text(json.dumps(evals, indent=2))
+                print(f"[catboost:{tag}] saved eval curves -> catboost_evals_{tag}.json")
+            except Exception as e:
+                print(f"[catboost:{tag}] eval curves unavailable: {e}")
+
+            if isinstance(evals, dict):
+                try:
+                    _plot_cb_curve(evals, outdir / f"catboost_curve_{tag}.png", metric="Logloss")
+                    if "AUC" in (evals.get("learn", {}) or {}):
+                        _plot_cb_curve(evals, outdir / f"catboost_curve_auc_{tag}.png", metric="AUC")
+                except Exception as e:
+                    print(f"[catboost:{tag}] curve plot failed: {e}")
+
 
         else:
             # logreg with weighted scaling

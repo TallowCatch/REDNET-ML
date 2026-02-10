@@ -1,0 +1,12 @@
+{
+  "per_model": {},
+  "notes": {
+    "split_mode": "rolling_year",
+    "time_split": null,
+    "n_boot": 1000,
+    "thr_policy": "best_f1",
+    "main_model": "hab_prob",
+    "rf_mode": "auto",
+    "rf_extra_drop": []
+  }
+}

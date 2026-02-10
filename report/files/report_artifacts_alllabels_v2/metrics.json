@@ -1,0 +1,135 @@
+{
+  "csv": "runs/datasets/fusion_training_with_plants_splitlabels.csv",
+  "label_col": "hab_label_final2",
+  "group_by": "scene_id",
+  "model": "catboost",
+  "cv_folds": 5,
+  "min_recall": 0.6,
+  "features_used": [
+    "p_frcnn_r50_med",
+    "p_frcnn_mb_med",
+    "p_ssd_mb_med",
+    "p_tab",
+    "fai_mean",
+    "rednir_mean",
+    "ndwi_mean",
+    "kd490",
+    "chlor_a",
+    "nflh",
+    "sst",
+    "month_sin",
+    "month_cos",
+    "ndwi_std",
+    "rednir_std"
+  ],
+  "pooled": {
+    "AUPRC": 0.7270227366396865,
+    "AUROC": 0.8422453519783887,
+    "threshold": 0.45349823739638245,
+    "threshold_policy": "prec@recall>=0.60",
+    "TN": 1613,
+    "FP": 185,
+    "FN": 260,
+    "TP": 398
+  },
+  "folds": [
+    {
+      "fold": 1,
+      "threshold": 0.8928962045815013,
+      "threshold_policy": "prec@recall>=0.60",
+      "test_pos": 137,
+      "test_total": 494,
+      "AUPRC": 0.7382233814166957,
+      "AUROC": 0.8630926823284057,
+      "TN": 345,
+      "FP": 12,
+      "FN": 84,
+      "TP": 53
+    },
+    {
+      "fold": 2,
+      "threshold": 0.7487710277894012,
+      "threshold_policy": "prec@recall>=0.60",
+      "test_pos": 117,
+      "test_total": 496,
+      "AUPRC": 0.7107338393866934,
+      "AUROC": 0.8139954446023048,
+      "TN": 364,
+      "FP": 15,
+      "FN": 58,
+      "TP": 59
+    },
+    {
+      "fold": 3,
+      "threshold": 0.9249717465807439,
+      "threshold_policy": "prec@recall>=0.60",
+      "test_pos": 153,
+      "test_total": 493,
+      "AUPRC": 0.7626029939778692,
+      "AUROC": 0.8344290657439447,
+      "TN": 339,
+      "FP": 1,
+      "FN": 114,
+      "TP": 39
+    },
+    {
+      "fold": 4,
+      "threshold": 0.8973976758856111,
+      "threshold_policy": "prec@recall>=0.60",
+      "test_pos": 130,
+      "test_total": 487,
+      "AUPRC": 0.6929289567565566,
+      "AUROC": 0.8488903253609136,
+      "TN": 342,
+      "FP": 15,
+      "FN": 87,
+      "TP": 43
+    },
+    {
+      "fold": 5,
+      "threshold": 0.9418077977222811,
+      "threshold_policy": "prec@recall>=0.60",
+      "test_pos": 121,
+      "test_total": 486,
+      "AUPRC": 0.7521890515751322,
+      "AUROC": 0.851941582701234,
+      "TN": 363,
+      "FP": 2,
+      "FN": 80,
+      "TP": 41
+    }
+  ],
+  "rf_curve": [
+    {
+      "n_estimators": 25,
+      "auprc": 0.9041968424443279
+    },
+    {
+      "n_estimators": 50,
+      "auprc": 0.9087423823097174
+    },
+    {
+      "n_estimators": 100,
+      "auprc": 0.9208533657023931
+    },
+    {
+      "n_estimators": 200,
+      "auprc": 0.9277108840776046
+    },
+    {
+      "n_estimators": 400,
+      "auprc": 0.9305459408211243
+    }
+  ],
+  "table": {
+    "table_cols": [
+      "chlor_a",
+      "kd490",
+      "nflh",
+      "sst",
+      "fai_mean",
+      "ndwi_mean",
+      "rednir_mean"
+    ]
+  }
+}
