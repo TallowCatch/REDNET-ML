@@ -32,8 +32,8 @@ LAT_MIN, LAT_MAX = 15.5, 26.5
 ZOOM_LON_MIN, ZOOM_LON_MAX = 49.5, 60.8
 ZOOM_LAT_MIN, ZOOM_LAT_MAX = 16.0, 27.0
 
-FILELIST_CHL   = Path("filelists/8d/filelist_8d_chlor_a_filtered.txt")
-FILELIST_SST = Path("filelists/8d/filelist_8d_sst.txt")  
+FILELIST_CHL   = Path("data/filelists/8d/filelist_8d_chlor_a_filtered.txt")
+FILELIST_SST = Path("data/filelists/8d/filelist_8d_sst.txt")  
 TMP_MODIS_ROOT = Path("data/l3/tmp_oci")
 
 OUT_DIR = Path("runs/plots")

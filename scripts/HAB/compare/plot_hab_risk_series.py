@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-df = pd.read_csv("deployment/outputs/inference_with_probs.csv")
+df = pd.read_csv("deployment/outputs/inference_with_probs_attempt.csv")
 
 # group by scene (or date)
 scene_ts = (

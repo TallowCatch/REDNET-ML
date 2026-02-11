@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # ========= Config =========
-LISTDIR="filelists/8d"   # ✅ updated path
+LISTDIR="data/filelists/8d"   # ✅ updated path
 CHIPS_GLOB='data/aerial_*_20*/chip_indices_clean.csv'
 TMPROOT="data/l3/tmp_8d"
 FINALROOT="data/l3/aqua_8d"

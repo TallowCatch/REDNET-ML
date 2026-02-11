@@ -35,7 +35,7 @@ def max_score_from_outputs(outputs, score_thresh=0.05):
     scores = outputs[0].get("scores")
     if scores is None or len(scores) == 0:
         return 0.0
-asds`da    scores = scores.detach().cpu()
+    scores = scores.detach().cpu()
     scores = scores[scores >= score_thresh]
     return float(scores.max()) if len(scores) else 0.0
 
@@ -228,7 +228,7 @@ def main():
     ap.add_argument("--export_vis", action="store_true", help="export annotated images with boxes")
     ap.add_argument("--vis_topk", type=int, default=40, help="annotate top-k chips by max score")
     ap.add_argument("--vis_min_score", type=float, default=0.25, help="min score for a box to be drawn/exported")
-    ap.add_argument("--vis_dirname", default="det_vis", help="folder name under out_dir for annotated images")
+    ap.add_argument("--vis_dirname", default="chip_vis", help="folder name under out_dir for annotated images")
 
     args = ap.parse_args()
 

@@ -379,7 +379,7 @@ def main():
     ap.add_argument("--model", required=True)
 
     # MODIS on-demand download
-    ap.add_argument("--filelists_dir", default="filelists/8d", help="folder containing filelist_8d_*.txt")
+    ap.add_argument("--filelists_dir", default="data/filelists/8d", help="folder containing filelist_8d_*.txt")
     ap.add_argument("--max_days", type=int, default=30)
     ap.add_argument("--modis_products", nargs="+", default=["chlor_a", "Kd_490", "nflh", "sst"])
     ap.add_argument("--tmp_modis_root", default="data/l3/tmp_infer", help="temp folder used for downloads (auto-cleaned)")
@@ -397,11 +397,11 @@ def main():
     ap.add_argument("--skip_detectors", action="store_true", help="do not run detectors/fusion at end")
     ap.add_argument("--detectors_script", default="deployment/src/inference/run_detectors_on_chips.py")
     ap.add_argument("--fusion_script", default="deployment/src/inference/rerun_fusion_with_detectors.py")
-    ap.add_argument("--det_out_dir", default="detector_scores_by_month",
+    ap.add_argument("--det_out_dir", default="training/detector_scores_by_month",
                     help="where run_detectors_on_chips.py writes *_detector_scores.csv (relative to CWD)")
-    ap.add_argument("--frcnn_r50", default="runs/detect/frcnn_resnet50/best_resnet.pt")
-    ap.add_argument("--frcnn_mb", default="runs/detect/frcnn_mobilenet/best.pt")
-    ap.add_argument("--ssd_mb", default="runs/detect/ssd_mobilenet/best_ssd.pt")
+    ap.add_argument("--frcnn_r50", default="detection_models/frcnn_resnet50/best_resnet.pt")
+    ap.add_argument("--frcnn_mb", default="detection_models/frcnn_mobilenet/best_mobilenet.pt")
+    ap.add_argument("--ssd_mb", default="detection_models/ssd_mobilenet/best_ssd.pt")
 
     args = ap.parse_args()
 

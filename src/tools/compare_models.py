@@ -138,9 +138,9 @@ def main():
     ap.add_argument("--runs", type=int, default=50)
     ap.add_argument("--warmup", type=int, default=5)
     ap.add_argument("--limit_n", type=int, default=0)
-    ap.add_argument("--weights_r50", default="runs/detect/frcnn_resnet50/best.pt")
-    ap.add_argument("--weights_mn",  default="runs/detect/frcnn_mobilenet/best.pt")
-    ap.add_argument("--weights_ssd", default="runs/detect/ssd_mobilenet/best.pt")
+    ap.add_argument("--weights_r50", default="detection_models/frcnn_resnet50/best_resnet50.pt")
+    ap.add_argument("--weights_mn",  default="detection_models/frcnn_mobilenet/best_mobilenet.pt")
+    ap.add_argument("--weights_ssd", default="detection_models/ssd_mobilenet/best_ssd.pt")
     args = ap.parse_args()
 
     if args.limit_n > 0:

@@ -7,7 +7,7 @@ import pandas as pd
 from pathlib import Path
 
 def risk_band(p: float) -> str:
-    # simple default bands (tune later using your CV4 thresholds if you want)
+    # simple default bands 
     if p >= 0.53277: return "high"
     if p >= 0.39263: return "medium"
     return "low"
