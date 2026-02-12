@@ -1,8 +1,8 @@
 from pathlib import Path
 import json, random
 
-COCO_IN  = Path("data/labels/coco/instances_all.json")
-COCO_DIR = Path("data/labels/coco")
+COCO_IN  = Path("training/labels/coco/instances_all.json")
+COCO_DIR = Path("training/labels/coco")
 
 def main(seed=42, tvt=(0.8, 0.1, 0.1)):
     coco = json.loads(COCO_IN.read_text())

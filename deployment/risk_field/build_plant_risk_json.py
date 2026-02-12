@@ -3,7 +3,7 @@ import pandas as pd
 import json
 from pathlib import Path
 
-IN_CSV = "deployment/artifacts/inference/csvs/1236881046_inference_all_months.csv"
+IN_CSV = "deployment/outputs/by_plant/osm_way_1236881046/inference_all_months.csv"
 OUT_GEOJSON = "/tmp/plant_risk.geojson"
 
 PLANT_LAT = 21.9310725

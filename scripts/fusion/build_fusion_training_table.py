@@ -19,7 +19,7 @@ def normalize_tile(series: pd.Series) -> pd.Series:
 
 def main():
     # --- paths (edit if needed) ---
-    template_csv = Path("runs/fusion/fusion_training_table_clean.csv")  # your schema/template
+    template_csv = Path("runs/fusion/training_tables_draft/fusion_training_table_clean.csv")  # your schema/template
     plants_dir   = Path("/Users/ameerfiras/REDNET-ML/rednet-risk-viewer/public/data")
     out_csv      = Path("runs/fusion/fusion_training_table_clean_populated.csv")
 

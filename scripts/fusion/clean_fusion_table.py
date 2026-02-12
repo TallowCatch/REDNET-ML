@@ -2,7 +2,7 @@
 import pandas as pd
 from pathlib import Path
 
-fusion_path = Path("runs/fusion/fusion_training_table.csv")
+fusion_path = Path("runs/fusion/training_tables_draft/fusion_training_table.csv")
 df = pd.read_csv(fusion_path)
 
 sentinel_feats_all = ["fai_mean", "rednir_mean", "ndwi_mean", "kd490", "chlor_a", "nflh", "sst"]

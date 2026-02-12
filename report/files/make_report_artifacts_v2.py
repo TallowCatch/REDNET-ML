@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# scripts/fusion/make_report_artifacts_v2.py
+# report/files/make_report_artifacts_v2.py
 
 """
 Generate paper-ready artifacts (tables + plots) for REDNET-ML fusion datasets.
