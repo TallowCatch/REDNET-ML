@@ -37,9 +37,11 @@ class CocoIndex:
 
         self.categories = coco_json.get("categories", [{"id": 1, "name": "HAB"}])
 
+
 def _xywh_to_xyxy(xywh):
     x, y, w, h = xywh
     return [x, y, x + w, y + h]
+
 
 def _clip_box_xyxy(box, w, h):
     x1, y1, x2, y2 = box
@@ -49,6 +51,7 @@ def _clip_box_xyxy(box, w, h):
     y2 = max(0.0, min(float(h - 1), float(y2)))
     return [x1, y1, x2, y2]
 
+
 def _has_target(anns: List[Dict[str, Any]]) -> bool:
     """True if at least one bbox with positive size."""
     for a in anns:
@@ -56,6 +59,7 @@ def _has_target(anns: List[Dict[str, Any]]) -> bool:
         if w > 1 and h > 1:
             return True
     return False
+
 
 # -----------------------------------------------------------------------------
 # Resize transform that also rescales boxes
@@ -81,6 +85,7 @@ class ResizeWithBoxes:
             target["boxes"] = boxes
 
         return img, target
+
 
 # -----------------------------------------------------------------------------
 # Dataset
@@ -118,21 +123,53 @@ class HABDetDataset(Dataset):
         return len(self.ids)
 
     def _load_image(self, file_name: str) -> Image.Image:
-        candidates = [
-            Path("training/labels/detection/images") / self.split / file_name,
-            Path("data/labels/detection/images") / self.split / file_name,
-            Path("data/chl_tiles/tiles_png") / file_name,
+        """
+        Robust image resolver.
+
+        Primary expected layouts:
+          - training/labels/detection/images/{split}/{file}
+          - data/labels/detection/images/{split}/{file}
+
+        Also supports fallback split lookups (val -> train, train -> val) to
+        avoid breakage if files were moved between folders.
+
+        Final fallback:
+          - data/chl_tiles/tiles_png/{file}
+        """
+        fname = Path(file_name).name
+
+        roots = [
+            Path("training/labels/detection/images"),
+            Path("data/labels/detection/images"),
         ]
-        for p in candidates:
-            if p.exists():
-                return Image.open(p).convert("RGB")
+
+        # try requested split first, then fallback to the other splits
+        # (useful if files were moved across split folders)
+        split_try = [self.split]
+        for sp in ("train", "val", "test"):
+            if sp not in split_try:
+                split_try.append(sp)
+
+
+        candidates: List[Path] = []
+
+        for r in roots:
+            for sp in split_try:
+                p = r / sp / fname
+                candidates.append(p)
+                if p.exists():
+                    return Image.open(p).convert("RGB")
+
+        # tiles fallback (no split folder)
+        tile_path = Path("data/chl_tiles/tiles_png") / fname
+        candidates.append(tile_path)
+        if tile_path.exists():
+            return Image.open(tile_path).convert("RGB")
+
         raise FileNotFoundError(
-            f"Image not found for {file_name}. Tried: "
-            + " | ".join(map(str, candidates))
+            f"Image not found for {fname}. Tried:\n  " +
+            "\n  ".join(map(str, candidates))
         )
-
-
-
 
     def __getitem__(self, idx: int):
         img_id = self.ids[idx]
@@ -187,6 +224,7 @@ class HABDetDataset(Dataset):
             img = self.img_only_tf(img)
 
         return img, target
+
 
 # -----------------------------------------------------------------------------
 # Dataloader collate
