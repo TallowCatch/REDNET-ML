@@ -30,8 +30,6 @@ Key script folders:
 - `scripts/fusion/` – Fusion table construction and decision-level fusion
 - `scripts/eval/` – Evaluation and benchmarking tools
 
-`REDNET_ML.ipynb` is preserved as a legacy exploratory notebook. The numbered notebooks are the canonical reproducible path.
-
 ---
 
 ## Quickstart
