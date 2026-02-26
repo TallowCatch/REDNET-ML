@@ -1,256 +1,160 @@
-import DeckGL from "@deck.gl/react";
-import {
-  ScatterplotLayer,
-  BitmapLayer,
-  SolidPolygonLayer,
-} from "@deck.gl/layers";
-import { TileLayer } from "@deck.gl/geo-layers";
-import { FlyToInterpolator } from "@deck.gl/core";
-import { useMemo, useState, useEffect } from "react";
-import { load } from '@loaders.gl/core';
-import { ImageLoader } from '@loaders.gl/images';
+import { useMemo } from 'react';
+import DeckGL from '@deck.gl/react';
+import { TileLayer } from '@deck.gl/geo-layers';
+import { BitmapLayer, GeoJsonLayer, ScatterplotLayer } from '@deck.gl/layers';
 
-const DEFAULT_THRESHOLD = 0.5327723842346281;
-const BEST_F1_THRESHOLD = 0.3926301481609915;
-
-// ---------------- COLORS ----------------
-function riskToColor(risk, alpha = 160) {
-  if (risk < BEST_F1_THRESHOLD) return [34, 197, 94, alpha];
-  if (risk < DEFAULT_THRESHOLD) return [245, 158, 11, alpha];
-  return [239, 68, 68, alpha];
+function scoreToColor(score, thresholds, alpha = 180) {
+  const s = Number(score);
+  if (!Number.isFinite(s)) return [148, 163, 184, alpha];
+  if (s >= thresholds.action) return [220, 38, 38, alpha];
+  if (s >= thresholds.watch) return [217, 119, 6, alpha];
+  return [22, 163, 74, alpha];
 }
 
-// ---------------- UNCERTAINTY HEURISTIC ----------------
-function ringRadii(mean, low, high) {
-  const base = 8000;
-  const alpha = 25000;
-  const beta = 40000;
-
-  const severity = mean / DEFAULT_THRESHOLD;
-  const uncertainty = Math.max(0, high - low);
-
-  const inner = base + severity * alpha;
-  const outer = inner + uncertainty * beta;
-
-  return { inner, outer };
-}
-
-// ---------------- GEOMETRY ----------------
-function makeAnnulus([lon, lat], innerR, outerR, steps = 96) {
-  const R = 6378137;
-  const toRad = (d) => (d * Math.PI) / 180;
-  const toDeg = (r) => (r * 180) / Math.PI;
-
-  const ring = (radius) =>
-    Array.from({ length: steps + 1 }, (_, i) => {
-      const a = (i / steps) * 2 * Math.PI;
-      return [
-        lon + toDeg((radius * Math.cos(a)) / (R * Math.cos(toRad(lat)))),
-        lat + toDeg((radius * Math.sin(a)) / R),
-      ];
-    });
-
-  return [ring(outerR), ring(innerR).reverse()];
+function statusToColor(status, alpha = 230) {
+  if (status === 'action') return [220, 38, 38, alpha];
+  if (status === 'watch') return [217, 119, 6, alpha];
+  if (status === 'normal') return [22, 163, 74, alpha];
+  return [148, 163, 184, alpha];
 }
 
 export default function DeckView({
   plants,
-  focusedPlantId,
+  selectedPlantId,
   onPlantClick,
-  forecast,
-  showPulseRing = true,
-  showAnnulus = false,
+  viewState,
+  onViewStateChange,
+  thresholds,
+  layerToggles,
   aoi,
+  overlay,
+  overlayScore,
+  ociSurface,
+  ociSurfaceOpacity = 0.42,
 }) {
-  const [hover, setHover] = useState(null);
-
-  // 🔁 Pulse animation
-  const [pulse, setPulse] = useState(0);
-  useEffect(() => {
-    let raf;
-    const tick = () => {
-      setPulse((p) => (p + 0.015) % 1);
-      raf = requestAnimationFrame(tick);
-    };
-    tick();
-    return () => cancelAnimationFrame(raf);
-  }, []);
-
-  const focusedPlant = useMemo(
-    () => plants?.find((p) => p.id === focusedPlantId),
-    [plants, focusedPlantId]
-  );
-
-  // ---------------- VIEW STATE (FREE PAN / ZOOM) ----------------
-  const [viewState, setViewState] = useState({
-    longitude: 59.5,
-    latitude: 22.5,
-    zoom: 6,
-    pitch: 0,
-    bearing: 0,
-  });
-
-  // Zoom ONLY when plant changes
-  useEffect(() => {
-    if (!focusedPlant) return;
-    setViewState((v) => ({
-      ...v,
-      longitude: Number(focusedPlant.lon),
-      latitude: Number(focusedPlant.lat),
-      zoom: 8,
-      transitionDuration: 1200,
-      transitionInterpolator: new FlyToInterpolator(),
-    }));
-  }, [focusedPlant]);
-
-  // ---------------- ANNULUS ----------------
-  const annulus = useMemo(() => {
-    if (!focusedPlant || !forecast?.preds?.length) return null;
-    const { mean, low, high } = forecast.preds[0];
-    const { inner, outer } = ringRadii(mean, low, high);
-    return makeAnnulus(
-      [Number(focusedPlant.lon), Number(focusedPlant.lat)],
-      inner,
-      outer
-    );
-  }, [focusedPlant, forecast]);
-
-  // ---------------- LAYERS ----------------
   const layers = useMemo(() => {
-    const layers = [
-      // 🌍 Basemap
+    const out = [
       new TileLayer({
-        id: "basemap",
-        data: "https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png",
-        tileSize: 256,
+        id: 'base-map',
+        data: 'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
         minZoom: 0,
         maxZoom: 19,
-      
+        tileSize: 256,
         renderSubLayers: (props) => {
           const { west, south, east, north } = props.tile.bbox;
-      
-          // IMPORTANT: don't pass props as first arg unless you override `data`
           return new BitmapLayer({
             id: `${props.id}-bitmap`,
-            image: props.data,                 // tile image
+            image: props.data,
             bounds: [west, south, east, north],
-            data: null,                        // <- CRITICAL FIX
+            data: null,
             pickable: false,
-            parameters: { depthTest: false },
           });
         },
-      
-        onTileError: (err) => console.error("Tile error:", err),
-      }),      
-      
-            
-
-      // 🟢 Plant core
-      new ScatterplotLayer({
-        id: "plant-core",
-        data: plants ?? [],
-        getPosition: (d) => [Number(d.lon), Number(d.lat)],
-        getRadius: 5000,
-        radiusUnits: "meters",
-        getFillColor: (d) => riskToColor(d.currentRisk, 220),
-        pickable: true,
-        onHover: (info) =>
-          setHover(info.object ? { x: info.x, y: info.y, plant: info.object } : null),
-        onClick: (info) =>
-          info.object && onPlantClick?.(info.object.id),
       }),
     ];
 
-    // 🔴 Pulsing ring (OPTIONAL)
-    if (showPulseRing) {
-      layers.push(
-        new ScatterplotLayer({
-          id: "risk-pulse",
-          data: plants ?? [],
-          getPosition: (d) => [Number(d.lon), Number(d.lat)],
-          getRadius: (d) =>
-            12000 +
-            (d.currentRisk / DEFAULT_THRESHOLD) * 25000 +
-            pulse * 6000,
-          radiusUnits: "meters",
-          stroked: true,
-          filled: false,
-          getLineColor: (d) => riskToColor(d.currentRisk, 220),
-          getLineWidth: 2,
-          lineWidthUnits: "pixels",
-          opacity: 0.5,
-          parameters: { depthTest: false },
+    if (ociSurface?.image && Array.isArray(ociSurface?.bounds) && ociSurface.bounds.length === 4) {
+      out.push(
+        new BitmapLayer({
+          id: `oci-surface-${ociSurface.image}`,
+          image: ociSurface.image,
+          bounds: ociSurface.bounds,
+          opacity: Number.isFinite(Number(ociSurfaceOpacity)) ? Number(ociSurfaceOpacity) : 0.42,
+          pickable: false,
         })
       );
     }
 
-    // 🟡 Scientific annulus (OPTIONAL, FIXED)
-    if (showAnnulus && annulus) {
-      layers.push(
-        new SolidPolygonLayer({
-          id: "risk-annulus",
-          data: [{ polygon: annulus }],
-          getPolygon: (d) => d.polygon,
-          getFillColor: riskToColor(forecast.preds[0].mean, 80),
-          stroked: false,
+    if (layerToggles.overlay && overlay) {
+      out.push(
+        new GeoJsonLayer({
+          id: 'chip-overlay',
+          data: overlay,
+          pickable: true,
           filled: true,
-          parameters: { depthTest: false },
-        })
-      );
-    }
-
-    // 🟦 AOI
-    if (aoi) {
-      layers.push(
-        new SolidPolygonLayer({
-          id: "aoi",
-          data: aoi.features,
-          getPolygon: (f) => f.geometry.coordinates,
-          getFillColor: [59, 130, 246, 40],
-          getLineColor: [59, 130, 246, 160],
           stroked: true,
-          filled: true,
+          getLineColor: [15, 23, 42, 140],
+          getLineWidth: 1,
+          lineWidthUnits: 'pixels',
+          getFillColor: (f) => scoreToColor(f?.properties?.[overlayScore], thresholds, 120),
         })
       );
     }
 
-    return layers;
-  }, [plants, pulse, annulus, forecast, showPulseRing, showAnnulus, aoi]);
+    if (layerToggles.aoi && aoi) {
+      out.push(
+        new GeoJsonLayer({
+          id: 'plant-aoi',
+          data: aoi,
+          filled: true,
+          stroked: true,
+          pickable: true,
+          getLineColor: [30, 64, 175, 180],
+          getFillColor: [59, 130, 246, 35],
+          getLineWidth: 1.5,
+          lineWidthUnits: 'pixels',
+        })
+      );
+    }
 
-  // ---------------- RENDER ----------------
+    out.push(
+      new ScatterplotLayer({
+        id: 'plants',
+        data: plants,
+        pickable: true,
+        radiusUnits: 'meters',
+        getRadius: (d) => (d.id === selectedPlantId ? 8200 : 5600),
+        getPosition: (d) => [Number(d.lon), Number(d.lat)],
+        getFillColor: (d) => statusToColor(d._status, 230),
+        getLineColor: [255, 255, 255, 220],
+        getLineWidth: 1,
+        stroked: true,
+        onClick: (info) => {
+          if (info.object) onPlantClick?.(info.object.id);
+        },
+      })
+    );
+
+    return out;
+  }, [
+    plants,
+    selectedPlantId,
+    onPlantClick,
+    thresholds,
+    layerToggles,
+    aoi,
+    overlay,
+    overlayScore,
+    ociSurface,
+    ociSurfaceOpacity,
+  ]);
+
   return (
-    <>
-      <DeckGL
-        viewState={viewState}
-        onViewStateChange={({ viewState }) => setViewState(viewState)}
-        controller
-        layers={layers}
-        style={{
-            position: "absolute",
-            inset: 0,
-        }}
-      />
+    <DeckGL
+      viewState={viewState}
+      controller
+      layers={layers}
+      onViewStateChange={({ viewState: next }) => onViewStateChange?.(next)}
+      getTooltip={({ object }) => {
+        if (!object) return null;
 
-      {hover && (
-        <div
-          style={{
-            position: "absolute",
-            left: hover.x + 10,
-            top: hover.y + 10,
-            background: "rgba(15,23,42,0.85)",
-            color: "white",
-            padding: "8px 10px",
-            borderRadius: 10,
-            fontSize: 12,
-            pointerEvents: "none",
-          }}
-        >
-          <b>{hover.plant.name}</b>
-          <div>
-            Risk {(hover.plant.currentRisk * 100).toFixed(1)}%
-          </div>
-        </div>
-      )}
-    </>
+        if (object.name && object.latest) {
+          const risk = Number(object._risk ?? object.latest?.ops_risk ?? object.latest?.hab_prob);
+          return {
+            text: `${object.name}\nRisk: ${Number.isFinite(risk) ? (risk * 100).toFixed(1) : '—'}%`,
+          };
+        }
+
+        if (object.properties?.hab_prob != null) {
+          const hp = Number(object.properties.hab_prob);
+          return {
+            text: `Chip risk: ${Number.isFinite(hp) ? (hp * 100).toFixed(1) : '—'}%`,
+          };
+        }
+
+        return null;
+      }}
+      style={{ position: 'absolute', inset: 0 }}
+    />
   );
 }

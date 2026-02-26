@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "build:ops": "python ../scripts/viewer/build_ops_payload.py --repo_root ..",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"

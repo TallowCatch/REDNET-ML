@@ -1,16 +1,81 @@
-# React + Vite
+# REDNET HAB Ops Console
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This app is now an operations-oriented frontend for desalination intake monitoring. It is built around a generated payload (`public/ops/ops_payload.json`) that combines:
 
-Currently, two official plugins are available:
+- per-plant inference time series (`deployment/outputs/by_plant/*/inference_all_months.csv`)
+- drift diagnostics (`runs/eval/generalization/generalization_2025_watch055/*`)
+- transport layers (density/envelope/trips GeoJSON)
+- AOI GeoJSON per plant
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## What Changed
 
-## React Compiler
+The old viewer replayed a single `hab_prob` stream with a global time index. The new console now provides:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Fleet risk board with watch/action status per plant
+- Unified threshold policy (watch/action) across map and panels
+- Drift context (overall + plant-level PSI/KS)
+- Plant-level deep dive:
+  - latest risk + cadence + disagreement
+  - trend chart with watch/action lines
+  - monthly regime table
+  - top risk events
+- Map layers:
+  - plant markers
+  - AOI polygons
+  - transport density/envelope/trips
+  - chip overlay if a month-level overlay file exists
 
-## Expanding the ESLint configuration
+## Thresholds Used
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+These are embedded in the generated payload:
+
+- Watch: `0.55`
+- Action: `0.6238688594003279`
+- Legacy refs preserved: `0.3926301481609915`, `0.5327723842346281`
+
+## Build Data Payload
+
+From `rednet-risk-viewer/`:
+
+```bash
+npm run build:ops
+```
+
+This runs:
+
+```bash
+python ../scripts/viewer/build_ops_payload.py --repo_root ..
+```
+
+Outputs are written under:
+
+- `public/ops/ops_payload.json`
+- `public/ops/transport/...`
+- `public/ops/aoi/...`
+
+## Run the Frontend
+
+```bash
+npm install
+npm run dev
+```
+
+For production build:
+
+```bash
+npm run build
+```
+
+## Data Notes
+
+- Chip overlays are loaded from `/public/overlays/osm_way_<id>/<YYYY-MM>_tile_overlay.geojson`.
+- If an overlay does not exist for the selected plant/month, the app keeps transport + AOI + plant layers active and shows a fallback note.
+- Transport layers are copied from deployment outputs during `build:ops`.
+
+## Primary Files
+
+- App shell and state orchestration: `src/App.jsx`
+- Map rendering and DeckGL layers: `src/components/DeckView.jsx`
+- Trend chart: `src/components/TrendChart.jsx`
+- Payload loader: `src/data/loadOpsPayload.js`
+- Payload generation script: `../scripts/viewer/build_ops_payload.py`
