@@ -10,7 +10,7 @@ def calibration_table(y_true, y_prob, bins=10):
 
     df["bin"] = pd.cut(df["p"], bins=bins)
 
-    table = df.groupby("bin").agg(
+    table = df.groupby("bin", observed=False).agg(
         mean_prob=("p", "mean"),
         true_rate=("y", "mean"),
         count=("y", "size")

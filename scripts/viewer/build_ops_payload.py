@@ -161,8 +161,14 @@ def derive_ops_thresholds(
         }
 
     merged = pd.concat(data_frames, ignore_index=True)
-    hab = pd.to_numeric(merged.get("hab_prob"), errors="coerce")
-    ops = pd.to_numeric(merged.get("ops_risk"), errors="coerce")
+    hab = pd.to_numeric(
+        merged["hab_prob"] if "hab_prob" in merged.columns else pd.Series(np.nan, index=merged.index),
+        errors="coerce",
+    )
+    ops = pd.to_numeric(
+        merged["ops_risk"] if "ops_risk" in merged.columns else pd.Series(np.nan, index=merged.index),
+        errors="coerce",
+    )
 
     target_watch_rate = float((hab >= base_watch).mean()) if hab.notna().any() else None
     target_action_rate = float((hab >= base_action).mean()) if hab.notna().any() else None
