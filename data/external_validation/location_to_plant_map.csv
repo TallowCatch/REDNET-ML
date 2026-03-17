@@ -1,0 +1,14 @@
+location_alias,plant_id,notes
+south sharqiyah,1236881046,Regional match for South Sharqiyah coastal events to Sharqiyah plant
+south al sharqiyah,1236881046,Normalized governorate spelling to Sharqiyah plant
+masirah,1236881046,Masirah coastal events map to Sharqiyah plant for AOI-level concordance
+sur,449632054,Direct Sur mapping
+ras al hadd,449632054,Ras Al Hadd is treated as the nearest study plant region via Sur
+qurum,386838289,Qurum coastal events map to Ghubrah plant in Muscat
+seeb,386838289,Seeb coastal events map to Ghubrah plant in Muscat
+muscat,386838289,Generic Muscat coastal event mapping to Ghubrah
+ghubra,386838289,Alternate spelling
+ghubrah,386838289,Plant name spelling
+sharqiyah,1236881046,Generic Sharqiyah alias
+musandam,1079022886,Generic Musandam alias
+khasab,1079022886,Khasab coastal events map to Musandam plant

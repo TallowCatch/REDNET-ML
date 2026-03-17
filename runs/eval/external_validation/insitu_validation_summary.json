@@ -1,0 +1,8 @@
+{
+  "mode": "insitu_validation",
+  "input_csv": "runs/eval/external_validation/matched_insitu_records.csv",
+  "watch_threshold": 0.55,
+  "action_threshold": 0.6238688594,
+  "n_rows": 0,
+  "note": "No in-situ records were available."
+}

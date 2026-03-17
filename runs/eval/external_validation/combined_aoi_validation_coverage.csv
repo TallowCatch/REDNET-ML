@@ -1,0 +1,5 @@
+plant_id,plant_name,strict_events_total,strict_primary_matched,strict_sensitivity_matched,advisory_events_total,advisory_primary_matched,advisory_sensitivity_matched,has_strict_external_support,has_regional_advisory_support,has_any_external_support
+386838289,Ghubrah Desalination Plant,5,4,5,1,1,1,1,1,1
+449632054,Sur Desalination Plant,1,0,0,1,1,1,1,1,1
+1079022886,Musandam Desalination Plant,0,0,0,1,1,1,0,1,1
+1236881046,Sharqiyah Desalination Plant,2,2,2,1,1,1,1,1,1

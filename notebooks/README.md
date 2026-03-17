@@ -1,6 +1,6 @@
 # REDNET-ML — Reproducibility Notebook Suite (v2)
 
-This folder contains **13 Jupyter notebooks** (00 → 12) that reproduce the full REDNET-ML workflow **in the same phases as the codebase**:
+This folder contains **14 Jupyter notebooks** (00 → 13) that reproduce the full REDNET-ML workflow **in the same phases as the codebase**:
 
 1) environment + sanity checks  
 2) AOI + plant AOIs  
@@ -14,6 +14,7 @@ This folder contains **13 Jupyter notebooks** (00 → 12) that reproduce the ful
 10) benchmarking + generalization (recompute AUROC/AUPRC from predictions)  
 11) end‑to‑end monthly inference (S2 + MODIS on-demand) + optional detectors + fusion rerun  
 12) risk-field aggregation + Kepler package + viewer
+13) external validation setup + claim boundaries
 
 > **Design goal**: the notebooks are “no manual arg editing” by:
 > - centralizing paths and parameters in the first cell of each notebook
@@ -63,6 +64,7 @@ Open the notebooks from this folder, using the `rednet-ml` kernel.
 | 10 | `10_generalization_benchmark.ipynb` | loads **`runs/eval/benchmark/labeled_bench_time_2017_2023_vs_2024_diag`** and recomputes AUROC/AUPRC |
 | 11 | `11_end_to_end_inference.ipynb` | per-month inference outputs + merged `inference_all_months.csv` |
 | 12 | `12_risk_field_and_viewer.ipynb` | plant alerts, Kepler package, viewer steps |
+| 13 | `13_external_validation.ipynb` | public event validation, advisory coverage, in-situ schema, and claim boundaries |
 
 ---
 
