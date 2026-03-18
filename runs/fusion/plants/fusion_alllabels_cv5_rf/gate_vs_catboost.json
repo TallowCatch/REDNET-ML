@@ -1,0 +1,38 @@
+{
+  "baseline": {
+    "run_dir": "runs/fusion/plants/fusion_alllabels_cv5_v2",
+    "label_col": "hab_label_final2",
+    "n": 2456,
+    "positives": 658,
+    "pooled_auprc": 0.7353623041182744,
+    "pooled_auroc": 0.8710936839649595,
+    "pooled_precision": 0.8471760797342193,
+    "pooled_recall": 0.38753799392097266
+  },
+  "candidate": {
+    "run_dir": "runs/fusion/plants/fusion_alllabels_cv5_rf",
+    "label_col": "hab_label_final2",
+    "n": 2456,
+    "positives": 658,
+    "pooled_auprc": 0.749373062994052,
+    "pooled_auroc": 0.8800195083358409,
+    "pooled_precision": 0.9438202247191011,
+    "pooled_recall": 0.1276595744680851
+  },
+  "delta": {
+    "pooled_auprc": 0.014010758875777629,
+    "pooled_auroc": 0.008925824370881408,
+    "pooled_precision": 0.09664414498488183,
+    "pooled_recall": -0.2598784194528876
+  },
+  "gate": {
+    "required_auprc_gain": 0.01,
+    "max_precision_drop": 0.02,
+    "max_recall_drop": 0.02,
+    "auprc_pass": true,
+    "auroc_pass": true,
+    "precision_pass": true,
+    "recall_pass": false,
+    "overall_pass": false
+  }
+}
